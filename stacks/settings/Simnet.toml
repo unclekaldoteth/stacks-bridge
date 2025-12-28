@@ -1,0 +1,18 @@
+[network]
+name = "simnet"
+
+[accounts.deployer]
+mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+balance = 10000000000000000
+
+[accounts.wallet_1]
+mnemonic = "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+balance = 10000000000000000
+
+[accounts.wallet_2]
+mnemonic = "legal winner thank year wave sausage worth useful legal winner thank yellow"
+balance = 10000000000000000
+
+[accounts.relayer]
+mnemonic = "letter advice cage absurd amount doctor acoustic avoid letter advice cage above"
+balance = 10000000000000000

@@ -1,0 +1,23 @@
+{
+    "name": "usdc-bridge-burns",
+    "uuid": "9884dd6c-9e9c-4858-9b23-b2f32169d301",
+    "chain": "stacks",
+    "version": 1,
+    "networks": {
+        "testnet": {
+            "if_this": {
+                "scope": "contract_call",
+                "method": "burn",
+                "contract_identifier": "ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc"
+            },
+            "then_that": {
+                "http_post": {
+                    "url": "https://jace-stylistic-renate.ngrok-free.dev/chainhook/burn",
+                    "authorization_header": "Bearer bridge-secret-token"
+                }
+            },
+            "start_block": 3713445,
+            "decode_clarity_values": true
+        }
+    }
+}

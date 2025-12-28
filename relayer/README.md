@@ -1,0 +1,86 @@
+# Base <> Stacks USDC Bridge Relayer
+
+Multi-sig relayer for the Base <> Stacks USDC bridge.
+
+## Architecture
+
+```
+┌─────────────────┐     ┌─────────────────┐
+│   Base Chain    │     │  Stacks Chain   │
+│  (BridgeBase)   │     │  (wrapped-usdc) │
+└────────┬────────┘     └────────┬────────┘
+         │                       │
+         │    ┌───────────┐      │
+         └───►│  Relayer  │◄─────┘
+              │  (2-of-3) │
+              └───────────┘
+```
+
+## Multi-Sig Setup
+
+You need **3 relayer instances** running, each with a different signer key:
+
+- Relayer 1: `SIGNER_INDEX=1`
+- Relayer 2: `SIGNER_INDEX=2`
+- Relayer 3: `SIGNER_INDEX=3`
+
+Any 2 of 3 must approve transactions for execution.
+
+## Setup
+
+1. Copy environment template:
+```bash
+cp .env.example .env
+```
+
+2. Configure `.env`:
+```bash
+# Set deployed contract addresses
+BRIDGE_BASE_ADDRESS=0x...
+STACKS_CONTRACT_ADDRESS=ST...
+
+# Set this relayer's signer keys
+SIGNER_INDEX=1
+SIGNER_PRIVATE_KEY=<evm-private-key>
+STACKS_PRIVATE_KEY=<stacks-private-key>
+```
+
+3. Install dependencies:
+```bash
+npm install
+```
+
+4. Run relayer:
+```bash
+npm start
+```
+
+## Flow
+
+### Deposit (Base → Stacks)
+1. User locks USDC on Base
+2. Relayer detects `Deposit` event
+3. Relayer calls `queue-mint` on Stacks
+4. 2nd relayer calls `approve-mint`
+5. After timelock, any relayer calls `execute-mint`
+
+### Withdraw (Stacks → Base)
+1. User burns xUSDC on Stacks
+2. Relayer detects `burn` print event
+3. Relayer calls `queueRelease` on Base
+4. 2nd relayer calls `approveRelease`
+5. After timelock, any relayer calls `executeRelease`
+
+## Security Features
+
+- **2-of-3 Multi-Sig**: No single point of failure
+- **Rate Limits**: 10K/tx, 50K/hr, 200K/day
+- **Timelock**: Small instant, medium 10min, large 1hr
+- **Emergency Pause**: Any signer can pause
+
+## Commands
+
+```bash
+npm start      # Run relayer
+npm run dev    # Run with auto-reload
+```

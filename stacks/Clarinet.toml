@@ -1,0 +1,43 @@
+[project]
+name = "stacks-bridge-base"
+description = "Base <> Stacks USDC Bridge - SIP-010 xUSDC Token"
+authors = []
+telemetry = false
+cache_dir = "./.cache"
+
+[contracts.sip-010-trait-ft-standard]
+path = "contracts/sip-010-trait-ft-standard.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.dex-adapter-trait]
+path = "contracts/dex-adapter-trait.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.velar-adapter]
+path = "contracts/velar-adapter.clar"
+clarity_version = 2
+epoch = 2.5
+depends_on = ["dex-adapter-trait"]
+
+[contracts.wrapped-usdc]
+path = "contracts/wrapped-usdc.clar"
+clarity_version = 2
+epoch = 2.5
+depends_on = ["sip-010-trait-ft-standard"]
+
+[contracts.wrapped-usdc-v2]
+path = "contracts/wrapped-usdc-v2.clar"
+clarity_version = 2
+epoch = 2.5
+depends_on = ["sip-010-trait-ft-standard"]
+
+[repl.analysis]
+passes = ["check_checker"]
+
+[repl.analysis.check_checker]
+strict = false
+trusted_sender = false
+trusted_caller = false
+callee_filter = false

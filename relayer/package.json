@@ -1,0 +1,20 @@
+{
+    "name": "stacks-bridge-relayer",
+    "version": "1.0.0",
+    "description": "Base <> Stacks USDC Bridge Relayer with Chainhook Support",
+    "type": "module",
+    "main": "src/index.js",
+    "scripts": {
+        "start": "node src/index.js",
+        "dev": "node --watch src/index.js",
+        "webhook": "node src/webhook-server.js"
+    },
+    "dependencies": {
+        "@stacks/network": "^6.13.0",
+        "@stacks/transactions": "^6.13.0",
+        "@stacks/wallet-sdk": "^7.2.0",
+        "dotenv": "^16.3.1",
+        "express": "^4.18.2",
+        "viem": "^2.21.0"
+    }
+}

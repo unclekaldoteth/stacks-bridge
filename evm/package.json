@@ -1,0 +1,17 @@
+{
+  "name": "stacks-bridge-base-evm",
+  "version": "1.0.0",
+  "description": "Base <> Stacks USDC Bridge - EVM Contracts",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:testnet": "hardhat run scripts/deploy.js --network baseSepolia",
+    "verify": "hardhat verify --network baseSepolia"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@openzeppelin/contracts": "^5.0.0",
+    "dotenv": "^16.3.1",
+    "hardhat": "^2.19.0"
+  }
+}

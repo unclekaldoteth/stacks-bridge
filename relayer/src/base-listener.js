@@ -1,0 +1,219 @@
+/**
+ * Base Chain Listener - Monitors Deposit events and pending releases
+ */
+
+import { createPublicClient, createWalletClient, http } from 'viem';
+import { baseSepolia, base } from 'viem/chains';
+import { privateKeyToAccount } from 'viem/accounts';
+import { BASE_CONFIG, BRIDGE_BASE_ABI, SIGNER_CONFIG, IS_MAINNET, POLLING } from './config.js';
+
+// Create clients
+const chain = IS_MAINNET ? base : baseSepolia;
+
+export const publicClient = createPublicClient({
+    chain,
+    transport: http(BASE_CONFIG.rpcUrl),
+});
+
+let walletClient = null;
+
+export function initWalletClient() {
+    if (!SIGNER_CONFIG.evmPrivateKey) {
+        throw new Error('SIGNER_PRIVATE_KEY not configured');
+    }
+
+    // Normalize private key - ensure it has 0x prefix
+    let privateKey = SIGNER_CONFIG.evmPrivateKey.trim();
+    if (!privateKey.startsWith('0x')) {
+        privateKey = `0x${privateKey}`;
+    }
+
+    const account = privateKeyToAccount(privateKey);
+
+    walletClient = createWalletClient({
+        account,
+        chain,
+        transport: http(BASE_CONFIG.rpcUrl),
+    });
+
+    console.log(`🔑 Base Signer: ${account.address}`);
+    return account.address;
+}
+
+// Track processed events to avoid duplicates
+const processedDeposits = new Set();
+
+/**
+ * Watch for Deposit events
+ */
+export function watchDeposits(onDeposit) {
+    console.log('👀 Watching for Base Deposit events...');
+
+    const unwatch = publicClient.watchContractEvent({
+        address: BASE_CONFIG.bridgeAddress,
+        abi: BRIDGE_BASE_ABI,
+        eventName: 'Deposit',
+        onLogs: (logs) => {
+            for (const log of logs) {
+                const eventId = `${log.transactionHash}-${log.logIndex}`;
+
+                if (processedDeposits.has(eventId)) continue;
+                processedDeposits.add(eventId);
+
+                const { from, amount, stacksAddress, timestamp } = log.args;
+
+                console.log('\n📥 New Deposit Detected:');
+                console.log(`   From: ${from}`);
+                console.log(`   Amount: ${Number(amount) / 1e6} USDC`);
+                console.log(`   To Stacks: ${stacksAddress}`);
+                console.log(`   TX: ${log.transactionHash}`);
+
+                onDeposit({
+                    from,
+                    amount,
+                    stacksAddress,
+                    timestamp,
+                    txHash: log.transactionHash,
+                    blockNumber: log.blockNumber,
+                });
+            }
+        },
+        onError: (error) => {
+            console.error('❌ Error watching deposits:', error.message);
+        },
+    });
+
+    return unwatch;
+}
+
+/**
+ * Queue a release on Base (for burns on Stacks)
+ */
+export async function queueRelease(receiver, amount) {
+    if (!walletClient) {
+        throw new Error('Wallet client not initialized');
+    }
+
+    console.log(`\n🔐 Queuing release on Base:`);
+    console.log(`   Receiver: ${receiver}`);
+    console.log(`   Amount: ${Number(amount) / 1e6} USDC`);
+
+    try {
+        const hash = await walletClient.writeContract({
+            address: BASE_CONFIG.bridgeAddress,
+            abi: BRIDGE_BASE_ABI,
+            functionName: 'queueRelease',
+            args: [receiver, amount],
+        });
+
+        console.log(`   TX Hash: ${hash}`);
+
+        // Wait for confirmation
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+        // Extract releaseId from ReleaseQueued event
+        const releaseQueuedLog = receipt.logs.find(log => {
+            try {
+                return log.topics[0] === '0x...' // ReleaseQueued topic
+            } catch {
+                return false;
+            }
+        });
+
+        console.log(`   ✅ Release queued in block ${receipt.blockNumber}`);
+
+        return { hash, receipt };
+    } catch (error) {
+        console.error(`   ❌ Failed to queue release:`, error.message);
+        throw error;
+    }
+}
+
+/**
+ * Approve a pending release
+ */
+export async function approveRelease(releaseId) {
+    if (!walletClient) {
+        throw new Error('Wallet client not initialized');
+    }
+
+    console.log(`\n✍️ Approving release #${releaseId}...`);
+
+    try {
+        const hash = await walletClient.writeContract({
+            address: BASE_CONFIG.bridgeAddress,
+            abi: BRIDGE_BASE_ABI,
+            functionName: 'approveRelease',
+            args: [releaseId],
+        });
+
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+        console.log(`   ✅ Approved in block ${receipt.blockNumber}`);
+
+        return { hash, receipt };
+    } catch (error) {
+        console.error(`   ❌ Failed to approve:`, error.message);
+        throw error;
+    }
+}
+
+/**
+ * Execute a release after timelock
+ */
+export async function executeRelease(releaseId) {
+    if (!walletClient) {
+        throw new Error('Wallet client not initialized');
+    }
+
+    console.log(`\n🚀 Executing release #${releaseId}...`);
+
+    try {
+        const hash = await walletClient.writeContract({
+            address: BASE_CONFIG.bridgeAddress,
+            abi: BRIDGE_BASE_ABI,
+            functionName: 'executeRelease',
+            args: [releaseId],
+        });
+
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+        console.log(`   ✅ Executed in block ${receipt.blockNumber}`);
+
+        return { hash, receipt };
+    } catch (error) {
+        console.error(`   ❌ Failed to execute:`, error.message);
+        throw error;
+    }
+}
+
+/**
+ * Get release info
+ */
+export async function getReleaseInfo(releaseId) {
+    const result = await publicClient.readContract({
+        address: BASE_CONFIG.bridgeAddress,
+        abi: BRIDGE_BASE_ABI,
+        functionName: 'getReleaseInfo',
+        args: [releaseId],
+    });
+
+    return {
+        receiver: result[0],
+        amount: result[1],
+        executeAfter: result[2],
+        approvalCount: result[3],
+        executed: result[4],
+        cancelled: result[5],
+    };
+}
+
+/**
+ * Check if address is signer
+ */
+export async function checkIsSigner(address) {
+    return await publicClient.readContract({
+        address: BASE_CONFIG.bridgeAddress,
+        abi: BRIDGE_BASE_ABI,
+        functionName: 'isSigner',
+        args: [address],
+    });
+}

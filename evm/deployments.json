@@ -1,0 +1,23 @@
+{
+  "network": "baseSepolia",
+  "bridgeAddress": "0x06c6Fd0afa92062FE76DE72DA5EC7a63Ba01F6FC",
+  "usdcAddress": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+  "signers": [
+    "0x776beEaDe7115Bd870C1344Fec02eF31758C319E",
+    "0x8914208F448069C1b354482084371aC63F7256f3",
+    "0x37EC4fd04E0454456F270423f430532Db58dafC1"
+  ],
+  "requiredSignatures": 2,
+  "rateLimits": {
+    "maxPerTx": "10000 USDC",
+    "hourlyLimit": "50000 USDC",
+    "dailyLimit": "200000 USDC"
+  },
+  "timelockDelays": {
+    "small": "0 (instant)",
+    "medium": "10 minutes",
+    "large": "1 hour"
+  },
+  "deployedAt": "2025-12-27T17:00:07.835Z",
+  "deployer": "0x776beEaDe7115Bd870C1344Fec02eF31758C319E"
+}

@@ -44,7 +44,7 @@ See [ROADMAP.md](./ROADMAP.md) for full details.
 
 - Node.js 18+
 - [Clarinet](https://github.com/hirosystems/clarinet) 3.11+
-- [WalletConnect Project ID](https://cloud.walletconnect.com/) (free)
+- [WalletConnect Project ID](https://dashboard.walletconnect.com/d64c6ad1-c703-4932-80c1-29dfec5e6c1a/4c25005f-99c3-40a3-a74a-064aaccfd863/domain) (free)
 - Stacks wallet (Leather or Xverse)
 - MetaMask (for Base)
 

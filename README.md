@@ -249,6 +249,7 @@ CONTRACT_NAME=wrapped-usdc-v4
 - React
 - TypeScript
 - @stacks/connect
+- WalletConnect
 - Wagmi
 
 ---

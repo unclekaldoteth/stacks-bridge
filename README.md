@@ -293,11 +293,26 @@ CONTRACT_NAME=wrapped-usdc-v4
 
 ## Contributing
 
-Contributions are welcome.
+We welcome contributions from the community! This project aims to provide cheaper USDC bridging by using Base L2 instead of Ethereum L1.
 
-1. Fork the repository
-2. Create a feature branch
-3. Submit a pull request with clear description
+### Quick Links
+
+- [CONTRIBUTING.md](./CONTRIBUTING.md) - Contribution guidelines
+- [ROADMAP.md](./ROADMAP.md) - Project roadmap and priorities
+- [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) - Community standards
+
+### Good First Issues
+
+- Add unit tests for Clarity contracts
+- Improve error handling in relayer
+- Add transaction history UI component
+- Document API endpoints
+
+### Priority Contributions Needed
+
+1. **USDCx Integration** - Help integrate with official Stacks USDCx via DEX swap
+2. **Testing** - Unit and integration tests for all components
+3. **Security** - Code review and vulnerability assessment
 
 For major changes, please open an issue first to discuss the proposed change.
 

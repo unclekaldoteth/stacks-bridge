@@ -16,7 +16,7 @@ import { generateWallet } from '@stacks/wallet-sdk';
 
 const network = new StacksTestnet();
 const CONTRACT_ADDRESS = 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM';
-const CONTRACT_NAME = 'wrapped-usdc-v2';
+const CONTRACT_NAME = 'wrapped-usdc-v3';
 const mintId = parseInt(process.argv[2]) || 0;
 
 async function main() {

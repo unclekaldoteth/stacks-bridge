@@ -45,6 +45,9 @@ start_height = 122
 [network.epoch_3_0]
 start_height = 126
 
+[network.epoch_3_3]
+start_height = 130
+
 [accounts.deployer]
 mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
 balance = 10000000000000000

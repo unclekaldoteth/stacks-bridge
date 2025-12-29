@@ -1,15 +1,13 @@
-;; wrapped-usdc.clar
+;; wrapped-usdc-v4.clar
 ;; SIP-010 compliant wrapped USDC with Multi-Sig, Rate Limiting, and Timelock
-;;
+;; 
 ;; CLARITY 4 FEATURES USED:
-;;   - stacks-block-height: Block height for timelocks
-;;   - current-contract: Contract principal reference
-;;   - as-contract?: Secure context switching with asset allowances
+;;   - stacks-block-time: Proper time-based timelocks (not block-based)
 ;;
 ;; Security layers:
-;;   1. Multi-sig (2-of-3) for minting
+;;   1. Multi-sig (2-of-3) for minting - REDUCED TO 1 FOR TESTNET
 ;;   2. Rate limiting (per-tx, hourly, daily caps)
-;;   3. Timelock for large mints
+;;   3. Time-based timelock for large mints (using stacks-block-time)
 ;;   4. Emergency pause
 
 ;; ============================================
@@ -40,12 +38,12 @@
 (define-constant HOURLY-LIMIT u50000000000)     ;; 50,000 USDC
 (define-constant DAILY-LIMIT u200000000000)     ;; 200,000 USDC
 
-;; Timelock thresholds (Clarity 4: using stacks-block-height)
+;; Timelock thresholds (Clarity 4: using time-based delays in seconds)
 (define-constant SMALL-TX-THRESHOLD u1000000000)   ;; 1,000 USDC - instant
-(define-constant MEDIUM-TX-THRESHOLD u10000000000) ;; 10,000 USDC - 10 blocks
-(define-constant SMALL-DELAY u0)
-(define-constant MEDIUM-DELAY u10)    ;; ~10 blocks
-(define-constant LARGE-DELAY u60)     ;; ~60 blocks (~1 hour on Stacks)
+(define-constant MEDIUM-TX-THRESHOLD u10000000000) ;; 10,000 USDC - 10 min delay
+(define-constant SMALL-DELAY u0)           ;; 0 seconds - instant
+(define-constant MEDIUM-DELAY u600)        ;; 600 seconds = 10 minutes
+(define-constant LARGE-DELAY u3600)        ;; 3600 seconds = 1 hour
 
 ;; Error codes
 (define-constant ERR-NOT-AUTHORIZED (err u401))
@@ -161,8 +159,8 @@
     (
       (mint-id (var-get mint-nonce))
       (delay (get-delay-for-amount amount))
-      ;; Clarity 4: Use stacks-block-height for block-based timelocks
-      (execute-after (+ stacks-block-height delay))
+      ;; Clarity 4: Use stacks-block-time for time-based timelocks
+      (execute-after (+ stacks-block-time delay))
     )
     ;; Checks
     (asserts! (not (var-get paused)) ERR-PAUSED)
@@ -240,8 +238,8 @@
     (asserts! (not (var-get paused)) ERR-PAUSED)
     (asserts! (not (get executed mint-data)) ERR-ALREADY-EXECUTED)
     (asserts! (not (get cancelled mint-data)) ERR-ALREADY-CANCELLED)
-    ;; Clarity 4: Use stacks-block-height for block-based timelocks
-    (asserts! (>= stacks-block-height (get execute-after mint-data)) ERR-TIMELOCK-NOT-EXPIRED)
+    ;; Clarity 4: Check time-based timelock using stacks-block-time
+    (asserts! (>= stacks-block-time (get execute-after mint-data)) ERR-TIMELOCK-NOT-EXPIRED)
     (asserts! (>= (get approval-count mint-data) REQUIRED-SIGNATURES) ERR-INSUFFICIENT-APPROVALS)
     
     ;; Mark as executed
@@ -274,8 +272,8 @@
     (asserts! (not (var-get paused)) ERR-PAUSED)
     (asserts! (not (get executed mint-data)) ERR-ALREADY-EXECUTED)
     (asserts! (not (get cancelled mint-data)) ERR-ALREADY-CANCELLED)
-    ;; Clarity 4: Use stacks-block-height for block-based timelocks
-    (asserts! (>= stacks-block-height (get execute-after mint-data)) ERR-TIMELOCK-NOT-EXPIRED)
+    ;; Clarity 4: Check time-based timelock
+    (asserts! (>= stacks-block-time (get execute-after mint-data)) ERR-TIMELOCK-NOT-EXPIRED)
     (asserts! (>= (get approval-count mint-data) REQUIRED-SIGNATURES) ERR-INSUFFICIENT-APPROVALS)
     
     ;; Check DEX is configured
@@ -398,7 +396,6 @@
   (begin
     (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
     (var-set token-uri new-uri)
-    ;; Clarity 4: Use current-contract for contract principal reference
     (print {notification: "token-metadata-update", payload: {token-class: "ft", contract-id: current-contract}})
     (ok true)))
 

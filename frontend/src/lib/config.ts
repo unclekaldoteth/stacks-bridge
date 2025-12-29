@@ -10,7 +10,7 @@ export const config = {
             usdc: '0x036CbD53842c5426634e7929541eC2318f3dCF7e', // Base Sepolia USDC
         },
         stacks: {
-            wrappedUsdc: 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc-v2',
+            wrappedUsdc: 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc-v3',
         },
     },
 

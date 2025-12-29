@@ -7,30 +7,42 @@ cache_dir = "./.cache"
 
 [contracts.sip-010-trait-ft-standard]
 path = "contracts/sip-010-trait-ft-standard.clar"
-clarity_version = 2
-epoch = 2.5
+clarity_version = 4
+epoch = 3.3
 
 [contracts.dex-adapter-trait]
 path = "contracts/dex-adapter-trait.clar"
-clarity_version = 2
-epoch = 2.5
+clarity_version = 4
+epoch = 3.3
 
 [contracts.velar-adapter]
 path = "contracts/velar-adapter.clar"
-clarity_version = 2
-epoch = 2.5
+clarity_version = 4
+epoch = 3.3
 depends_on = ["dex-adapter-trait"]
 
 [contracts.wrapped-usdc]
 path = "contracts/wrapped-usdc.clar"
-clarity_version = 2
-epoch = 2.5
+clarity_version = 4
+epoch = 3.3
 depends_on = ["sip-010-trait-ft-standard"]
 
 [contracts.wrapped-usdc-v2]
 path = "contracts/wrapped-usdc-v2.clar"
-clarity_version = 2
-epoch = 2.5
+clarity_version = 4
+epoch = 3.3
+depends_on = ["sip-010-trait-ft-standard"]
+
+[contracts.wrapped-usdc-v3]
+path = "contracts/wrapped-usdc-v3.clar"
+clarity_version = 4
+epoch = 3.3
+depends_on = ["sip-010-trait-ft-standard"]
+
+[contracts.wrapped-usdc-v4]
+path = "contracts/wrapped-usdc-v4.clar"
+clarity_version = 4
+epoch = 3.3
 depends_on = ["sip-010-trait-ft-standard"]
 
 [repl.analysis]

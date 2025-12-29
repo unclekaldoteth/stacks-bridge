@@ -1,0 +1,287 @@
+warning: use of potentially unchecked data
+--> contracts/velar-adapter.clar:35:34
+    (var-set velar-pool-contract pool)
+                                 ^~~~
+note:: source of untrusted input here
+(define-public (set-pool-contract (pool principal))
+                                   ^~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc.clar:126:45
+    (try! (ft-transfer? xUSDC amount sender recipient))
+                                            ^~~~~~~~~
+note:: source of untrusted input here
+    (recipient principal) 
+     ^~~~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc.clar:171:18
+      recipient: recipient,
+                 ^~~~~~~~~
+note:: source of untrusted input here
+(define-public (queue-mint (recipient principal) (amount uint))
+                            ^~~~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc.clar:344:25
+    (map-set signers u0 signer1)
+                        ^~~~~~~
+note:: source of untrusted input here
+(define-public (initialize-signers (signer1 principal) (signer2 principal) (signer3 principal))
+                                    ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc.clar:345:25
+    (map-set signers u1 signer2)
+                        ^~~~~~~
+note:: source of untrusted input here
+(define-public (initialize-signers (signer1 principal) (signer2 principal) (signer3 principal))
+                                                        ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc.clar:346:25
+    (map-set signers u2 signer3)
+                        ^~~~~~~
+note:: source of untrusted input here
+(define-public (initialize-signers (signer1 principal) (signer2 principal) (signer3 principal))
+                                                                            ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc.clar:347:24
+    (map-set is-signer signer1 true)
+                       ^~~~~~~
+note:: source of untrusted input here
+(define-public (initialize-signers (signer1 principal) (signer2 principal) (signer3 principal))
+                                    ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc.clar:348:24
+    (map-set is-signer signer2 true)
+                       ^~~~~~~
+note:: source of untrusted input here
+(define-public (initialize-signers (signer1 principal) (signer2 principal) (signer3 principal))
+                                                        ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc.clar:349:24
+    (map-set is-signer signer3 true)
+                       ^~~~~~~
+note:: source of untrusted input here
+(define-public (initialize-signers (signer1 principal) (signer2 principal) (signer3 principal))
+                                                                            ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc.clar:390:24
+    (var-set token-uri new-uri)
+                       ^~~~~~~
+note:: source of untrusted input here
+(define-public (set-token-uri (new-uri (optional (string-utf8 256))))
+                               ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc.clar:398:35
+    (var-set dex-adapter-contract (some adapter))
+                                  ^~~~~~~~~~~~~~
+note:: source of untrusted input here
+(define-public (set-dex-adapter (adapter principal))
+                                 ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc.clar:414:29
+    (var-set usdcx-contract usdcx-address)
+                            ^~~~~~~~~~~~~
+note:: source of untrusted input here
+(define-public (set-usdcx-contract (usdcx-address principal))
+                                    ^~~~~~~~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v2.clar:126:45
+    (try! (ft-transfer? xUSDC amount sender recipient))
+                                            ^~~~~~~~~
+note:: source of untrusted input here
+    (recipient principal) 
+     ^~~~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v2.clar:171:18
+      recipient: recipient,
+                 ^~~~~~~~~
+note:: source of untrusted input here
+(define-public (queue-mint (recipient principal) (amount uint))
+                            ^~~~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v2.clar:344:25
+    (map-set signers u0 signer1)
+                        ^~~~~~~
+note:: source of untrusted input here
+(define-public (initialize-signers (signer1 principal) (signer2 principal) (signer3 principal))
+                                    ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v2.clar:345:25
+    (map-set signers u1 signer2)
+                        ^~~~~~~
+note:: source of untrusted input here
+(define-public (initialize-signers (signer1 principal) (signer2 principal) (signer3 principal))
+                                                        ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v2.clar:346:25
+    (map-set signers u2 signer3)
+                        ^~~~~~~
+note:: source of untrusted input here
+(define-public (initialize-signers (signer1 principal) (signer2 principal) (signer3 principal))
+                                                                            ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v2.clar:347:24
+    (map-set is-signer signer1 true)
+                       ^~~~~~~
+note:: source of untrusted input here
+(define-public (initialize-signers (signer1 principal) (signer2 principal) (signer3 principal))
+                                    ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v2.clar:348:24
+    (map-set is-signer signer2 true)
+                       ^~~~~~~
+note:: source of untrusted input here
+(define-public (initialize-signers (signer1 principal) (signer2 principal) (signer3 principal))
+                                                        ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v2.clar:349:24
+    (map-set is-signer signer3 true)
+                       ^~~~~~~
+note:: source of untrusted input here
+(define-public (initialize-signers (signer1 principal) (signer2 principal) (signer3 principal))
+                                                                            ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v2.clar:390:24
+    (var-set token-uri new-uri)
+                       ^~~~~~~
+note:: source of untrusted input here
+(define-public (set-token-uri (new-uri (optional (string-utf8 256))))
+                               ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v2.clar:398:35
+    (var-set dex-adapter-contract (some adapter))
+                                  ^~~~~~~~~~~~~~
+note:: source of untrusted input here
+(define-public (set-dex-adapter (adapter principal))
+                                 ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v2.clar:414:29
+    (var-set usdcx-contract usdcx-address)
+                            ^~~~~~~~~~~~~
+note:: source of untrusted input here
+(define-public (set-usdcx-contract (usdcx-address principal))
+                                    ^~~~~~~~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v3.clar:126:45
+    (try! (ft-transfer? xUSDC amount sender recipient))
+                                            ^~~~~~~~~
+note:: source of untrusted input here
+    (recipient principal) 
+     ^~~~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v3.clar:171:18
+      recipient: recipient,
+                 ^~~~~~~~~
+note:: source of untrusted input here
+(define-public (queue-mint (recipient principal) (amount uint))
+                            ^~~~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v3.clar:344:25
+    (map-set signers u0 signer1)
+                        ^~~~~~~
+note:: source of untrusted input here
+(define-public (initialize-signers (signer1 principal) (signer2 principal) (signer3 principal))
+                                    ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v3.clar:345:25
+    (map-set signers u1 signer2)
+                        ^~~~~~~
+note:: source of untrusted input here
+(define-public (initialize-signers (signer1 principal) (signer2 principal) (signer3 principal))
+                                                        ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v3.clar:346:25
+    (map-set signers u2 signer3)
+                        ^~~~~~~
+note:: source of untrusted input here
+(define-public (initialize-signers (signer1 principal) (signer2 principal) (signer3 principal))
+                                                                            ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v3.clar:347:24
+    (map-set is-signer signer1 true)
+                       ^~~~~~~
+note:: source of untrusted input here
+(define-public (initialize-signers (signer1 principal) (signer2 principal) (signer3 principal))
+                                    ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v3.clar:348:24
+    (map-set is-signer signer2 true)
+                       ^~~~~~~
+note:: source of untrusted input here
+(define-public (initialize-signers (signer1 principal) (signer2 principal) (signer3 principal))
+                                                        ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v3.clar:349:24
+    (map-set is-signer signer3 true)
+                       ^~~~~~~
+note:: source of untrusted input here
+(define-public (initialize-signers (signer1 principal) (signer2 principal) (signer3 principal))
+                                                                            ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v3.clar:390:24
+    (var-set token-uri new-uri)
+                       ^~~~~~~
+note:: source of untrusted input here
+(define-public (set-token-uri (new-uri (optional (string-utf8 256))))
+                               ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v3.clar:398:35
+    (var-set dex-adapter-contract (some adapter))
+                                  ^~~~~~~~~~~~~~
+note:: source of untrusted input here
+(define-public (set-dex-adapter (adapter principal))
+                                 ^~~~~~~
+warning: use of potentially unchecked data
+--> contracts/wrapped-usdc-v3.clar:414:29
+    (var-set usdcx-contract usdcx-address)
+                            ^~~~~~~~~~~~~
+note:: source of untrusted input here
+(define-public (set-usdcx-contract (usdcx-address principal))
+                                    ^~~~~~~~~~~~~
+error: as-contract? expects a list of asset allowances as argument 1
+--> contracts/wrapped-usdc-v4.clar:265:4
+  (let
+   ^~~
+    (
+      (mint-data (unwrap! (map-get? pending-mints mint-id) ERR-NOT-FOUND))
+      (amount (get amount mint-data))
+      (recipient (get recipient mint-data))
+    ^
+    (asserts! (not (var-get paused)) ERR-PAUSED)
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    (asserts! (not (get executed mint-data)) ERR-ALREADY-EXECUTED)
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    (asserts! (not (get cancelled mint-data)) ERR-ALREADY-CANCELLED)
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    (asserts! (>= stacks-block-time (get execute-after mint-data)) ERR-TIMELOCK-NOT-EXPIRED)
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    (asserts! (>= (get approval-count mint-data) REQUIRED-SIGNATURES) ERR-INSUFFICIENT-APPROVALS)
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    (asserts! (var-get auto-swap-enabled) ERR-DEX-NOT-CONFIGURED)
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    (map-set pending-mints mint-id (merge mint-data {executed: true}))
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    (try! (ft-mint? xUSDC amount (unwrap-panic (as-contract? with-all-assets-unsafe (ok tx-sender)))))
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    (print {
+      event: "mint-and-swap-requested",
+      mint-id: mint-id,
+      recipient: recipient,
+      xusdc-amount: amount,
+      min-usdcx-out: min-usdcx-out
+    ^
+    (ok true)))
+    ^~~~~~~~~
+! 34 warnings detected
+x 1 error detected
+
+----------------------------
+Hint: what's next?
+Once you are ready to write TypeScript unit tests for your contract, run the following command:
+
+  $ npm install
+  $ npm test
+    Run all run tests in the ./tests folder.
+
+Find more information on testing with Clarinet here: https://docs.hiro.so/stacks/clarinet-js-sdk
+These hints can be disabled in the ~/.clarinet/clarinetrc.toml file.
+  $ mkdir -p ~/.clarinet; echo "enable_hints = false" >> ~/.clarinet/clarinetrc.toml
+----------------------------

@@ -1,18 +1,20 @@
-# Base to Stacks USDC Bridge
+# Stacks Bridge Base
 
-**A decentralized, trustless bridge for transferring USDC between Base (Ethereum L2) and Stacks (Bitcoin L2).**  
-**Built with Solidity, Clarity, and a multi-signature relayer architecture.**
+A decentralized bridge for transferring USDC between Base (Ethereum L2) and Stacks (Bitcoin L2). Built with Clarity 4 smart contracts, Solidity, and a multi-signature relayer architecture.
 
-The Base-Stacks Bridge enables seamless cross-chain USDC transfers, allowing users to bridge USDC from Base to receive xUSDC (wrapped USDC) on Stacks, and vice versa. Built for security-first with multi-signature validation, timelocked withdrawals, and rate limiting.
+Stacks Bridge Base enables seamless cross-chain USDC transfers, allowing users to bridge USDC from Base to receive xUSDC (wrapped USDC) on Stacks, and vice versa. Built for security-first with multi-signature validation, timelocked withdrawals, and rate limiting.
 
 ---
 
-## Why This Bridge?
+## Why Stacks Bridge Base?
 
-Stacks lacks native USDC liquidity. Users who want to participate in the Stacks DeFi ecosystem must navigate complex bridging solutions with limited support.
+Stacks currently lacks native USDC liquidity. Users who want to participate in the Stacks DeFi ecosystem must navigate complex bridging solutions with limited support.
 
-**This bridge solves that problem.**  
-Deposit USDC on Base, receive xUSDC on Stacks within minutes. Burn xUSDC on Stacks, receive USDC back on Base. All trustlessly validated by a decentralized multi-sig relayer network.
+This bridge solves that problem by providing:
+- Direct USDC bridging from Base to Stacks
+- SIP-010 compliant xUSDC token on Stacks
+- Integration with Velar DEX for xUSDC to USDCx swaps
+- Multi-signature security with timelocked transactions
 
 ---
 
@@ -33,7 +35,7 @@ Deposit USDC on Base, receive xUSDC on Stacks within minutes. Burn xUSDC on Stac
 - Immutable on-chain audit trail
 
 ### For Developers
-- Open-source smart contracts (Solidity + Clarity)
+- Open-source smart contracts (Solidity + Clarity 4)
 - Modular relayer architecture
 - REST API for integration
 - Event-driven webhook support via Hiro Chainhooks
@@ -42,33 +44,49 @@ Deposit USDC on Base, receive xUSDC on Stacks within minutes. Burn xUSDC on Stac
 
 ## Architecture Overview
 
+### Smart Contracts (Clarity 4)
+
+- **wrapped-usdc.clar**
+  SIP-010 compliant xUSDC token with multi-signature mint/burn and timelock security.
+
+- **wrapped-usdc-v4.clar**
+  Enhanced version with Clarity 4 features including `stacks-block-time` for time-based timelocks.
+
+- **dex-adapter-trait.clar**
+  Generic DEX integration interface for modular swap support.
+
+- **velar-adapter.clar**
+  Velar DEX adapter for xUSDC to USDCx swaps.
+
 ```
-    BASE (EVM)                    STACKS (Bitcoin L2)
-    ┌─────────────┐               ┌─────────────────┐
-    │ BridgeBase  │               │  wrapped-usdc   │
-    │ (Solidity)  │               │   (Clarity)     │
-    └──────┬──────┘               └────────┬────────┘
-           │                               │
-           │      ┌─────────────────┐      │
-           └──────┤    RELAYER      ├──────┘
-                  │  (Multi-Sig)    │
-                  │                 │
-                  │ • Event Watcher │
-                  │ • Tx Submitter  │
-                  │ • Approval Flow │
-                  └─────────────────┘
+stacks-bridge-base/
+├── evm/                          # Solidity contracts for Base
+│   ├── contracts/
+│   │   └── BridgeBase.sol
+│   └── hardhat.config.js
+├── stacks/                       # Clarity contracts for Stacks
+│   ├── contracts/
+│   │   ├── wrapped-usdc.clar         # Main xUSDC token
+│   │   ├── wrapped-usdc-v2.clar      # V2 iteration
+│   │   ├── wrapped-usdc-v3.clar      # V3 iteration
+│   │   ├── wrapped-usdc-v4.clar      # Clarity 4 with time-based timelocks
+│   │   ├── sip-010-trait-ft-standard.clar
+│   │   ├── dex-adapter-trait.clar
+│   │   └── velar-adapter.clar
+│   ├── settings/
+│   │   └── Devnet.toml
+│   └── Clarinet.toml
+├── relayer/                      # Node.js relayer service
+│   └── src/
+│       ├── index.js
+│       ├── config.js
+│       ├── base-listener.js
+│       └── stacks-handler.js
+└── frontend/                     # Next.js web interface
+    └── src/
+        ├── app/
+        └── components/
 ```
-
-### Smart Contracts
-
-**Base (Solidity)**
-- `BridgeBase.sol` - Handles USDC deposits, queues releases, manages multi-sig approvals
-- Uses OpenZeppelin's SafeERC20 for secure token handling
-
-**Stacks (Clarity)**
-- `wrapped-usdc.clar` - SIP-010 compliant xUSDC token with multi-sig mint/burn
-- `dex-adapter-trait.clar` - Generic DEX integration interface
-- `velar-adapter.clar` - Velar DEX adapter for USDCx swaps
 
 ### Relayer Service
 
@@ -76,68 +94,6 @@ Deposit USDC on Base, receive xUSDC on Stacks within minutes. Burn xUSDC on Stac
 - Watches Base for Deposit events
 - Queues mints on Stacks with multi-sig validation
 - Handles approval flow and execution
-
----
-
-## How It Works
-
-### Bridge: Base to Stacks
-
-1. User calls `deposit()` on BridgeBase contract with USDC amount and Stacks address
-2. USDC is locked in the bridge contract
-3. Relayer detects the Deposit event
-4. Relayer calls `queue-mint` on Stacks contract
-5. Signers approve the mint (2-of-3 required)
-6. After timelock expires, `execute-mint` mints xUSDC to user
-
-### Bridge: Stacks to Base
-
-1. User calls `burn` on wrapped-usdc contract with amount and Base address
-2. xUSDC is burned
-3. Relayer detects the Burn event
-4. Relayer calls `queueRelease` on BridgeBase contract
-5. Signers approve the release (2-of-3 required)
-6. After timelock expires, USDC is released to user on Base
-
----
-
-## Project Structure
-
-```
-stacks-bridge-base/
-├── evm/                    # Solidity contracts for Base
-│   ├── contracts/
-│   │   └── BridgeBase.sol
-│   ├── scripts/
-│   │   └── deploy.js
-│   └── hardhat.config.js
-│
-├── stacks/                 # Clarity contracts for Stacks
-│   ├── contracts/
-│   │   ├── wrapped-usdc.clar
-│   │   ├── wrapped-usdc-v2.clar
-│   │   ├── sip-010-trait-ft-standard.clar
-│   │   ├── dex-adapter-trait.clar
-│   │   └── velar-adapter.clar
-│   └── Clarinet.toml
-│
-├── relayer/                # Node.js relayer service
-│   ├── src/
-│   │   ├── index.js
-│   │   ├── config.js
-│   │   ├── base-listener.js
-│   │   └── stacks-handler.js
-│   └── scripts/
-│       ├── initialize-signers.js
-│       └── approve-execute-v2.js
-│
-└── frontend/               # Next.js web interface
-    ├── src/
-    │   ├── app/
-    │   ├── components/
-    │   └── lib/
-    └── package.json
-```
 
 ---
 
@@ -151,140 +107,192 @@ stacks-bridge-base/
 | Stacks Testnet | wrapped-usdc | `ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc` |
 | Stacks Testnet | wrapped-usdc-v2 | `ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc-v2` |
 
+### Deployment Details
+
+- **Clarity Version:** 4
+- **Epoch:** 3.3
+- **Clarinet Version:** 3.11.0
+
 ---
 
-## Getting Started
+## Smart Contract Functions
+
+### wrapped-usdc
+
+| Function | Description |
+|----------|-------------|
+| `queue-mint` | Queue a mint with timelock (signer only) |
+| `approve-mint` | Approve a pending mint (signer only) |
+| `execute-mint` | Execute approved mint after timelock |
+| `burn` | Burn xUSDC to withdraw on Base |
+| `transfer` | Standard SIP-010 transfer |
+
+### Admin Functions
+
+| Function | Description |
+|----------|-------------|
+| `initialize-signers` | Set up multi-sig signers (owner only) |
+| `pause` | Emergency pause (any signer) |
+| `unpause` | Resume operations (owner only) |
+| `set-dex-adapter` | Configure DEX for swaps |
+| `set-auto-swap-enabled` | Toggle auto-swap feature |
+
+---
+
+## Quick Start
 
 ### Prerequisites
 
 - Node.js 18+
+- Clarinet 3.11+
 - Hardhat (for EVM deployment)
-- Clarinet (for Stacks deployment)
-- A Base Sepolia RPC (Alchemy recommended)
+- Stacks wallet (Leather or Xverse)
 
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/unclekaldoteth/stacks-bridge.git
-cd stacks-bridge
-
-# Install EVM dependencies
-cd evm && npm install
-
-# Install Stacks dependencies
-cd ../stacks && npm install
-
-# Install Relayer dependencies
-cd ../relayer && npm install
-
-# Install Frontend dependencies
-cd ../frontend && npm install
-```
-
-### Configuration
-
-1. Copy environment files:
-```bash
-cp evm/.env.example evm/.env
-cp relayer/.env.example relayer/.env
-```
-
-2. Fill in your private keys, RPC URLs, and contract addresses
-
-3. Deploy contracts:
-```bash
-# Deploy to Base Sepolia
-cd evm && npx hardhat run scripts/deploy.js --network baseSepolia
-
-# Deploy to Stacks Testnet
-cd ../stacks && clarinet deployments apply -p deployments/default.testnet-plan.yaml
-```
-
-4. Initialize signers:
-```bash
-cd relayer && node scripts/initialize-signers.js
-```
-
-### Running the Bridge
+### Smart Contracts
 
 ```bash
-# Start the relayer
-cd relayer && npm start
+cd stacks
 
-# Start the frontend
-cd frontend && npm run dev
+# Check contracts
+clarinet check
+
+# Run devnet
+clarinet devnet start
 ```
 
-Visit `http://localhost:3000` to use the bridge.
+### Relayer
+
+```bash
+cd relayer
+npm install
+npm start
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+# Opens at http://localhost:3000
+```
 
 ---
 
-## Security Considerations
+## Security Model
 
 ### Multi-Signature Validation
+
 All cross-chain operations require approval from 2-of-3 authorized signers before execution.
 
 ### Timelocked Withdrawals
+
 Large transactions have enforced delays:
 - Under 1,000 USDC: Instant
 - 1,000 - 10,000 USDC: 10 minute delay
 - Over 10,000 USDC: 1 hour delay
 
 ### Rate Limiting
+
 - Hourly limit: 50,000 USDC
 - Daily limit: 200,000 USDC
 - Per-transaction max: 10,000 USDC
 
 ### Emergency Controls
+
 - Contract can be paused by any signer
 - Unpause requires contract owner
 - All pending operations can be cancelled
 
 ---
 
-## Roadmap
+## Environment Variables
 
-### Phase 1 - Core Infrastructure [COMPLETED]
-- EVM bridge contract with multi-sig
-- Clarity xUSDC SIP-010 token
-- Basic relayer with event watching
-- Frontend deposit interface
+### Relayer (.env)
 
-### Phase 2 - Security Hardening [COMPLETED]
-- Timelocked releases
-- Rate limiting
-- Multi-signature validation
-- Emergency pause mechanism
-
-### Phase 3 - USDCx Integration [IN PROGRESS]
-- DEX adapter trait for modular swaps
-- Velar DEX integration
-- Auto-swap xUSDC to native USDCx
-
-### Phase 4 - Production Launch
-- Mainnet deployment
-- Security audit
-- Decentralized relayer network
-- Governance token
+```
+BASE_RPC_URL=https://sepolia.base.org
+BASE_PRIVATE_KEY=your_private_key
+STACKS_API_URL=https://api.testnet.hiro.so
+STACKS_PRIVATE_KEY=your_stacks_private_key
+CONTRACT_ADDRESS=ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM
+CONTRACT_NAME=wrapped-usdc-v4
+```
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| EVM Smart Contracts | Solidity, Hardhat, OpenZeppelin |
-| Stacks Smart Contracts | Clarity 2, Clarinet |
-| Relayer | Node.js, Viem, @stacks/transactions |
-| Frontend | Next.js 16, React, Wagmi, @stacks/connect |
-| Indexing | Hiro Chainhooks (optional) |
+### Smart Contracts
+
+- Clarity 4
+- Stacks Blockchain
+- Epoch 3.3
+- Clarinet 3.11.0
+
+### EVM Contracts
+
+- Solidity
+- Hardhat
+- OpenZeppelin
+
+### Relayer
+
+- Node.js
+- Viem
+- @stacks/transactions
+- Hiro Chainhooks
+
+### Frontend
+
+- Next.js
+- React
+- TypeScript
+- @stacks/connect
+- Wagmi
+
+---
+
+## Roadmap
+
+### Phase 1 - Core Infrastructure (Completed)
+
+- EVM bridge contract with multi-sig
+- Clarity xUSDC SIP-010 token
+- Basic relayer with event watching
+- Frontend deposit interface
+
+### Phase 2 - Security Hardening (Completed)
+
+- Timelocked releases
+- Rate limiting
+- Multi-signature validation
+- Emergency pause mechanism
+
+### Phase 3 - Clarity 4 Upgrade (Completed)
+
+- Upgraded all contracts to Clarity 4
+- Added epoch 3.3 support
+- Implemented `stacks-block-height` and `current-contract`
+- Time-based timelocks with `stacks-block-time`
+
+### Phase 4 - USDCx Integration (In Progress)
+
+- DEX adapter trait for modular swaps
+- Velar DEX integration
+- Auto-swap xUSDC to native USDCx
+
+### Phase 5 - Production Launch
+
+- Mainnet deployment
+- Security audit
+- Decentralized relayer network
 
 ---
 
 ## Contributing
 
-We welcome contributions! Please:
+Contributions are welcome.
 
 1. Fork the repository
 2. Create a feature branch

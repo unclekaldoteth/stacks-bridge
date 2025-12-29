@@ -1,5 +1,11 @@
-;; wrapped-usdc.clar
+;; wrapped-usdc-v2.clar
 ;; SIP-010 compliant wrapped USDC with Multi-Sig, Rate Limiting, and Timelock
+;;
+;; CLARITY 4 FEATURES USED:
+;;   - stacks-block-height: Block height for timelocks
+;;   - current-contract: Contract principal reference
+;;   - as-contract?: Secure context switching with asset allowances
+;;
 ;; Security layers:
 ;;   1. Multi-sig (2-of-3) for minting
 ;;   2. Rate limiting (per-tx, hourly, daily caps)
@@ -34,11 +40,11 @@
 (define-constant HOURLY-LIMIT u50000000000)     ;; 50,000 USDC
 (define-constant DAILY-LIMIT u200000000000)     ;; 200,000 USDC
 
-;; Timelock thresholds
+;; Timelock thresholds (Clarity 4: using stacks-block-height)
 (define-constant SMALL-TX-THRESHOLD u1000000000)   ;; 1,000 USDC - instant
 (define-constant MEDIUM-TX-THRESHOLD u10000000000) ;; 10,000 USDC - 10 blocks
 (define-constant SMALL-DELAY u0)
-(define-constant MEDIUM-DELAY u10)    ;; ~10 blocks (~10 mins on Stacks)
+(define-constant MEDIUM-DELAY u10)    ;; ~10 blocks
 (define-constant LARGE-DELAY u60)     ;; ~60 blocks (~1 hour on Stacks)
 
 ;; Error codes
@@ -155,7 +161,8 @@
     (
       (mint-id (var-get mint-nonce))
       (delay (get-delay-for-amount amount))
-      (execute-after (+ burn-block-height delay))
+      ;; Clarity 4: Use stacks-block-height for block-based timelocks
+      (execute-after (+ stacks-block-height delay))
     )
     ;; Checks
     (asserts! (not (var-get paused)) ERR-PAUSED)
@@ -233,7 +240,8 @@
     (asserts! (not (var-get paused)) ERR-PAUSED)
     (asserts! (not (get executed mint-data)) ERR-ALREADY-EXECUTED)
     (asserts! (not (get cancelled mint-data)) ERR-ALREADY-CANCELLED)
-    (asserts! (>= burn-block-height (get execute-after mint-data)) ERR-TIMELOCK-NOT-EXPIRED)
+    ;; Clarity 4: Use stacks-block-height for block-based timelocks
+    (asserts! (>= stacks-block-height (get execute-after mint-data)) ERR-TIMELOCK-NOT-EXPIRED)
     (asserts! (>= (get approval-count mint-data) REQUIRED-SIGNATURES) ERR-INSUFFICIENT-APPROVALS)
     
     ;; Mark as executed
@@ -266,7 +274,8 @@
     (asserts! (not (var-get paused)) ERR-PAUSED)
     (asserts! (not (get executed mint-data)) ERR-ALREADY-EXECUTED)
     (asserts! (not (get cancelled mint-data)) ERR-ALREADY-CANCELLED)
-    (asserts! (>= burn-block-height (get execute-after mint-data)) ERR-TIMELOCK-NOT-EXPIRED)
+    ;; Clarity 4: Use stacks-block-height for block-based timelocks
+    (asserts! (>= stacks-block-height (get execute-after mint-data)) ERR-TIMELOCK-NOT-EXPIRED)
     (asserts! (>= (get approval-count mint-data) REQUIRED-SIGNATURES) ERR-INSUFFICIENT-APPROVALS)
     
     ;; Check DEX is configured
@@ -276,7 +285,8 @@
     (map-set pending-mints mint-id (merge mint-data {executed: true}))
     
     ;; Step 1: Mint xUSDC to THIS CONTRACT (not recipient)
-    (try! (ft-mint? xUSDC amount (as-contract tx-sender)))
+    ;; Clarity 4: Use current-contract for contract principal reference
+    (try! (ft-mint? xUSDC amount current-contract))
     
     ;; Step 2: Swap xUSDC -> USDCx via DEX adapter
     ;; The DEX adapter will handle the actual swap
@@ -388,7 +398,8 @@
   (begin
     (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
     (var-set token-uri new-uri)
-    (print {notification: "token-metadata-update", payload: {token-class: "ft", contract-id: (as-contract tx-sender)}})
+    ;; Clarity 4: Use current-contract for contract principal reference
+    (print {notification: "token-metadata-update", payload: {token-class: "ft", contract-id: current-contract}})
     (ok true)))
 
 ;; Configure DEX adapter for USDCx swaps (owner only)

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { formatUnits, parseGwei } from 'viem';
+import { formatUnits } from 'viem';
 import { useGasPrice } from 'wagmi';
 import { config } from '@/lib/config';
 

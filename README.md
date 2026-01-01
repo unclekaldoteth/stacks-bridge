@@ -44,15 +44,15 @@ See [ROADMAP.md](./ROADMAP.md) for full details.
 
 - Node.js 18+
 - [Clarinet](https://github.com/hirosystems/clarinet) 3.11+
-- [WalletConnect Project ID](https://dashboard.walletconnect.com/d64c6ad1-c703-4932-80c1-29dfec5e6c1a/4c25005f-99c3-40a3-a74a-064aaccfd863/domain) (free)
+- [WalletConnect Project ID](https://cloud.walletconnect.com/) (free)
 - Stacks wallet (Leather or Xverse)
 - MetaMask (for Base)
 
 ### 1. Clone and Setup
 
 ```bash
-git clone https://github.com/unclekaldoteth/stacks-bridge.git
-cd stacks-bridge
+git clone https://github.com/unclekaldoteth/stacks-bridge-base.git
+cd stacks-bridge-base
 ```
 
 ### 2. Run Smart Contracts (Stacks)
@@ -97,13 +97,16 @@ npm run dev             # Opens at http://localhost:3000
 
 ```
 stacks/contracts/
-├── wrapped-usdc-v3.clar      # Main xUSDC token (SIP-010)
-├── dex-adapter-trait.clar    # DEX integration interface
-├── velar-adapter.clar        # Velar DEX adapter (stub)
+├── wrapped-usdc-v4.clar          # Latest xUSDC token (Clarity 4)
+├── wrapped-usdc-v3.clar          # xUSDC token (SIP-010)
+├── wrapped-usdc-v2.clar          # Legacy version
+├── wrapped-usdc.clar             # Original version
+├── dex-adapter-trait.clar        # DEX integration interface
+├── velar-adapter.clar            # Velar DEX adapter (stub)
 └── sip-010-trait-ft-standard.clar
 
 evm/contracts/
-└── BridgeBase.sol            # USDC lock/release on Base
+└── BridgeBase.sol                # USDC lock/release on Base
 ```
 
 ### Security Features

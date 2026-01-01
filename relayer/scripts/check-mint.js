@@ -22,7 +22,7 @@ async function main() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             sender: CONTRACT_ADDRESS,
-            arguments: [uintCV(mintId).serialize().toString('hex')],
+            arguments: [Buffer.from(uintCV(mintId).serialize()).toString('hex')],
         }),
     });
 

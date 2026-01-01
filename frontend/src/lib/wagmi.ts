@@ -14,6 +14,6 @@ export const wagmiConfig = createConfig({
         walletConnect({ projectId }),
     ],
     transports: {
-        [baseSepolia.id]: http('https://base-sepolia.g.alchemy.com/v2/poHXZbv0T2Q6sgplkdhqf'),
+        [baseSepolia.id]: http(process.env.NEXT_PUBLIC_BASE_RPC_URL || 'https://sepolia.base.org'),
     },
 });

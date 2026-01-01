@@ -2,7 +2,7 @@
  * Base Chain Listener - Monitors Deposit events and pending releases
  */
 
-import { createPublicClient, createWalletClient, http } from 'viem';
+import { createPublicClient, createWalletClient, http, keccak256, toHex } from 'viem';
 import { baseSepolia, base } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
 import { BASE_CONFIG, BRIDGE_BASE_ABI, SIGNER_CONFIG, IS_MAINNET, POLLING } from './config.js';
@@ -112,12 +112,10 @@ export async function queueRelease(receiver, amount) {
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
         // Extract releaseId from ReleaseQueued event
+        // Topic = keccak256("ReleaseQueued(uint256,address,uint256,uint256)")
+        const RELEASE_QUEUED_TOPIC = keccak256(toHex('ReleaseQueued(uint256,address,uint256,uint256)'));
         const releaseQueuedLog = receipt.logs.find(log => {
-            try {
-                return log.topics[0] === '0x...' // ReleaseQueued topic
-            } catch {
-                return false;
-            }
+            return log.topics[0] === RELEASE_QUEUED_TOPIC;
         });
 
         console.log(`   ✅ Release queued in block ${receipt.blockNumber}`);

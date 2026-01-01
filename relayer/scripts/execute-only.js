@@ -21,6 +21,11 @@ const mintId = parseInt(process.argv[2]) || 0;
 
 async function main() {
     const mnemonic = process.env.STACKS_PRIVATE_KEY;
+    if (!mnemonic) {
+        console.error('❌ STACKS_PRIVATE_KEY not set in .env');
+        process.exit(1);
+    }
+
     const wallet = await generateWallet({ secretKey: mnemonic, password: '' });
     const privateKey = wallet.accounts[0].stxPrivateKey;
 

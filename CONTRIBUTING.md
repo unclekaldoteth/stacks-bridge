@@ -53,8 +53,8 @@ Thank you for your interest in contributing to the Base <> Stacks USDC Bridge! T
 
 ```bash
 # Clone the repo
-git clone https://github.com/unclekaldoteth/stacks-bridge.git
-cd stacks-bridge
+git clone https://github.com/unclekaldoteth/stacks-bridge-base.git
+cd stacks-bridge-base
 
 # Smart contracts
 cd stacks

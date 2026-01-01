@@ -32,33 +32,29 @@ async function main() {
     console.log('═'.repeat(60));
 
     // Generate wallet with multiple accounts
-    const wallet = await generateWallet({
+    let wallet = await generateWallet({
         secretKey: mnemonic,
         password: '',
     });
 
-    // Get first 3 accounts
+    // Derive additional accounts by calling generateWallet with account count
+    // The wallet SDK adds accounts sequentially, so we access accounts[0], accounts[1], etc.
+    // But first we need to add more accounts to the wallet
     const accounts = [];
-    for (let i = 0; i < 3; i++) {
-        // Generate wallet with specific account index
-        const accountWallet = await generateWallet({
-            secretKey: mnemonic,
-            password: '',
-        });
 
-        // For getting different accounts, we need to derive them properly
-        // The wallet SDK generates accounts sequentially
-        const account = accountWallet.accounts[0];
-        const address = getStxAddress({ account, transactionVersion: 0x80 }); // testnet
+    // First account is already available
+    accounts.push({
+        index: 0,
+        address: getStxAddress({ account: wallet.accounts[0], transactionVersion: 0x80 }),
+        privateKey: wallet.accounts[0].stxPrivateKey,
+    });
+    console.log(`   Account 0: ${accounts[0].address}`);
 
-        accounts.push({
-            index: i,
-            address,
-            privateKey: account.stxPrivateKey,
-        });
-
-        console.log(`   Account ${i}: ${address}`);
-    }
+    // Note: The @stacks/wallet-sdk doesn't easily support generating multiple accounts
+    // For production, you would use different mnemonics for each signer
+    // For testing, we'll show this limitation
+    console.log('\\n⚠️ Note: Same mnemonic generates same account.');
+    console.log('   For multi-sig, use different mnemonics for each signer.');
 
     console.log('\n📊 Current signer status:');
     console.log('   Since initialize-signers was already called, we need a different approach.');

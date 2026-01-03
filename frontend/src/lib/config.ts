@@ -1,16 +1,19 @@
 // Bridge Configuration
 export const config = {
-    // Network mode
-    network: 'testnet' as const,
+    // Network mode (can be 'testnet' or 'mainnet')
+    network: (process.env.NEXT_PUBLIC_NETWORK || 'testnet') as 'testnet' | 'mainnet',
 
     // Contract addresses (deployed)
     contracts: {
         base: {
-            bridge: '0x06c6Fd0afa92062FE76DE72DA5EC7a63Ba01F6FC',
+            bridge: '0x439ccD45925F5aC9A77bD68B91c130852925bc2D',
             usdc: '0x036CbD53842c5426634e7929541eC2318f3dCF7e', // Base Sepolia USDC
         },
         stacks: {
             wrappedUsdc: 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc-v3',
+            // Official Circle USDCx (mainnet only)
+            // This is the official contract deployed by Circle via xReserve
+            usdcx: 'SP120SBRBQJ00MCWS7TM5R8WJNTTKD5K0HFRC2CNE.usdcx',
         },
     },
 
@@ -31,6 +34,7 @@ export const config = {
 
     // Rate limits (must match contracts)
     limits: {
+        minDeposit: 10,        // 10 USDC minimum to prevent dust attacks
         maxPerTx: 10_000,      // USDC
         hourlyLimit: 50_000,   // USDC
         dailyLimit: 200_000,   // USDC

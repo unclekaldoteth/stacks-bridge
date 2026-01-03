@@ -31,7 +31,8 @@ Use **Base L2** as the source chain instead of Ethereum L1. Base offers:
 | Core Infrastructure | Completed | Smart contracts, relayer, frontend |
 | Security Hardening | Completed | Multi-sig, timelocks, rate limiting |
 | Clarity 4 Upgrade | Completed | Latest Stacks features |
-| USDCx Integration | Help Wanted | Swap xUSDC to official USDCx |
+| USDCx Contract Config | Completed | Official Circle USDCx address configured |
+| USDCx DEX Integration | Help Wanted | Implement xUSDC → USDCx swap via Velar |
 | Production Launch | Planned | Mainnet deployment |
 
 See [ROADMAP.md](./ROADMAP.md) for full details.
@@ -122,8 +123,16 @@ evm/contracts/
 
 | Network | Contract | Address |
 |---------|----------|---------|
-| Base Sepolia | BridgeBase | `0x06c6Fd0afa92062FE76DE72DA5EC7a63Ba01F6FC` |
+| Base Sepolia | BridgeBase (v2) | `0x439ccD45925F5aC9A77bD68B91c130852925bc2D` |
 | Stacks Testnet | wrapped-usdc-v3 | `ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc-v3` |
+
+### Official USDCx (Mainnet Reference)
+
+| Network | Contract | Address |
+|---------|----------|---------|
+| Stacks Mainnet | USDCx (Circle) | `SP120SBRBQJ00MCWS7TM5R8WJNTTKD5K0HFRC2CNE.usdcx` |
+
+> **Note**: USDCx is Circle's official USDC-backed stablecoin on Stacks, deployed via xReserve. It is only available on mainnet.
 
 ---
 
@@ -174,7 +183,7 @@ We need community help! This project is open source and welcomes contributions.
 # Base (EVM)
 BASE_RPC_URL=https://sepolia.base.org
 SIGNER_PRIVATE_KEY=your_evm_private_key
-BRIDGE_BASE_ADDRESS=0x06c6Fd0afa92062FE76DE72DA5EC7a63Ba01F6FC
+BRIDGE_BASE_ADDRESS=0x439ccD45925F5aC9A77bD68B91c130852925bc2D
 
 # Stacks
 STACKS_API_URL=https://api.testnet.hiro.so

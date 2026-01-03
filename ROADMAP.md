@@ -29,10 +29,12 @@ Build a decentralized, cost-effective bridge between Base (Ethereum L2) and Stac
 - [ ] Developer documentation
 - [ ] API documentation
 
-## Phase 4: USDCx Integration (Community Needed)
+## Phase 4: USDCx Integration (In Progress)
 
-> **Help Wanted**: This phase requires community contribution due to the complexity of integrating with official USDCx.
+> **Official USDCx Contract**: `SP120SBRBQJ00MCWS7TM5R8WJNTTKD5K0HFRC2CNE.usdcx` (Circle xReserve)
 
+- [x] Configure official Circle USDCx contract address in all contracts
+- [x] Update frontend with USDCx contract reference
 - [ ] Research: DEX liquidity pool creation for xUSDC/USDCx
 - [ ] Integration: Velar SDK for automatic swaps
 - [ ] Alternative: Direct Circle xReserve integration

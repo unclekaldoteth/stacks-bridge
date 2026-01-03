@@ -70,10 +70,10 @@
 (define-constant ERR-DEX-NOT-CONFIGURED (err u502))
 (define-constant ERR-SLIPPAGE-TOO-HIGH (err u503))
 
-;; USDCx contract reference (Circle's official wrapped USDC)
-;; Testnet: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.usdcx
+;; Official Circle USDCx Contract
 ;; Mainnet: SP120SBRBQJ00MCWS7TM5R8WJNTTKD5K0HFRC2CNE.usdcx
-(define-data-var usdcx-contract principal 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM)
+;; Note: USDCx only exists on mainnet. For testnet, use xUSDC directly.
+(define-data-var usdcx-contract principal 'SP120SBRBQJ00MCWS7TM5R8WJNTTKD5K0HFRC2CNE)
 (define-data-var dex-adapter-contract (optional principal) none)
 (define-data-var auto-swap-enabled bool false)
 

@@ -32,6 +32,7 @@ contract BridgeBase is Ownable, ReentrancyGuard, Pausable {
     mapping(address => bool) public isSigner;
     
     // Rate limiting
+    uint256 public constant MIN_DEPOSIT = 10 * 1e6;  // 10 USDC minimum to prevent dust attacks
     uint256 public maxPerTx = 10_000 * 1e6;      // 10,000 USDC
     uint256 public hourlyLimit = 50_000 * 1e6;   // 50,000 USDC/hour
     uint256 public dailyLimit = 200_000 * 1e6;   // 200,000 USDC/day
@@ -99,6 +100,7 @@ contract BridgeBase is Ownable, ReentrancyGuard, Pausable {
     
     event SignerAdded(address indexed signer);
     event SignerRemoved(address indexed signer);
+    event EmergencyWithdraw(address indexed to, uint256 amount, address indexed by);
     event LimitsUpdated(uint256 maxPerTx, uint256 hourlyLimit, uint256 dailyLimit);
 
     // ============================================
@@ -107,6 +109,7 @@ contract BridgeBase is Ownable, ReentrancyGuard, Pausable {
     
     error NotSigner();
     error InvalidAmount();
+    error AmountBelowMinimum();
     error InvalidAddress();
     error InvalidStacksAddress();
     error ExceedsMaxPerTx();
@@ -181,10 +184,14 @@ contract BridgeBase is Ownable, ReentrancyGuard, Pausable {
         updateRateLimits
     {
         if (amount == 0) revert InvalidAmount();
+        if (amount < MIN_DEPOSIT) revert AmountBelowMinimum();
         
-        // Validate Stacks address (34-64 chars)
-        uint256 addrLen = bytes(stacksAddress).length;
+        // Validate Stacks address (34-64 chars, must start with S)
+        bytes memory addrBytes = bytes(stacksAddress);
+        uint256 addrLen = addrBytes.length;
         if (addrLen < 34 || addrLen > 64) revert InvalidStacksAddress();
+        // Stacks addresses start with 'S' (mainnet SP/SM) or 'ST' (testnet)
+        if (addrBytes[0] != 0x53) revert InvalidStacksAddress(); // 'S' = 0x53
         
         // Transfer USDC from user to this contract
         usdc.safeTransferFrom(msg.sender, address(this), amount);
@@ -386,6 +393,7 @@ contract BridgeBase is Ownable, ReentrancyGuard, Pausable {
     function emergencyWithdraw(address to, uint256 amount) external onlyOwner {
         require(to != address(0), "Invalid address");
         usdc.safeTransfer(to, amount);
+        emit EmergencyWithdraw(to, amount, msg.sender);
     }
 
     // ============================================
@@ -423,6 +431,10 @@ contract BridgeBase is Ownable, ReentrancyGuard, Pausable {
         uint256 hourly = currentHourlyVolume > hourlyLimit ? 0 : hourlyLimit - currentHourlyVolume;
         uint256 daily = currentDailyVolume > dailyLimit ? 0 : dailyLimit - currentDailyVolume;
         return (hourly, daily);
+    }
+    
+    function getPendingDeposit(string calldata stacksAddress) external view returns (uint256) {
+        return pendingDeposits[stacksAddress];
     }
 
     // ============================================

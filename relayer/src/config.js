@@ -92,6 +92,15 @@ export const BRIDGE_BASE_ABI = [
             { name: 'amount', type: 'uint256', indexed: false },
         ],
     },
+    {
+        type: 'event',
+        name: 'EmergencyWithdraw',
+        inputs: [
+            { name: 'to', type: 'address', indexed: true },
+            { name: 'amount', type: 'uint256', indexed: false },
+            { name: 'by', type: 'address', indexed: true },
+        ],
+    },
     // Functions
     {
         type: 'function',
@@ -136,6 +145,13 @@ export const BRIDGE_BASE_ABI = [
         name: 'isSigner',
         inputs: [{ name: '', type: 'address' }],
         outputs: [{ name: '', type: 'bool' }],
+        stateMutability: 'view',
+    },
+    {
+        type: 'function',
+        name: 'getPendingDeposit',
+        inputs: [{ name: 'stacksAddress', type: 'string' }],
+        outputs: [{ name: '', type: 'uint256' }],
         stateMutability: 'view',
     },
 ];

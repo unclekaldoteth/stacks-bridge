@@ -1,6 +1,6 @@
 {
   "network": "baseSepolia",
-  "bridgeAddress": "0x06c6Fd0afa92062FE76DE72DA5EC7a63Ba01F6FC",
+  "bridgeAddress": "0x439ccD45925F5aC9A77bD68B91c130852925bc2D",
   "usdcAddress": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
   "signers": [
     "0x776beEaDe7115Bd870C1344Fec02eF31758C319E",
@@ -18,6 +18,6 @@
     "medium": "10 minutes",
     "large": "1 hour"
   },
-  "deployedAt": "2025-12-27T17:00:07.835Z",
+  "deployedAt": "2026-01-03T17:09:46.881Z",
   "deployer": "0x776beEaDe7115Bd870C1344Fec02eF31758C319E"
 }

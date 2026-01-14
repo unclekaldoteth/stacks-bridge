@@ -32,10 +32,32 @@ Use **Base L2** as the source chain instead of Ethereum L1. Base offers:
 | Security Hardening | Completed | Multi-sig, timelocks, rate limiting |
 | Clarity 4 Upgrade | Completed | Latest Stacks features |
 | USDCx Contract Config | Completed | Official Circle USDCx address configured |
+| Deployment Scripts | Completed | Network-specific USDC validation |
+| Config Management | Completed | Mainnet/testnet auto-detection |
+| Rate Limiting Fix | Completed | Stacks-block-time implementation |
 | USDCx DEX Integration | Help Wanted | Implement xUSDC → USDCx swap via Velar |
 | Production Launch | Planned | Mainnet deployment |
 
 See [ROADMAP.md](./ROADMAP.md) for full details.
+
+## Recent Updates
+
+### Latest Improvements (January 2026)
+
+**Deployment Script Enhancements**
+- Added network-specific USDC address validation in `evm/scripts/deploy.js`
+- Prevents deployment with missing USDC addresses on non-Base Sepolia networks
+- Improved error handling for multi-network deployments
+
+**Configuration Management**
+- Implemented mainnet/testnet auto-detection in `relayer/src/config.js`
+- Automatic RPC URL and API URL selection based on network mode
+- Reduced configuration errors and improved developer experience
+
+**Rate Limiting Fix**
+- Fixed rate limiting implementation in all Clarity contracts
+- Now uses `stacks-block-time` for accurate hourly/daily window resets
+- Ensures proper enforcement of 50K hourly and 200K daily caps
 
 ---
 

@@ -470,7 +470,20 @@
 
 (define-private (check-and-update-rate-limits (amount uint))
   (begin
-    ;; Reset if needed (simplified - production would use block-based resets)
+    ;; Reset using stacks-block-time for hourly/daily windows
+    (let ((now stacks-block-time))
+      (if (or (is-eq (var-get last-hour-reset) u0) (>= now (+ (var-get last-hour-reset) u3600)))
+        (begin
+          (var-set current-hourly-volume u0)
+          (var-set last-hour-reset now)
+          true)
+        false)
+      (if (or (is-eq (var-get last-day-reset) u0) (>= now (+ (var-get last-day-reset) u86400)))
+        (begin
+          (var-set current-daily-volume u0)
+          (var-set last-day-reset now)
+          true)
+        false))
     (let
       (
         (hourly (var-get current-hourly-volume))

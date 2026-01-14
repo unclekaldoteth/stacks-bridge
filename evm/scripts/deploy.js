@@ -5,7 +5,13 @@ async function main() {
     console.log("=".repeat(60));
 
     // Configuration
-    const USDC_ADDRESS = process.env.USDC_ADDRESS || "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
+    const DEFAULT_USDC_SEPOLIA = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
+    const isBaseSepolia = ["baseSepolia", "baseSepoliaFlashblocks"].includes(hre.network.name);
+    const USDC_ADDRESS = process.env.USDC_ADDRESS || (isBaseSepolia ? DEFAULT_USDC_SEPOLIA : null);
+
+    if (!USDC_ADDRESS) {
+        throw new Error(`Missing USDC_ADDRESS for network ${hre.network.name}`);
+    }
 
     // Multi-sig: Get 3 signer addresses from environment
     const SIGNER_1 = process.env.SIGNER_1;

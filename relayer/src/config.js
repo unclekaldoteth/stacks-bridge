@@ -8,15 +8,18 @@ import 'dotenv/config';
 export const NETWORK = process.env.NETWORK || 'testnet';
 export const IS_MAINNET = NETWORK === 'mainnet';
 
+const DEFAULT_BASE_RPC_URL = IS_MAINNET ? 'https://mainnet.base.org' : 'https://sepolia.base.org';
+const DEFAULT_STACKS_API_URL = IS_MAINNET ? 'https://api.hiro.so' : 'https://api.testnet.hiro.so';
+
 // Base (EVM) Configuration
 export const BASE_CONFIG = {
-    rpcUrl: process.env.BASE_RPC_URL || 'https://sepolia.base.org',
+    rpcUrl: process.env.BASE_RPC_URL || DEFAULT_BASE_RPC_URL,
     chainId: IS_MAINNET ? 8453 : 84532, // Base Mainnet : Base Sepolia
     bridgeAddress: process.env.BRIDGE_BASE_ADDRESS,
 };
 
 export const STACKS_CONFIG = {
-    apiUrl: process.env.STACKS_API_URL || 'https://api.testnet.hiro.so',
+    apiUrl: process.env.STACKS_API_URL || DEFAULT_STACKS_API_URL,
     contractAddress: process.env.STACKS_CONTRACT_ADDRESS,
     contractName: process.env.STACKS_CONTRACT_NAME || 'wrapped-usdc',
 };

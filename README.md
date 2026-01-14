@@ -59,6 +59,12 @@ See [ROADMAP.md](./ROADMAP.md) for full details.
 - Now uses `stacks-block-time` for accurate hourly/daily window resets
 - Ensures proper enforcement of 50K hourly and 200K daily caps
 
+**Local E2E Test Harness (In Progress)**
+- Added local deployment helpers and a webhook burn simulator
+- Added EVM unit tests with a MockUSDC
+- Added Clarinet test scaffolding for Stacks contracts
+- Documented the local flow in `docs/local-e2e.md`
+
 ---
 
 ## Quick Start

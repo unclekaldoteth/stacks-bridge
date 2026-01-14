@@ -1,6 +1,8 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
 
+const HARDHAT_CHAIN_ID = parseInt(process.env.HARDHAT_CHAIN_ID || "84532", 10);
+
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
@@ -14,7 +16,7 @@ module.exports = {
   },
   networks: {
     hardhat: {
-      chainId: 31337
+      chainId: HARDHAT_CHAIN_ID
     },
     baseSepolia: {
       url: process.env.BASE_SEPOLIA_RPC || "https://sepolia.base.org",

@@ -5,14 +5,15 @@
 
 import 'dotenv/config';
 import express from 'express';
-import { queueRelease } from './base-listener.js';
-import { initWalletClient } from './base-listener.js';
-import { validateConfig, SIGNER_CONFIG } from './config.js';
+import { initWalletClient, publicClient, queueRelease } from './base-listener.js';
+import { BASE_CONFIG, validateConfig } from './config.js';
 
 const app = express();
 app.use(express.json());
 
-const PORT = process.env.WEBHOOK_PORT || 3000;
+const DEFAULT_PORT = 3000;
+const PORT = Number.parseInt(process.env.WEBHOOK_PORT || `${DEFAULT_PORT}`, 10);
+const MAX_PORT_TRIES = Number.parseInt(process.env.WEBHOOK_PORT_TRIES || "5", 10);
 const WEBHOOK_AUTH_TOKEN = process.env.WEBHOOK_AUTH_TOKEN || 'bridge-secret-token';
 
 // Health check
@@ -77,21 +78,27 @@ async function processBurnTransaction(tx) {
 
         // Parse the burn event data
         // Format: {event: "burn", sender: principal, amount: uint, base-address: string}
+        let burnData;
         try {
-            const burnData = parseClarityValue(eventData);
-
-            if (burnData?.event === 'burn') {
-                console.log('\n🔥 Burn event from Chainhook:');
-                console.log(`   Sender: ${burnData.sender}`);
-                console.log(`   Amount: ${Number(burnData.amount) / 1e6} USDC`);
-                console.log(`   To Base: ${burnData['base-address']}`);
-                console.log(`   TX: ${tx.transaction_identifier?.hash}`);
-
-                // Queue release on Base
-                await queueRelease(burnData['base-address'], BigInt(burnData.amount));
-            }
+            burnData = parseClarityValue(eventData);
         } catch (parseError) {
-            // Not a burn event we care about
+            continue;
+        }
+
+        if (burnData?.event !== 'burn') continue;
+
+        console.log('\n🔥 Burn event from Chainhook:');
+        console.log(`   Sender: ${burnData.sender}`);
+        console.log(`   Amount: ${Number(burnData.amount) / 1e6} USDC`);
+        console.log(`   To Base: ${burnData['base-address']}`);
+        console.log(`   TX: ${tx.transaction_identifier?.hash}`);
+
+        // Queue release on Base
+        try {
+            await queueRelease(burnData['base-address'], BigInt(burnData.amount));
+        } catch (error) {
+            console.error('❌ Failed to queue release from burn:', error.message);
+            throw error;
         }
     }
 }
@@ -137,13 +144,47 @@ async function main() {
     // Initialize Base wallet for releases
     const signerAddress = initWalletClient();
     console.log(`🔑 Base Signer: ${signerAddress}`);
+    console.log(`🔗 Base RPC: ${BASE_CONFIG.rpcUrl}`);
+    console.log(`🏗 Bridge: ${BASE_CONFIG.bridgeAddress}`);
 
-    app.listen(PORT, () => {
-        console.log(`\n🚀 Webhook server running on port ${PORT}`);
-        console.log(`📍 Endpoint: POST /chainhook/burn`);
-        console.log(`🔐 Auth: Bearer ${WEBHOOK_AUTH_TOKEN.slice(0, 10)}...`);
-        console.log('\nWaiting for Chainhook events...\n');
+    const bytecode = await publicClient.getBytecode({ address: BASE_CONFIG.bridgeAddress });
+    if (!bytecode || bytecode === '0x') {
+        throw new Error(
+            `No contract code found at BRIDGE_BASE_ADDRESS=${BASE_CONFIG.bridgeAddress}. ` +
+            `Did you redeploy and update relayer/.env?`
+        );
+    }
+
+    const { port } = await startServer(PORT, MAX_PORT_TRIES);
+    const portNote = port !== PORT ? ` (requested ${PORT})` : "";
+
+    console.log(`\n🚀 Webhook server running on port ${port}${portNote}`);
+    console.log(`📍 Endpoint: POST /chainhook/burn`);
+    console.log(`🔐 Auth: Bearer ${WEBHOOK_AUTH_TOKEN.slice(0, 10)}...`);
+    if (port !== PORT) {
+        console.log(`🔧 Update WEBHOOK_PORT/WEBHOOK_URL for the simulator if needed`);
+    }
+    console.log('\nWaiting for Chainhook events...\n');
+}
+
+function startServer(port, remainingAttempts) {
+    return new Promise((resolve, reject) => {
+        const server = app.listen(port, () => resolve({ server, port }));
+        server.on('error', (error) => {
+            if (error.code === 'EADDRINUSE' && remainingAttempts > 0) {
+                const nextPort = port + 1;
+                console.warn(`⚠️ Port ${port} in use, trying ${nextPort}...`);
+                server.close(() => {
+                    startServer(nextPort, remainingAttempts - 1).then(resolve).catch(reject);
+                });
+                return;
+            }
+            reject(error);
+        });
     });
 }
 
-main().catch(console.error);
+main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+});

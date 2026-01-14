@@ -1,0 +1,60 @@
+---
+id: 0
+name: Devnet deployment
+network: devnet
+stacks-node: "http://localhost:20443"
+bitcoin-node: "http://devnet:devnet@localhost:18443"
+plan:
+  batches:
+    - id: 0
+      transactions:
+        - contract-publish:
+            contract-name: dex-adapter-trait
+            expected-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            cost: 9840
+            path: contracts/dex-adapter-trait.clar
+            anchor-block-only: true
+            clarity-version: 4
+        - contract-publish:
+            contract-name: sip-010-trait-ft-standard
+            expected-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            cost: 10130
+            path: contracts/sip-010-trait-ft-standard.clar
+            anchor-block-only: true
+            clarity-version: 4
+        - contract-publish:
+            contract-name: velar-adapter
+            expected-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            cost: 32190
+            path: contracts/velar-adapter.clar
+            anchor-block-only: true
+            clarity-version: 4
+        - contract-publish:
+            contract-name: wrapped-usdc
+            expected-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            cost: 169250
+            path: contracts/wrapped-usdc.clar
+            anchor-block-only: true
+            clarity-version: 4
+        - contract-publish:
+            contract-name: wrapped-usdc-v2
+            expected-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            cost: 169280
+            path: contracts/wrapped-usdc-v2.clar
+            anchor-block-only: true
+            clarity-version: 4
+        - contract-publish:
+            contract-name: wrapped-usdc-v3
+            expected-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            cost: 169280
+            path: contracts/wrapped-usdc-v3.clar
+            anchor-block-only: true
+            clarity-version: 4
+        - contract-publish:
+            contract-name: wrapped-usdc-v4
+            expected-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            cost: 168430
+            path: contracts/wrapped-usdc-v4.clar
+            anchor-block-only: true
+            clarity-version: 4
+      epoch: "3.3"

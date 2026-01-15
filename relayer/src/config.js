@@ -10,6 +10,9 @@ export const IS_MAINNET = NETWORK === 'mainnet';
 
 const DEFAULT_BASE_RPC_URL = IS_MAINNET ? 'https://mainnet.base.org' : 'https://sepolia.base.org';
 const DEFAULT_STACKS_API_URL = IS_MAINNET ? 'https://api.hiro.so' : 'https://api.testnet.hiro.so';
+const DEFAULT_STACKS_CORE_URL = IS_MAINNET
+    ? 'https://stacks-node-api.mainnet.stacks.co'
+    : 'https://stacks-node-api.testnet.stacks.co';
 
 // Base (EVM) Configuration
 export const BASE_CONFIG = {
@@ -20,6 +23,7 @@ export const BASE_CONFIG = {
 
 export const STACKS_CONFIG = {
     apiUrl: process.env.STACKS_API_URL || DEFAULT_STACKS_API_URL,
+    coreApiUrl: process.env.STACKS_CORE_API_URL || process.env.STACKS_API_URL || DEFAULT_STACKS_CORE_URL,
     contractAddress: process.env.STACKS_CONTRACT_ADDRESS,
     contractName: process.env.STACKS_CONTRACT_NAME || 'wrapped-usdc',
 };

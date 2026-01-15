@@ -58,6 +58,7 @@ SIGNER_PRIVATE_KEY=<private key for one of the local bridge signers>
 
 # Only required if you want the Base -> Stacks path to actually mint
 STACKS_API_URL=<your Stacks API URL>
+STACKS_CORE_API_URL=<your Stacks node (core) URL>
 STACKS_CONTRACT_ADDRESS=<Stacks contract principal>
 STACKS_CONTRACT_NAME=wrapped-usdc-v4
 STACKS_PRIVATE_KEY=<Stacks mnemonic or private key>
@@ -81,6 +82,11 @@ npm run lock:local
 ```
 
 If you are not running a Stacks node, the relayer will log the deposit and fail to queue the mint (expected).
+If you are running devnet, pass a devnet Stacks address:
+
+```bash
+STACKS_ADDRESS=<devnet STC address> npm run lock:local
+```
 
 ## 5) Stacks -> Base (burn flow) without a Stacks node
 
@@ -135,6 +141,14 @@ clarinet devnet start --manifest-path Clarinet.toml --deployment-plan-path deplo
 
 Then deploy `wrapped-usdc-v4` using your Clarinet workflow (Clarinet.toml already includes the contract).
 Point `STACKS_API_URL` to the devnet API port and use the devnet account keys in `relayer/.env`.
+Also set `STACKS_CORE_API_URL` to the devnet node port (default `http://localhost:20443`).
+
+Initialize signers on devnet (owner-only) before queueing mints:
+
+```bash
+cd relayer
+node scripts/initialize-signers-v4.js
+```
 
 If you see a snapshot compatibility prompt, answer `y` or pass `--from-genesis`.
 If Clarinet shows `ontracts/...` in a computed plan, keep the on-disk plan (do not overwrite).

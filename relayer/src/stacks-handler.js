@@ -18,6 +18,8 @@ import { STACKS_CONFIG, SIGNER_CONFIG, IS_MAINNET, POLLING } from './config.js';
 
 // Network setup
 const network = IS_MAINNET ? new StacksMainnet() : new StacksTestnet();
+network.coreApiUrl = STACKS_CONFIG.coreApiUrl;
+network.apiUrl = STACKS_CONFIG.apiUrl;
 
 // Track processed events
 const processedBurns = new Set();

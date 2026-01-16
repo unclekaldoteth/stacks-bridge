@@ -19,6 +19,8 @@ export function BridgeForm() {
     const { address: evmAddress, isConnected: evmConnected } = useAccount();
     const { connect: connectEvm, connectors } = useConnect();
     const { disconnect: disconnectEvm } = useDisconnect();
+    const baseAccountConnector = connectors.find((connector) => connector.id === 'base-account');
+    const fallbackConnector = connectors.find((connector) => connector.id !== 'base-account');
 
     // Stacks wallet
     const { address: stacksAddress, isConnected: stacksConnected, connect: connectStacks, disconnect: disconnectStacks } = useStacksWallet();
@@ -170,12 +172,24 @@ export function BridgeForm() {
                 {direction === 'deposit' ? (
                     <>
                         {!evmConnected ? (
-                            <button
-                                onClick={() => connectEvm({ connector: connectors[0] })}
-                                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all"
-                            >
-                                Connect Base Wallet
-                            </button>
+                            <div className="space-y-3">
+                                {baseAccountConnector && (
+                                    <button
+                                        onClick={() => connectEvm({ connector: baseAccountConnector })}
+                                        className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all"
+                                    >
+                                        Connect Base Account
+                                    </button>
+                                )}
+                                {fallbackConnector && (
+                                    <button
+                                        onClick={() => connectEvm({ connector: fallbackConnector })}
+                                        className="w-full py-4 bg-blue-600/20 hover:bg-blue-600/30 text-blue-200 font-bold rounded-xl transition-all"
+                                    >
+                                        Connect Base Wallet
+                                    </button>
+                                )}
+                            </div>
                         ) : (
                             <div className="space-y-3">
                                 <div className="flex items-center justify-between text-sm text-gray-400 px-2">

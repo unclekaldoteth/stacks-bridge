@@ -1,6 +1,7 @@
 'use client';
 
 import { BridgeForm } from '@/components/BridgeForm';
+import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 
 export default function Home() {
   return (
@@ -23,6 +24,7 @@ export default function Home() {
               <p className="text-xs text-gray-500">Network</p>
               <p className="text-sm font-semibold text-yellow-400">Testnet</p>
             </div>
+            <ConnectWallet className="bg-gray-900 border border-gray-700 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors" />
           </div>
         </div>
       </header>

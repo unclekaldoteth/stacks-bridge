@@ -44,6 +44,13 @@ See [ROADMAP.md](./ROADMAP.md) for full details.
 
 ### Latest Improvements (January 2026)
 
+**OnchainKit and Base Account Integration**
+- Integrated Coinbase OnchainKit (`@coinbase/onchainkit`) for enhanced wallet experience
+- Added Base Account SDK (`@base-org/account`) for native Base Account connector
+- Multiple wallet connection options: Base Account (primary) and fallback connectors
+- Added `ConnectWallet` component from OnchainKit in header
+- Wrapped app with `OnchainKitProvider` for seamless integration
+
 **Deployment Script Enhancements**
 - Added network-specific USDC address validation in `evm/scripts/deploy.js`
 - Prevents deployment with missing USDC addresses on non-Base Sepolia networks
@@ -199,7 +206,7 @@ We need community help! This project is open source and welcomes contributions.
 | **Stacks** | Clarity 4, Epoch 3.3, Clarinet 3.11 |
 | **EVM** | Solidity, Hardhat, OpenZeppelin |
 | **Relayer** | Node.js, Viem, @stacks/transactions |
-| **Frontend** | Next.js, TypeScript, WalletConnect, Wagmi |
+| **Frontend** | Next.js, TypeScript, WalletConnect, Wagmi, OnchainKit, Base Account SDK |
 
 ---
 
@@ -224,6 +231,9 @@ STACKS_CONTRACT_NAME=wrapped-usdc-v3
 
 ```env
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_id
+NEXT_PUBLIC_ONCHAINKIT_API_KEY=your_onchainkit_api_key
+NEXT_PUBLIC_BASE_ACCOUNT_APP_NAME=Stacks Bridge
+NEXT_PUBLIC_BASE_RPC_URL=https://sepolia.base.org
 NEXT_PUBLIC_NETWORK=testnet
 ```
 

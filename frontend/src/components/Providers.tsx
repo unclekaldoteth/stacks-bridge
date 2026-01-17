@@ -1,6 +1,6 @@
 'use client';
 
-import { WagmiProvider } from 'wagmi';
+import { WagmiConfig } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { wagmiConfig } from '@/lib/wagmi';
 import { WalletProvider } from '@/context/WalletContext';
@@ -11,7 +11,7 @@ const queryClient = new QueryClient();
 
 export function Providers({ children }: { children: React.ReactNode }) {
     return (
-        <WagmiProvider config={wagmiConfig}>
+        <WagmiConfig config={wagmiConfig}>
             <QueryClientProvider client={queryClient}>
                 <OnchainKitProvider
                     apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY ?? ''}
@@ -22,6 +22,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     </WalletProvider>
                 </OnchainKitProvider>
             </QueryClientProvider>
-        </WagmiProvider>
+        </WagmiConfig>
     );
 }

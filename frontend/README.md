@@ -22,6 +22,10 @@ Create a `frontend/.env.local` with:
 
 ```bash
 NEXT_PUBLIC_ONCHAINKIT_API_KEY=your_onchainkit_api_key
+# Optional: use if you are not setting NEXT_PUBLIC_ONCHAINKIT_API_KEY
+NEXT_PUBLIC_ONCHAINKIT_RPC_URL=https://sepolia.base.org
+# Optional: EAS schema ID for OnchainKit attestation badges
+NEXT_PUBLIC_ONCHAINKIT_SCHEMA_ID=0x...
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
 NEXT_PUBLIC_BASE_RPC_URL=https://sepolia.base.org
 ```

@@ -97,8 +97,8 @@ See [ROADMAP.md](./ROADMAP.md) for full details.
 ### 1. Clone and Setup
 
 ```bash
-git clone https://github.com/unclekaldoteth/stacks-bridge-base.git
-cd stacks-bridge-base
+git clone https://github.com/unclekaldoteth/stacks-bridge.git
+cd stacks-bridge
 ```
 
 ### 2. Run Smart Contracts (Stacks)

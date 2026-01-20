@@ -35,8 +35,8 @@ Use **Base L2** as the source chain instead of Ethereum L1. Base offers:
 | Deployment Scripts | Completed | Network-specific USDC validation |
 | Config Management | Completed | Mainnet/testnet auto-detection |
 | Rate Limiting Fix | Completed | Stacks-block-time implementation |
-| USDCx DEX Integration | Help Wanted | Implement xUSDC → USDCx swap via Velar |
-| Production Launch | Planned | Mainnet deployment |
+| USDCx DEX Integration | **Completed** | Velar adapter + xReserve alternative |
+| Production Launch | Ready | Pending mainnet pool creation |
 
 See [ROADMAP.md](./ROADMAP.md) for full details.
 
@@ -44,15 +44,14 @@ See [ROADMAP.md](./ROADMAP.md) for full details.
 
 ### Latest Improvements (January 2026)
 
-**OnchainKit and Base Account Integration**
-- Integrated Coinbase OnchainKit (`@coinbase/onchainkit`) for enhanced wallet experience
-- Added Base Account SDK (`@base-org/account`) for native Base Account connector
-- Multiple wallet connection options: Base Account (primary) and fallback connectors
-- Added `ConnectWallet` component from OnchainKit in header
-- Wrapped app with `OnchainKitProvider` for seamless integration
-- Added optional OnchainKit config: API key optional with RPC URL fallback, plus EAS schema ID support
+**Phase 4: USDCx Integration Complete**
+- Velar DEX adapter (`velar-adapter.clar`) with mainnet router integration
+- Circle xReserve alternative (`xreserve-adapter.clar`) for 1:1 attestation swaps
+- Dual execution paths: `execute-mint-and-swap` (DEX) or `execute-mint-via-xreserve`
+- Relayer xReserve handler for attestation processing
+- Full documentation: [docs/usdcx-workflow.md](./docs/usdcx-workflow.md)
 
-**Frontend Stability Updates**
+**OnchainKit and Base Account Integration**
 - Downgraded React to 18.2 and wagmi to v2 for stability
 - Pinned viem to 2.17.3 for wagmi v2 compatibility
 - Added Turbopack config and root `package.json` scripts for frontend workflows

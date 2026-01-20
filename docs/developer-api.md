@@ -124,7 +124,60 @@ Printed event payloads:
 
 - `mint-queued` / `mint-approved` / `mint-executed`
 - `mint-and-swap-requested`
+- `mint-via-xreserve-requested`
 - `burn` (this is used by the relayer)
+
+### Stacks - `velar-adapter`
+
+Location: `stacks/contracts/velar-adapter.clar`
+
+Mainnet Router: `SP1Y5YSTAHZ88XYK1VPDH24GY0HPX5J4JECTMY4A1.univ2-router`
+
+Admin functions (owner only):
+
+- `set-router-contract (router principal)` - Configure Velar router
+- `configure-pool (xusdc principal) (usdcx principal) (pool-id uint)` - Set pool tokens
+- `set-slippage-tolerance (bps uint)` - Set slippage in basis points (default 50 = 0.5%)
+- `set-paused (paused bool)` - Emergency pause
+
+Public functions:
+
+- `swap-exact-tokens (amount-in uint) (min-out uint) (token-in principal) (token-out principal)`
+  - Swaps xUSDC → USDCx via Velar pool
+  - Returns amount-out on success
+
+Read-only:
+
+- `get-swap-quote (amount-in uint) (token-in principal) (token-out principal)`
+- `get-pool-config` - Returns pool configuration tuple
+- `get-expected-output (amount-in uint)` - Returns output after 0.3% fee
+- `get-paused-status` - Returns pause state
+
+### Stacks - `xreserve-adapter`
+
+Location: `stacks/contracts/xreserve-adapter.clar`
+
+> **Note**: Circle Bridge Kit SDK expected Q1 2026. Current implementation uses relayer-based attestation flow.
+
+Admin functions (owner only):
+
+- `configure-tokens (xusdc principal) (usdcx principal)` - Set token pair
+- `set-service-id (service-id (string-ascii 64))` - Set xReserve service ID
+- `set-paused (paused bool)` - Emergency pause
+- `complete-swap (swap-id uint)` - Mark swap as completed (called by relayer)
+
+Public functions:
+
+- `swap-exact-tokens (amount-in uint) (min-out uint) (token-in principal) (token-out principal)`
+  - Creates pending swap and emits `xreserve-swap-requested` event
+  - Returns expected 1:1 amount
+
+Read-only:
+
+- `get-swap-quote (amount-in uint) (token-in principal) (token-out principal)` - Returns 1:1 rate
+- `get-pending-swap (swap-id uint)` - Returns swap details
+- `get-swap-nonce` - Returns next swap ID
+- `get-paused-status` - Returns pause state
 
 ## Relayer APIs and Flow
 

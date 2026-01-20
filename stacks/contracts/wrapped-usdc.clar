@@ -131,6 +131,14 @@
     (asserts! (> amount u0) ERR-INVALID-AMOUNT)
     (try! (ft-transfer? xUSDC amount sender recipient))
     (match memo to-print (print to-print) 0x)
+    (print {
+      event: "ft_transfer",
+      amount: amount,
+      sender: sender,
+      recipient: recipient,
+      memo: (match memo data (some data) none),
+      block-height: stacks-block-height
+    })
     (ok true)))
 
 (define-read-only (get-name)

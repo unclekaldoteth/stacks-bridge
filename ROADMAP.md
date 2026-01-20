@@ -35,7 +35,7 @@ Build a decentralized, cost-effective bridge between Base (Ethereum L2) and Stac
 - [x] API documentation (contracts + relayer flow)
 - [x] Expanded developer guides (setup, runbook, troubleshooting, deployment)
 
-## Phase 4: USDCx Integration (In Progress)
+## Phase 4: USDCx Integration ✅
 
 > **Official USDCx Contract**: `SP120SBRBQJ00MCWS7TM5R8WJNTTKD5K0HFRC2CNE.usdcx` (Circle xReserve)
 
@@ -43,10 +43,10 @@ Build a decentralized, cost-effective bridge between Base (Ethereum L2) and Stac
 - [x] Update frontend with USDCx contract reference
 - [x] DEX adapter trait + Velar adapter stub contract
 - [x] `execute-mint-and-swap` flow + auto-swap toggles in `wrapped-usdc-v4`
-- [ ] Research: DEX liquidity pool creation for xUSDC/USDCx
-- [ ] Integration: Velar on-chain swap calls + pool configuration
-- [ ] Alternative: Direct Circle xReserve integration
-- [ ] Documentation: Bridge to official USDCx workflow
+- [x] Research: DEX liquidity pool creation for xUSDC/USDCx (No pool exists; Velar permissionless, Bitflow preferred for stable-swaps)
+- [x] Integration: Velar on-chain swap calls + pool configuration (`velar-adapter.clar`)
+- [x] Alternative: Direct Circle xReserve integration (`xreserve-adapter.clar` + relayer handler)
+- [x] Documentation: Bridge to USDCx workflow (`docs/usdcx-workflow.md`)
 
 ## Phase 5: Decentralization
 

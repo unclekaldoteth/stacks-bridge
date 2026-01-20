@@ -4,7 +4,12 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     environment: "clarinet",
-    singleThread: true,
+    pool: "forks",
+    poolOptions: {
+      forks: {
+        singleFork: true,
+      },
+    },
     environmentOptions: {
       clarinet: {
         manifestPath: "./Clarinet.toml"

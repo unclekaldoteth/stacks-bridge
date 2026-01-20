@@ -3,7 +3,6 @@
  * Run: node scripts/initialize-signers-v2.js
  */
 
-import 'dotenv/config';
 import {
     makeContractCall,
     broadcastTransaction,
@@ -11,13 +10,13 @@ import {
     PostConditionMode,
     principalCV,
 } from '@stacks/transactions';
-import { StacksTestnet } from '@stacks/network';
 import { generateWallet, getStxAddress } from '@stacks/wallet-sdk';
+import { network, requireContract, stacksExplorerTxUrl, txVersion } from './stacks-env.js';
 
-const network = new StacksTestnet();
-
-const CONTRACT_ADDRESS = 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM';
-const CONTRACT_NAME = 'wrapped-usdc-v2';
+const { contractAddress: CONTRACT_ADDRESS, contractName: CONTRACT_NAME } = requireContract(
+    'wrapped-usdc-v2',
+    'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM'
+);
 
 async function main() {
     const mnemonic = process.env.STACKS_PRIVATE_KEY;
@@ -36,7 +35,7 @@ async function main() {
         password: '',
     });
     const privateKey = wallet.accounts[0].stxPrivateKey;
-    const signerAddress = getStxAddress({ account: wallet.accounts[0], transactionVersion: 0x80 });
+    const signerAddress = getStxAddress({ account: wallet.accounts[0], transactionVersion: txVersion });
 
     console.log(`   Signer: ${signerAddress}`);
     console.log(`   Using same address for all 3 signers (testing)`);
@@ -73,7 +72,7 @@ async function main() {
 
     console.log('\n✅ Signers initialization broadcast!');
     console.log(`   TX ID: ${response.txid}`);
-    console.log(`   View: https://explorer.hiro.so/txid/${response.txid}?chain=testnet`);
+    console.log(`   View: ${stacksExplorerTxUrl(response.txid)}`);
     console.log('\n⏳ Wait for confirmation, then update relayer config to use v2');
 }
 

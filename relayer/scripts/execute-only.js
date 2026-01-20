@@ -3,7 +3,6 @@
  * Run: node scripts/execute-only.js <mint-id>
  */
 
-import 'dotenv/config';
 import {
     makeContractCall,
     broadcastTransaction,
@@ -11,12 +10,13 @@ import {
     PostConditionMode,
     uintCV,
 } from '@stacks/transactions';
-import { StacksTestnet } from '@stacks/network';
 import { generateWallet } from '@stacks/wallet-sdk';
+import { network, requireContract, stacksExplorerTxUrl } from './stacks-env.js';
 
-const network = new StacksTestnet();
-const CONTRACT_ADDRESS = 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM';
-const CONTRACT_NAME = 'wrapped-usdc-v3';
+const { contractAddress: CONTRACT_ADDRESS, contractName: CONTRACT_NAME } = requireContract(
+    'wrapped-usdc-v3',
+    'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM'
+);
 const mintId = parseInt(process.argv[2]) || 0;
 
 async function main() {
@@ -53,7 +53,7 @@ async function main() {
     }
 
     console.log(`✅ TX ID: ${response.txid}`);
-    console.log(`   View: https://explorer.hiro.so/txid/${response.txid}?chain=testnet`);
+    console.log(`   View: ${stacksExplorerTxUrl(response.txid)}`);
 }
 
 main().catch(console.error);

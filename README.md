@@ -50,6 +50,17 @@ See [ROADMAP.md](./ROADMAP.md) for full details.
 - Multiple wallet connection options: Base Account (primary) and fallback connectors
 - Added `ConnectWallet` component from OnchainKit in header
 - Wrapped app with `OnchainKitProvider` for seamless integration
+- Added optional OnchainKit config: API key optional with RPC URL fallback, plus EAS schema ID support
+
+**Frontend Stability Updates**
+- Downgraded React to 18.2 and wagmi to v2 for stability
+- Pinned viem to 2.17.3 for wagmi v2 compatibility
+- Added Turbopack config and root `package.json` scripts for frontend workflows
+
+**Stacks Devnet and Core API Updates**
+- Added `STACKS_CORE_API_URL` support for separate Stacks core node endpoints
+- Added `relayer/scripts/initialize-signers-v4.js` for devnet signer initialization
+- Updated devnet Stacks API port to `3999` and documented devnet setup in `docs/local-e2e.md`
 
 **Deployment Script Enhancements**
 - Added network-specific USDC address validation in `evm/scripts/deploy.js`
@@ -115,6 +126,8 @@ cd frontend
 npm install
 npm run dev             # Opens at http://localhost:3000
 ```
+
+Tip: from the repo root, `npm run dev` delegates to `frontend` after installing dependencies there.
 
 ---
 
@@ -194,6 +207,8 @@ We need community help! This project is open source and welcomes contributions.
 ### Quick Links
 
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - How to contribute
+- [docs/developer-api.md](./docs/developer-api.md) - Contract APIs + relayer flow
+- [docs/developer-guides.md](./docs/developer-guides.md) - Setup, runbook, troubleshooting, deployment
 - [ROADMAP.md](./ROADMAP.md) - Project phases and priorities
 - [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) - Community standards
 
@@ -206,7 +221,7 @@ We need community help! This project is open source and welcomes contributions.
 | **Stacks** | Clarity 4, Epoch 3.3, Clarinet 3.11 |
 | **EVM** | Solidity, Hardhat, OpenZeppelin |
 | **Relayer** | Node.js, Viem, @stacks/transactions |
-| **Frontend** | Next.js, TypeScript, WalletConnect, Wagmi, OnchainKit, Base Account SDK |
+| **Frontend** | Next.js (React 18), TypeScript, WalletConnect, Wagmi v2, OnchainKit, Base Account SDK |
 
 ---
 
@@ -222,6 +237,8 @@ BRIDGE_BASE_ADDRESS=0x439ccD45925F5aC9A77bD68B91c130852925bc2D
 
 # Stacks
 STACKS_API_URL=https://api.testnet.hiro.so
+# Optional: separate Stacks core node endpoint (falls back to STACKS_API_URL)
+STACKS_CORE_API_URL=https://stacks-node-api.testnet.stacks.co
 STACKS_PRIVATE_KEY=your_stacks_mnemonic_or_key
 STACKS_CONTRACT_ADDRESS=ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM
 STACKS_CONTRACT_NAME=wrapped-usdc-v3
@@ -231,8 +248,9 @@ STACKS_CONTRACT_NAME=wrapped-usdc-v3
 
 ```env
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_id
+# Optional: OnchainKit API key (omit to use an RPC URL)
 NEXT_PUBLIC_ONCHAINKIT_API_KEY=your_onchainkit_api_key
-# Optional: use if you are not setting NEXT_PUBLIC_ONCHAINKIT_API_KEY
+# Optional: RPC URL for OnchainKit (falls back to NEXT_PUBLIC_BASE_RPC_URL)
 NEXT_PUBLIC_ONCHAINKIT_RPC_URL=https://sepolia.base.org
 # Optional: EAS schema ID for OnchainKit attestation badges
 NEXT_PUBLIC_ONCHAINKIT_SCHEMA_ID=0x...

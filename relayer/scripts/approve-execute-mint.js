@@ -3,7 +3,6 @@
  * Run: node scripts/approve-execute-mint.js <mint-id>
  */
 
-import 'dotenv/config';
 import {
     makeContractCall,
     broadcastTransaction,
@@ -11,14 +10,14 @@ import {
     PostConditionMode,
     uintCV,
 } from '@stacks/transactions';
-import { StacksTestnet } from '@stacks/network';
 import { generateWallet } from '@stacks/wallet-sdk';
+import { network, requireContract, stacksExplorerTxUrl } from './stacks-env.js';
 
-const network = new StacksTestnet();
-
-// Contract details
-const CONTRACT_ADDRESS = 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM';
-const CONTRACT_NAME = 'wrapped-usdc';
+// Contract details (env override supported)
+const { contractAddress: CONTRACT_ADDRESS, contractName: CONTRACT_NAME } = requireContract(
+    'wrapped-usdc',
+    'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM'
+);
 
 // Get mint ID from command line (default to 0 for first mint)
 const mintId = parseInt(process.argv[2]) || 0;
@@ -65,7 +64,7 @@ async function approveMint(privateKey, id) {
     }
 
     console.log(`   TX ID: ${response.txid}`);
-    console.log(`   View: https://explorer.hiro.so/txid/${response.txid}?chain=testnet`);
+    console.log(`   View: ${stacksExplorerTxUrl(response.txid)}`);
     return response.txid;
 }
 
@@ -97,7 +96,7 @@ async function executeMint(privateKey, id) {
 
     console.log(`   TX ID: ${response.txid}`);
     console.log(`   ✅ Mint executed! xUSDC should now be in recipient wallet.`);
-    console.log(`   View: https://explorer.hiro.so/txid/${response.txid}?chain=testnet`);
+    console.log(`   View: ${stacksExplorerTxUrl(response.txid)}`);
     return response.txid;
 }
 

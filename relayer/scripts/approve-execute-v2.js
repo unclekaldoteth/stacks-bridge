@@ -3,7 +3,6 @@
  * Run: node scripts/approve-execute-v2.js <mint-id>
  */
 
-import 'dotenv/config';
 import {
     makeContractCall,
     broadcastTransaction,
@@ -11,14 +10,14 @@ import {
     PostConditionMode,
     uintCV,
 } from '@stacks/transactions';
-import { StacksTestnet } from '@stacks/network';
 import { generateWallet } from '@stacks/wallet-sdk';
-
-const network = new StacksTestnet();
+import { network, requireContract, stacksExplorerAddressUrl, stacksExplorerTxUrl } from './stacks-env.js';
 
 // V2 Contract - only needs 1 signature!
-const CONTRACT_ADDRESS = 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM';
-const CONTRACT_NAME = 'wrapped-usdc-v2';
+const { contractAddress: CONTRACT_ADDRESS, contractName: CONTRACT_NAME } = requireContract(
+    'wrapped-usdc-v2',
+    'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM'
+);
 
 // Get mint ID from command line (default to 0 for first mint)
 const mintId = parseInt(process.argv[2]) || 0;
@@ -65,7 +64,7 @@ async function approveMint(privateKey, id) {
     }
 
     console.log(`   TX ID: ${response.txid}`);
-    console.log(`   View: https://explorer.hiro.so/txid/${response.txid}?chain=testnet`);
+    console.log(`   View: ${stacksExplorerTxUrl(response.txid)}`);
     return response.txid;
 }
 
@@ -97,7 +96,7 @@ async function executeMint(privateKey, id) {
 
     console.log(`   TX ID: ${response.txid}`);
     console.log(`   ✅ Mint executed! xUSDC should now be in recipient wallet.`);
-    console.log(`   View: https://explorer.hiro.so/txid/${response.txid}?chain=testnet`);
+    console.log(`   View: ${stacksExplorerTxUrl(response.txid)}`);
     return response.txid;
 }
 
@@ -124,7 +123,7 @@ async function main() {
     if (execution) {
         console.log('\n═'.repeat(60));
         console.log('✅ COMPLETE! xUSDC minted to recipient.');
-        console.log('   Check wallet: https://explorer.hiro.so/address/ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM?chain=testnet');
+        console.log(`   Check wallet: ${stacksExplorerAddressUrl(CONTRACT_ADDRESS)}`);
         console.log('═'.repeat(60));
     }
 }

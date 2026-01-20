@@ -3,22 +3,13 @@
  * Run: node scripts/fix-signers.js
  */
 
-import 'dotenv/config';
-import {
-    makeContractCall,
-    broadcastTransaction,
-    AnchorMode,
-    PostConditionMode,
-    principalCV,
-    uintCV,
-} from '@stacks/transactions';
-import { StacksTestnet } from '@stacks/network';
 import { generateWallet, getStxAddress } from '@stacks/wallet-sdk';
+import { requireContract, txVersion } from './stacks-env.js';
 
-const network = new StacksTestnet();
-
-const CONTRACT_ADDRESS = 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM';
-const CONTRACT_NAME = 'wrapped-usdc';
+const { contractAddress: CONTRACT_ADDRESS, contractName: CONTRACT_NAME } = requireContract(
+    'wrapped-usdc',
+    'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM'
+);
 
 async function main() {
     const mnemonic = process.env.STACKS_PRIVATE_KEY;
@@ -45,7 +36,7 @@ async function main() {
     // First account is already available
     accounts.push({
         index: 0,
-        address: getStxAddress({ account: wallet.accounts[0], transactionVersion: 0x80 }),
+        address: getStxAddress({ account: wallet.accounts[0], transactionVersion: txVersion }),
         privateKey: wallet.accounts[0].stxPrivateKey,
     });
     console.log(`   Account 0: ${accounts[0].address}`);
@@ -69,6 +60,7 @@ async function main() {
     console.log('   3. Add a test-mode bypass');
 
     // Check if there's a way to mint directly
+    console.log(`\n📍 Contract: ${CONTRACT_ADDRESS}.${CONTRACT_NAME}`);
     console.log('\n📍 Checking pending mint #0...');
 
     // Let's try to see if we can use the owner to do something

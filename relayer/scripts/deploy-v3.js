@@ -3,7 +3,6 @@
  * Run: node scripts/deploy-v3.js
  */
 
-import 'dotenv/config';
 import {
     makeContractDeploy,
     makeContractCall,
@@ -12,18 +11,14 @@ import {
     PostConditionMode,
     principalCV,
 } from '@stacks/transactions';
-import { StacksTestnet } from '@stacks/network';
-import { generateWallet } from '@stacks/wallet-sdk';
+import { generateWallet, getStxAddress } from '@stacks/wallet-sdk';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { network, stacksExplorerTxUrl, txVersion } from './stacks-env.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const network = new StacksTestnet();
-
-// The deployer/owner address - this is derived from the mnemonic
-// On testnet, the address format is ST...
-const CONTRACT_ADDRESS = 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM';
+const contractName = 'wrapped-usdc-v3';
 
 async function main() {
     const mnemonic = process.env.STACKS_PRIVATE_KEY;
@@ -42,17 +37,18 @@ async function main() {
         password: '',
     });
     const privateKey = wallet.accounts[0].stxPrivateKey;
+    const deployerAddress = getStxAddress({ account: wallet.accounts[0], transactionVersion: txVersion });
 
     // Read contract code
     const contractPath = join(__dirname, '../../stacks/contracts/wrapped-usdc-v3.clar');
     const codeBody = readFileSync(contractPath, 'utf-8');
 
     console.log(`📄 Contract size: ${codeBody.length} bytes`);
-    console.log(`📍 Contract name: wrapped-usdc-v3`);
+    console.log(`📍 Contract name: ${contractName}`);
 
     // Step 1: Deploy contract
     const deployOptions = {
-        contractName: 'wrapped-usdc-v3',
+        contractName,
         codeBody,
         senderKey: privateKey,
         network,
@@ -76,7 +72,7 @@ async function main() {
 
     console.log(`✅ Deployment broadcast!`);
     console.log(`   TX ID: ${deployResponse.txid}`);
-    console.log(`   View: https://explorer.hiro.so/txid/${deployResponse.txid}?chain=testnet`);
+    console.log(`   View: ${stacksExplorerTxUrl(deployResponse.txid)}`);
 
     // Wait for deployment to be mined
     console.log('\n⏳ Waiting 90 seconds for deployment to confirm...');
@@ -84,16 +80,16 @@ async function main() {
 
     // Step 2: Initialize signers with the deployer address
     console.log('\n🔄 Step 2: Initializing signers...');
-    console.log(`   Signer address: ${CONTRACT_ADDRESS}`);
+    console.log(`   Signer address: ${deployerAddress}`);
 
     const initOptions = {
-        contractAddress: CONTRACT_ADDRESS,
-        contractName: 'wrapped-usdc-v3',
+        contractAddress: deployerAddress,
+        contractName,
         functionName: 'initialize-signers',
         functionArgs: [
-            principalCV(CONTRACT_ADDRESS),
-            principalCV(CONTRACT_ADDRESS),
-            principalCV(CONTRACT_ADDRESS),
+            principalCV(deployerAddress),
+            principalCV(deployerAddress),
+            principalCV(deployerAddress),
         ],
         senderKey: privateKey,
         network,
@@ -115,12 +111,12 @@ async function main() {
 
     console.log(`✅ Init signers broadcast!`);
     console.log(`   TX ID: ${initResponse.txid}`);
-    console.log(`   View: https://explorer.hiro.so/txid/${initResponse.txid}?chain=testnet`);
+    console.log(`   View: ${stacksExplorerTxUrl(initResponse.txid)}`);
 
     console.log('\n' + '═'.repeat(60));
     console.log('✅ V3 DEPLOYMENT COMPLETE');
     console.log('═'.repeat(60));
-    console.log(`\n📍 Contract: ${CONTRACT_ADDRESS}.wrapped-usdc-v3`);
+    console.log(`\n📍 Contract: ${deployerAddress}.${contractName}`);
     console.log('\n⏳ Wait for init-signers to confirm, then:');
     console.log('   1. Update relayer .env STACKS_CONTRACT_NAME=wrapped-usdc-v3');
     console.log('   2. Restart relayer');

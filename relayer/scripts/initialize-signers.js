@@ -3,7 +3,6 @@
  * Run: node scripts/initialize-signers.js
  */
 
-import 'dotenv/config';
 import {
     makeContractCall,
     broadcastTransaction,
@@ -11,21 +10,14 @@ import {
     PostConditionMode,
     principalCV,
 } from '@stacks/transactions';
-import { StacksTestnet } from '@stacks/network';
 import { generateWallet, getStxAddress } from '@stacks/wallet-sdk';
-
-const network = new StacksTestnet();
+import { network, requireContract, stacksExplorerTxUrl, txVersion } from './stacks-env.js';
 
 // Contract details
-const CONTRACT_ADDRESS = 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM';
-const CONTRACT_NAME = 'wrapped-usdc';
-
-// Signers - using the deployer address
-// For testing, using same address for all 3 signers
-// In production, use 3 different secure wallets
-const SIGNER_1 = 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM';
-const SIGNER_2 = 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM';
-const SIGNER_3 = 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM';
+const { contractAddress: CONTRACT_ADDRESS, contractName: CONTRACT_NAME } = requireContract(
+    'wrapped-usdc',
+    'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM'
+);
 
 async function initializeSigners() {
     const mnemonic = process.env.STACKS_PRIVATE_KEY;
@@ -47,23 +39,26 @@ async function initializeSigners() {
         // Get the first account's private key
         const account = wallet.accounts[0];
         const privateKey = account.stxPrivateKey;
-        const address = getStxAddress({ account, transactionVersion: 0x80 }); // 0x80 for testnet
+        const address = getStxAddress({ account, transactionVersion: txVersion });
+        const signer1 = process.env.STACKS_SIGNER_1 || address;
+        const signer2 = process.env.STACKS_SIGNER_2 || address;
+        const signer3 = process.env.STACKS_SIGNER_3 || address;
 
         console.log(`   Derived address: ${address}`);
         console.log(`\n🔐 Initializing Stacks Signers...`);
         console.log(`   Contract: ${CONTRACT_ADDRESS}.${CONTRACT_NAME}`);
-        console.log(`   Signer 1: ${SIGNER_1}`);
-        console.log(`   Signer 2: ${SIGNER_2}`);
-        console.log(`   Signer 3: ${SIGNER_3}`);
+        console.log(`   Signer 1: ${signer1}`);
+        console.log(`   Signer 2: ${signer2}`);
+        console.log(`   Signer 3: ${signer3}`);
 
         const txOptions = {
             contractAddress: CONTRACT_ADDRESS,
             contractName: CONTRACT_NAME,
             functionName: 'initialize-signers',
             functionArgs: [
-                principalCV(SIGNER_1),
-                principalCV(SIGNER_2),
-                principalCV(SIGNER_3),
+                principalCV(signer1),
+                principalCV(signer2),
+                principalCV(signer3),
             ],
             senderKey: privateKey,
             network,
@@ -88,7 +83,7 @@ async function initializeSigners() {
 
         console.log('✅ Transaction broadcast!');
         console.log(`   TX ID: ${broadcastResponse.txid}`);
-        console.log(`   View: https://explorer.hiro.so/txid/${broadcastResponse.txid}?chain=testnet`);
+        console.log(`   View: ${stacksExplorerTxUrl(broadcastResponse.txid)}`);
     } catch (error) {
         console.error('❌ Error:', error.message);
         console.error(error.stack);

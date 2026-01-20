@@ -1,0 +1,59 @@
+name: Bug report
+description: Report a bug in the bridge contracts, relayer, or frontend.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report! Please fill out the sections below.
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Preflight checklist
+      options:
+        - label: I searched the existing issues and did not find a duplicate.
+          required: true
+        - label: I can reproduce this on the latest `main` or on a recent commit.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      multiple: true
+      options:
+        - EVM contracts (BridgeBase)
+        - Stacks contracts (wrapped-usdc)
+        - Relayer
+        - Frontend
+        - Deployment/scripts
+        - Docs
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug description
+      description: What happened and what you expected.
+      placeholder: "Example: queueRelease reverts with NotSigner when using account #0 in local setup."
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Provide exact steps and any sample data or commands.
+      placeholder: |
+        1) npm run deploy:local
+        2) ...
+        3) ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Paste logs, errors, stack traces, or screenshots. Use code blocks for logs.
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Node version, network (testnet/mainnet/local), wallet, etc.
+      placeholder: "macOS 14, Node 18.20, Base Sepolia, Leather wallet vX"

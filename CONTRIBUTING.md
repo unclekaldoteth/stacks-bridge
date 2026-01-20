@@ -90,6 +90,8 @@ npm start
 
 ### Good First Issues
 
+See `docs/good-first-issues.md` for ready-to-file templates.
+
 - [ ] Add unit tests for Clarity contracts
 - [ ] Improve error handling in relayer
 - [ ] Add transaction history UI component

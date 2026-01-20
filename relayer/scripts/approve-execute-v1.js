@@ -6,7 +6,6 @@
  * Run: node scripts/approve-execute-v1.js <mint-id>
  */
 
-import 'dotenv/config';
 import {
     makeContractCall,
     broadcastTransaction,
@@ -14,15 +13,15 @@ import {
     PostConditionMode,
     uintCV,
 } from '@stacks/transactions';
-import { StacksTestnet } from '@stacks/network';
 import { generateWallet } from '@stacks/wallet-sdk';
-
-const network = new StacksTestnet();
+import { network, requireContract, stacksExplorerTxUrl } from './stacks-env.js';
 
 // V1 Contract - requires 2 approvals but we only have 1 unique signer
 // Let's still try to approve since the initialization may have worked for 1 signer
-const CONTRACT_ADDRESS = 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM';
-const CONTRACT_NAME = 'wrapped-usdc'; // V1
+const { contractAddress: CONTRACT_ADDRESS, contractName: CONTRACT_NAME } = requireContract(
+    'wrapped-usdc',
+    'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM'
+);
 
 const mintId = parseInt(process.argv[2]) || 3;
 
@@ -68,7 +67,7 @@ async function approveMint(privateKey, id) {
     }
 
     console.log(`   TX ID: ${response.txid}`);
-    console.log(`   View: https://explorer.hiro.so/txid/${response.txid}?chain=testnet`);
+    console.log(`   View: ${stacksExplorerTxUrl(response.txid)}`);
     return response.txid;
 }
 

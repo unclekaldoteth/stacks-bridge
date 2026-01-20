@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Contributing guide
+    url: https://github.com/unclekaldoteth/stacks-bridge-base/blob/main/CONTRIBUTING.md
+    about: Setup, testing, and contribution workflow.
+  - name: Local E2E guide
+    url: https://github.com/unclekaldoteth/stacks-bridge-base/blob/main/docs/local-e2e.md
+    about: Running the local bridge flow.
+  - name: Questions and discussion
+    url: https://github.com/unclekaldoteth/stacks-bridge-base/discussions
+    about: Ask questions or share ideas.

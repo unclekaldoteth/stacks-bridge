@@ -55,6 +55,10 @@ npm install
 npm start
 ```
 
+## Developer Docs
+
+See `docs/developer-api.md` for contract APIs, event payloads, and relayer flow details.
+
 ## Flow
 
 ### Deposit (Base → Stacks)

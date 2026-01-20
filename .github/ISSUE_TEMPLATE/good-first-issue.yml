@@ -1,0 +1,55 @@
+name: Good first issue (maintainers)
+description: Create a beginner-friendly task with clear steps.
+title: "[GFI]: "
+labels: ["good first issue"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to define a small, well-scoped task for new contributors.
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What needs to be done and why?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and constraints
+      description: Keep it small and well-defined. Mention files to touch.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Suggested steps
+      description: Outline the steps or hints.
+      placeholder: |
+        1) ...
+        2) ...
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: How do we know it's done?
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      multiple: true
+      options:
+        - EVM contracts (BridgeBase)
+        - Stacks contracts (wrapped-usdc)
+        - Relayer
+        - Frontend
+        - Deployment/scripts
+        - Docs
+  - type: input
+    id: effort
+    attributes:
+      label: Estimated effort
+      description: Example: "1-2 hours" or "small change".

@@ -1,6 +1,7 @@
 # Local Bridge E2E (no mainnet)
 
 This is a local, non-mainnet smoke test harness for the Base <-> Stacks bridge.
+For contract and relayer APIs, see `docs/developer-api.md`.
 
 ## Progress Snapshot (resume here)
 

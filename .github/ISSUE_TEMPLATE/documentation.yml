@@ -1,0 +1,36 @@
+name: Documentation update
+description: Report missing, incorrect, or confusing documentation.
+title: "[Docs]: "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us improve docs. Point to the exact location if possible.
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Preflight checklist
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true
+  - type: input
+    id: location
+    attributes:
+      label: Doc location
+      description: File path or URL.
+      placeholder: "docs/local-e2e.md or README.md"
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: What's wrong?
+      description: Describe the problem or missing content.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested fix
+      description: Proposed changes or wording.

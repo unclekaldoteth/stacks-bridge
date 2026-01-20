@@ -3,16 +3,16 @@
  * Run: node scripts/check-v1-signers.js
  */
 
-import 'dotenv/config';
 import { generateWallet, getStxAddress } from '@stacks/wallet-sdk';
-import { TransactionVersion } from '@stacks/transactions';
+import { requireContract, STACKS_API_URL } from './stacks-env.js';
 
-const STACKS_API = 'https://api.testnet.hiro.so';
-const CONTRACT_ADDRESS = 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM';
-const CONTRACT_NAME = 'wrapped-usdc';
+const { contractAddress: CONTRACT_ADDRESS, contractName: CONTRACT_NAME } = requireContract(
+    'wrapped-usdc',
+    'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM'
+);
 
 async function checkSigner(index) {
-    const url = `${STACKS_API}/v2/contracts/call-read/${CONTRACT_ADDRESS}/${CONTRACT_NAME}/get-signer`;
+    const url = `${STACKS_API_URL}/v2/contracts/call-read/${CONTRACT_ADDRESS}/${CONTRACT_NAME}/get-signer`;
 
     const response = await fetch(url, {
         method: 'POST',
@@ -45,8 +45,8 @@ async function main() {
     for (let i = 0; i < 3; i++) {
         const account = wallet.accounts[i];
         if (account) {
-            const testnetAddr = getStxAddress({ account, transactionVersion: TransactionVersion.Testnet });
-            const mainnetAddr = getStxAddress({ account, transactionVersion: TransactionVersion.Mainnet });
+            const testnetAddr = getStxAddress({ account, transactionVersion: 0x80 });
+            const mainnetAddr = getStxAddress({ account, transactionVersion: 0x00 });
             console.log(`   Account ${i}:`);
             console.log(`     Testnet: ${testnetAddr}`);
             console.log(`     Mainnet: ${mainnetAddr}`);

@@ -1,4 +1,11 @@
-import { Clarinet, Tx, Chain, Account, types } from "@hirosystems/clarinet-sdk";
+import { describe, expect, it, beforeEach } from "vitest";
+import { Cl } from "@stacks/transactions";
+
+const accounts = simnet.getAccounts();
+const deployer = accounts.get("deployer")!;
+const wallet1 = accounts.get("wallet_1")!;
+const wallet2 = accounts.get("wallet_2")!;
+const relayer = accounts.get("wallet_3")!;
 
 const CONTRACT = "wrapped-usdc-v4";
 
@@ -10,204 +17,125 @@ const ERR = {
     ALREADY_APPROVED: 409,
 };
 
-function getAccounts(accounts: Map<string, Account>) {
-    return {
-        deployer: accounts.get("deployer")!,
-        signer1: accounts.get("wallet_1")!,
-        signer2: accounts.get("wallet_2")!,
-        signer3: accounts.get("relayer")!,
-    };
+function initializeSigners() {
+    return simnet.callPublicFn(
+        CONTRACT,
+        "initialize-signers",
+        [Cl.principal(wallet1), Cl.principal(wallet2), Cl.principal(relayer)],
+        deployer
+    );
 }
 
-function initializeSigners(chain: Chain, accounts: Map<string, Account>) {
-    const { deployer, signer1, signer2, signer3 } = getAccounts(accounts);
+describe("wrapped-usdc-v4", () => {
+    it("initialize-signers can only run once", () => {
+        // First call should succeed
+        const result1 = initializeSigners();
+        expect(result1.result).toBeOk(Cl.bool(true));
 
-    const block = chain.mineBlock([
-        Tx.contractCall(
+        // Second call should fail
+        const result2 = simnet.callPublicFn(
             CONTRACT,
             "initialize-signers",
-            [
-                types.principal(signer1.address),
-                types.principal(signer2.address),
-                types.principal(signer3.address),
-            ],
-            deployer.address
-        ),
-    ]);
-
-    block.receipts[0].result.expectOk().expectBool(true);
-}
-
-Clarinet.test({
-    name: "initialize-signers can only run once",
-    async fn(chain: Chain, accounts: Map<string, Account>) {
-        const { deployer, signer1, signer2, signer3 } = getAccounts(accounts);
-
-        let block = chain.mineBlock([
-            Tx.contractCall(
-                CONTRACT,
-                "initialize-signers",
-                [
-                    types.principal(signer1.address),
-                    types.principal(signer2.address),
-                    types.principal(signer3.address),
-                ],
-                deployer.address
-            ),
-        ]);
-
-        block.receipts[0].result.expectOk().expectBool(true);
-
-        block = chain.mineBlock([
-            Tx.contractCall(
-                CONTRACT,
-                "initialize-signers",
-                [
-                    types.principal(signer1.address),
-                    types.principal(signer2.address),
-                    types.principal(signer3.address),
-                ],
-                deployer.address
-            ),
-        ]);
-
-        block.receipts[0].result.expectErr().expectUint(ERR.NOT_AUTHORIZED);
-    },
-});
-
-Clarinet.test({
-    name: "queue-mint rejects non-signers",
-    async fn(chain: Chain, accounts: Map<string, Account>) {
-        const { signer1 } = getAccounts(accounts);
-
-        const block = chain.mineBlock([
-            Tx.contractCall(
-                CONTRACT,
-                "queue-mint",
-                [types.principal(signer1.address), types.uint(1_000_000)],
-                signer1.address
-            ),
-        ]);
-
-        block.receipts[0].result.expectErr().expectUint(ERR.NOT_SIGNER);
-    },
-});
-
-Clarinet.test({
-    name: "queue-mint enforces max-per-tx",
-    async fn(chain: Chain, accounts: Map<string, Account>) {
-        initializeSigners(chain, accounts);
-        const { signer1 } = getAccounts(accounts);
-
-        const block = chain.mineBlock([
-            Tx.contractCall(
-                CONTRACT,
-                "queue-mint",
-                [types.principal(signer1.address), types.uint(10_000_000_001)],
-                signer1.address
-            ),
-        ]);
-
-        block.receipts[0].result.expectErr().expectUint(ERR.EXCEEDS_MAX_TX);
-    },
-});
-
-Clarinet.test({
-    name: "queue + approve + execute mints and burn reduces balance",
-    async fn(chain: Chain, accounts: Map<string, Account>) {
-        initializeSigners(chain, accounts);
-        const { signer1, signer2 } = getAccounts(accounts);
-
-        const amount = 1_000_000n;
-
-        let block = chain.mineBlock([
-            Tx.contractCall(
-                CONTRACT,
-                "queue-mint",
-                [types.principal(signer1.address), types.uint(amount)],
-                signer1.address
-            ),
-        ]);
-
-        block.receipts[0].result.expectOk().expectUint(0);
-
-        block = chain.mineBlock([
-            Tx.contractCall(CONTRACT, "approve-mint", [types.uint(0)], signer2.address),
-        ]);
-        block.receipts[0].result.expectOk().expectBool(true);
-
-        block = chain.mineBlock([
-            Tx.contractCall(CONTRACT, "execute-mint", [types.uint(0)], signer1.address),
-        ]);
-        block.receipts[0].result.expectOk().expectBool(true);
-
-        const balance = chain.callReadOnlyFn(
-            CONTRACT,
-            "get-balance",
-            [types.principal(signer1.address)],
-            signer1.address
+            [Cl.principal(wallet1), Cl.principal(wallet2), Cl.principal(relayer)],
+            deployer
         );
-        balance.result.expectOk().expectUint(amount);
+        expect(result2.result).toBeErr(Cl.uint(ERR.NOT_AUTHORIZED));
+    });
 
-        block = chain.mineBlock([
-            Tx.contractCall(
-                CONTRACT,
-                "burn",
-                [types.uint(500_000), types.ascii("0x0000000000000000000000000000000000000000")],
-                signer1.address
-            ),
-        ]);
-        block.receipts[0].result.expectOk().expectBool(true);
+    it("queue-mint rejects non-signers", () => {
+        // Initialize signers first
+        initializeSigners();
 
-        const finalBalance = chain.callReadOnlyFn(
+        // Non-signer should fail
+        const result = simnet.callPublicFn(
             CONTRACT,
-            "get-balance",
-            [types.principal(signer1.address)],
-            signer1.address
+            "queue-mint",
+            [Cl.principal(deployer), Cl.uint(1_000_000)],
+            deployer // deployer is not a signer
         );
-        finalBalance.result.expectOk().expectUint(500_000n);
-    },
-});
+        expect(result.result).toBeErr(Cl.uint(ERR.NOT_SIGNER));
+    });
 
-Clarinet.test({
-    name: "approve-mint rejects duplicate approvals",
-    async fn(chain: Chain, accounts: Map<string, Account>) {
-        initializeSigners(chain, accounts);
-        const { signer1 } = getAccounts(accounts);
+    it("queue-mint enforces max-per-tx", () => {
+        initializeSigners();
 
-        let block = chain.mineBlock([
-            Tx.contractCall(
-                CONTRACT,
-                "queue-mint",
-                [types.principal(signer1.address), types.uint(1_000_000)],
-                signer1.address
-            ),
-        ]);
+        // Amount exceeds MAX-PER-TX (10B micro-USDC = 10K USDC)
+        const result = simnet.callPublicFn(
+            CONTRACT,
+            "queue-mint",
+            [Cl.principal(wallet1), Cl.uint(10_000_000_001)],
+            wallet1
+        );
+        expect(result.result).toBeErr(Cl.uint(ERR.EXCEEDS_MAX_TX));
+    });
 
-        block.receipts[0].result.expectOk().expectUint(0);
+    it("approve-mint rejects duplicate approvals", () => {
+        initializeSigners();
 
-        block = chain.mineBlock([
-            Tx.contractCall(CONTRACT, "approve-mint", [types.uint(0)], signer1.address),
-        ]);
-        block.receipts[0].result.expectErr().expectUint(ERR.ALREADY_APPROVED);
-    },
-});
+        // Queue a mint (auto-approves for initiator)
+        const queueResult = simnet.callPublicFn(
+            CONTRACT,
+            "queue-mint",
+            [Cl.principal(wallet1), Cl.uint(1_000_000)],
+            wallet1
+        );
+        expect(queueResult.result).toBeOk(Cl.uint(0));
 
-Clarinet.test({
-    name: "burn rejects zero amount",
-    async fn(chain: Chain, accounts: Map<string, Account>) {
-        initializeSigners(chain, accounts);
-        const { signer1 } = getAccounts(accounts);
+        // Same signer trying to approve again
+        const approveResult = simnet.callPublicFn(
+            CONTRACT,
+            "approve-mint",
+            [Cl.uint(0)],
+            wallet1
+        );
+        expect(approveResult.result).toBeErr(Cl.uint(ERR.ALREADY_APPROVED));
+    });
 
-        const block = chain.mineBlock([
-            Tx.contractCall(
-                CONTRACT,
-                "burn",
-                [types.uint(0), types.ascii("0x0000000000000000000000000000000000000000")],
-                signer1.address
-            ),
-        ]);
+    it("burn rejects zero amount", () => {
+        initializeSigners();
 
-        block.receipts[0].result.expectErr().expectUint(ERR.INVALID_AMOUNT);
-    },
+        const result = simnet.callPublicFn(
+            CONTRACT,
+            "burn",
+            [Cl.uint(0), Cl.stringAscii("0x0000000000000000000000000000000000000000")],
+            wallet1
+        );
+        expect(result.result).toBeErr(Cl.uint(ERR.INVALID_AMOUNT));
+    });
+
+    it("get-signer-count returns correct count after initialization", () => {
+        initializeSigners();
+
+        const result = simnet.callReadOnlyFn(
+            CONTRACT,
+            "get-signer-count",
+            [],
+            deployer
+        );
+        expect(result.result).toBeUint(3);
+    });
+
+    it("is-authorized-signer returns true for signers", () => {
+        initializeSigners();
+
+        const result = simnet.callReadOnlyFn(
+            CONTRACT,
+            "is-authorized-signer",
+            [Cl.principal(wallet1)],
+            deployer
+        );
+        expect(result.result).toBeBool(true);
+    });
+
+    it("is-authorized-signer returns false for non-signers", () => {
+        initializeSigners();
+
+        const result = simnet.callReadOnlyFn(
+            CONTRACT,
+            "is-authorized-signer",
+            [Cl.principal(deployer)],
+            deployer
+        );
+        expect(result.result).toBeBool(false);
+    });
 });

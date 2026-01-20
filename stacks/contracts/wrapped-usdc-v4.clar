@@ -73,7 +73,9 @@
 ;; Note: USDCx only exists on mainnet. For testnet, use xUSDC directly.
 (define-data-var usdcx-contract principal 'SP120SBRBQJ00MCWS7TM5R8WJNTTKD5K0HFRC2CNE)
 (define-data-var dex-adapter-contract (optional principal) none)
+(define-data-var xreserve-adapter-contract (optional principal) none)
 (define-data-var auto-swap-enabled bool false)
+(define-data-var xreserve-enabled bool false)
 
 ;; ============================================
 ;; DATA VARIABLES
@@ -301,6 +303,49 @@
     
     (ok true)))
 
+;; Execute mint via xReserve attestation flow
+;; Alternative to DEX swap - uses Circle xReserve for 1:1 USDCx minting
+;; @param mint-id: Approved mint to execute
+(define-public (execute-mint-via-xreserve (mint-id uint))
+  (let
+    (
+      (mint-data (unwrap! (map-get? pending-mints mint-id) ERR-NOT-FOUND))
+      (amount (get amount mint-data))
+      (recipient (get recipient mint-data))
+    )
+    ;; Standard mint checks
+    (asserts! (not (var-get paused)) ERR-PAUSED)
+    (asserts! (not (get executed mint-data)) ERR-ALREADY-EXECUTED)
+    (asserts! (not (get cancelled mint-data)) ERR-ALREADY-CANCELLED)
+    ;; Clarity 4: Check time-based timelock
+    (asserts! (>= stacks-block-time (get execute-after mint-data)) ERR-TIMELOCK-NOT-EXPIRED)
+    (asserts! (>= (get approval-count mint-data) REQUIRED-SIGNATURES) ERR-INSUFFICIENT-APPROVALS)
+    
+    ;; Check xReserve is enabled
+    (asserts! (var-get xreserve-enabled) ERR-DEX-NOT-CONFIGURED)
+    
+    ;; Mark as executed
+    (map-set pending-mints mint-id (merge mint-data {executed: true}))
+    
+    ;; Step 1: Mint xUSDC to THIS CONTRACT (not recipient)
+    (try! (ft-mint? xUSDC amount current-contract))
+    
+    ;; Step 2: Emit event for relayer to process via xReserve
+    ;; The relayer will:
+    ;; 1. Burn xUSDC from this contract
+    ;; 2. Request attestation from Circle xReserve API
+    ;; 3. Submit attestation to mint USDCx for recipient
+    
+    (print {
+      event: "mint-via-xreserve-requested",
+      mint-id: mint-id,
+      recipient: recipient,
+      xusdc-amount: amount,
+      xreserve-adapter: (var-get xreserve-adapter-contract)
+    })
+    
+    (ok true)))
+
 ;; Cancel a pending mint (any signer)
 (define-public (cancel-mint (mint-id uint))
   (let
@@ -407,12 +452,28 @@
     (print {event: "dex-adapter-set", adapter: adapter})
     (ok true)))
 
-;; Enable/disable auto-swap to USDCx (owner only)
+;; Configure xReserve adapter for USDCx swaps (owner only)
+(define-public (set-xreserve-adapter (adapter principal))
+  (begin
+    (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
+    (var-set xreserve-adapter-contract (some adapter))
+    (print {event: "xreserve-adapter-set", adapter: adapter})
+    (ok true)))
+
+;; Enable/disable auto-swap to USDCx via DEX (owner only)
 (define-public (set-auto-swap-enabled (enabled bool))
   (begin
     (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
     (var-set auto-swap-enabled enabled)
     (print {event: "auto-swap-toggled", enabled: enabled})
+    (ok true)))
+
+;; Enable/disable xReserve path (owner only)
+(define-public (set-xreserve-enabled (enabled bool))
+  (begin
+    (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
+    (var-set xreserve-enabled enabled)
+    (print {event: "xreserve-toggled", enabled: enabled})
     (ok true)))
 
 ;; Configure USDCx contract address (owner only)

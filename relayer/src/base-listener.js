@@ -44,46 +44,70 @@ export function initWalletClient() {
 const processedDeposits = new Set();
 
 /**
- * Watch for Deposit events
+ * Watch for Deposit events with auto-reconnect
  */
 export function watchDeposits(onDeposit) {
     console.log('👀 Watching for Base Deposit events...');
 
-    const unwatch = publicClient.watchContractEvent({
-        address: BASE_CONFIG.bridgeAddress,
-        abi: BRIDGE_BASE_ABI,
-        eventName: 'Deposit',
-        onLogs: (logs) => {
-            for (const log of logs) {
-                const eventId = `${log.transactionHash}-${log.logIndex}`;
+    let unwatch = null;
+    let isReconnecting = false;
 
-                if (processedDeposits.has(eventId)) continue;
-                processedDeposits.add(eventId);
+    function startWatching() {
+        unwatch = publicClient.watchContractEvent({
+            address: BASE_CONFIG.bridgeAddress,
+            abi: BRIDGE_BASE_ABI,
+            eventName: 'Deposit',
+            onLogs: (logs) => {
+                for (const log of logs) {
+                    const eventId = `${log.transactionHash}-${log.logIndex}`;
 
-                const { from, amount, stacksAddress, timestamp } = log.args;
+                    if (processedDeposits.has(eventId)) continue;
+                    processedDeposits.add(eventId);
 
-                console.log('\n📥 New Deposit Detected:');
-                console.log(`   From: ${from}`);
-                console.log(`   Amount: ${Number(amount) / 1e6} USDC`);
-                console.log(`   To Stacks: ${stacksAddress}`);
-                console.log(`   TX: ${log.transactionHash}`);
+                    const { from, amount, stacksAddress, timestamp } = log.args;
 
-                onDeposit({
-                    from,
-                    amount,
-                    stacksAddress,
-                    timestamp,
-                    txHash: log.transactionHash,
-                    blockNumber: log.blockNumber,
-                });
-            }
-        },
-        onError: (error) => {
-            console.error('❌ Error watching deposits:', error.message);
-        },
-    });
+                    console.log('\n📥 New Deposit Detected:');
+                    console.log(`   From: ${from}`);
+                    console.log(`   Amount: ${Number(amount) / 1e6} USDC`);
+                    console.log(`   To Stacks: ${stacksAddress}`);
+                    console.log(`   TX: ${log.transactionHash}`);
 
-    return unwatch;
+                    onDeposit({
+                        from,
+                        amount,
+                        stacksAddress,
+                        timestamp,
+                        txHash: log.transactionHash,
+                        blockNumber: log.blockNumber,
+                    });
+                }
+            },
+            onError: (error) => {
+                // Filter expired or connection issue - recreate
+                if (error.message?.includes('filter not found') ||
+                    error.message?.includes('filter_not_found') ||
+                    error.message?.includes('-32000')) {
+                    if (!isReconnecting) {
+                        isReconnecting = true;
+                        console.log('🔄 Filter expired, recreating...');
+                        if (unwatch) unwatch();
+                        setTimeout(() => {
+                            isReconnecting = false;
+                            startWatching();
+                        }, 1000);
+                    }
+                } else {
+                    console.error('❌ Error watching deposits:', error.message);
+                }
+            },
+        });
+    }
+
+    startWatching();
+
+    return () => {
+        if (unwatch) unwatch();
+    };
 }
 
 /**

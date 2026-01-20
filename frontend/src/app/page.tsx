@@ -1,7 +1,33 @@
 'use client';
 
 import { BridgeForm } from '@/components/BridgeForm';
-import { ConnectWallet } from '@coinbase/onchainkit/wallet';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
+
+function ConnectButton() {
+  const { address, isConnected } = useAccount();
+  const { connect, connectors } = useConnect();
+  const { disconnect } = useDisconnect();
+
+  if (isConnected && address) {
+    return (
+      <button
+        onClick={() => disconnect()}
+        className="bg-gray-900 border border-gray-700 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors"
+      >
+        {address.slice(0, 6)}...{address.slice(-4)}
+      </button>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => connect({ connector: connectors[0] })}
+      className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors"
+    >
+      Connect Wallet
+    </button>
+  );
+}
 
 export default function Home() {
   return (
@@ -24,7 +50,7 @@ export default function Home() {
               <p className="text-xs text-gray-500">Network</p>
               <p className="text-sm font-semibold text-yellow-400">Testnet</p>
             </div>
-            <ConnectWallet className="bg-gray-900 border border-gray-700 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors" />
+            <ConnectButton />
           </div>
         </div>
       </header>

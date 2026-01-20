@@ -81,6 +81,22 @@ See `docs/developer-api.md` for contract APIs, event payloads, and relayer flow 
 - **Rate Limits**: 10K/tx, 50K/hr, 200K/day
 - **Timelock**: Small instant, medium 10min, large 1hr
 - **Emergency Pause**: Any signer can pause
+- **Auto-Reconnect**: Automatically recreates RPC event filters when they expire (Alchemy filters timeout after ~5 min)
+
+## Testnet Configuration
+
+For Base Sepolia + Stacks Testnet:
+
+```bash
+# .env (testnet)
+BASE_RPC_URL=https://base-sepolia.g.alchemy.com/v2/<your-key>
+BRIDGE_BASE_ADDRESS=0xb879aF9CeA3193157168A10Fdfdb853bDE4f32Ef
+
+STACKS_API_URL=https://api.testnet.hiro.so
+STACKS_CORE_API_URL=https://api.testnet.hiro.so
+STACKS_CONTRACT_ADDRESS=ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM
+STACKS_CONTRACT_NAME=wrapped-usdc-v4
+```
 
 ## xReserve Handler (USDCx Integration)
 

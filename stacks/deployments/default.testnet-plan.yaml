@@ -11,29 +11,57 @@ plan:
         - contract-publish:
             contract-name: dex-adapter-trait
             expected-sender: ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM
-            cost: 886562
+            cost: 9840
             path: contracts/dex-adapter-trait.clar
             anchor-block-only: true
-            clarity-version: 2
+            clarity-version: 4
         - contract-publish:
             contract-name: sip-010-trait-ft-standard
             expected-sender: ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM
-            cost: 886562
+            cost: 10130
             path: contracts/sip-010-trait-ft-standard.clar
             anchor-block-only: true
-            clarity-version: 2
+            clarity-version: 4
         - contract-publish:
             contract-name: velar-adapter
             expected-sender: ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM
-            cost: 888322
+            cost: 78750
             path: contracts/velar-adapter.clar
             anchor-block-only: true
-            clarity-version: 2
+            clarity-version: 4
         - contract-publish:
             contract-name: wrapped-usdc
             expected-sender: ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM
-            cost: 897926
+            cost: 169250
             path: contracts/wrapped-usdc.clar
             anchor-block-only: true
-            clarity-version: 2
-      epoch: "2.5"
+            clarity-version: 4
+        - contract-publish:
+            contract-name: wrapped-usdc-v2
+            expected-sender: ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM
+            cost: 169280
+            path: contracts/wrapped-usdc-v2.clar
+            anchor-block-only: true
+            clarity-version: 4
+        - contract-publish:
+            contract-name: wrapped-usdc-v3
+            expected-sender: ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM
+            cost: 169280
+            path: contracts/wrapped-usdc-v3.clar
+            anchor-block-only: true
+            clarity-version: 4
+        - contract-publish:
+            contract-name: wrapped-usdc-v4
+            expected-sender: ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM
+            cost: 192200
+            path: contracts/wrapped-usdc-v4.clar
+            anchor-block-only: true
+            clarity-version: 4
+        - contract-publish:
+            contract-name: xreserve-adapter
+            expected-sender: ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM
+            cost: 72020
+            path: contracts/xreserve-adapter.clar
+            anchor-block-only: true
+            clarity-version: 4
+      epoch: "3.3"

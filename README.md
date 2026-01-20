@@ -35,14 +35,31 @@ Use **Base L2** as the source chain instead of Ethereum L1. Base offers:
 | Deployment Scripts | Completed | Network-specific USDC validation |
 | Config Management | Completed | Mainnet/testnet auto-detection |
 | Rate Limiting Fix | Completed | Stacks-block-time implementation |
-| USDCx DEX Integration | **Completed** | Velar adapter + xReserve alternative |
+| USDCx DEX Integration | Completed | Velar adapter + xReserve alternative |
+| **Testnet Deployment** | **Completed** | Base Sepolia + Stacks Testnet live |
 | Production Launch | Ready | Pending mainnet pool creation |
 
 See [ROADMAP.md](./ROADMAP.md) for full details.
 
+## Testnet Deployment
+
+| Network | Contract | Address |
+|---------|----------|--------|
+| Base Sepolia | BridgeBase | `0xb879aF9CeA3193157168A10Fdfdb853bDE4f32Ef` |
+| Base Sepolia | USDC (Circle) | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` |
+| Stacks Testnet | wrapped-usdc-v4 | `ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc-v4` |
+| Stacks Testnet | xreserve-adapter | `ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.xreserve-adapter` |
+| Stacks Testnet | velar-adapter | `ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.velar-adapter` |
+
 ## Recent Updates
 
 ### Latest Improvements (January 2026)
+
+**Testnet Deployment Complete**
+- Base Sepolia: Bridge deployed at `0xb879aF9CeA3193157168A10Fdfdb853bDE4f32Ef`
+- Stacks Testnet: `wrapped-usdc-v4` and `xreserve-adapter` deployed and initialized
+- Relayer configured for testnet with auto-reconnect for RPC filter expiration
+- Frontend running with wagmi v2 wallet connection
 
 **Phase 4: USDCx Integration Complete**
 - Velar DEX adapter (`velar-adapter.clar`) with mainnet router integration

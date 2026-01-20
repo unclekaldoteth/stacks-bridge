@@ -48,6 +48,15 @@ Build a decentralized, cost-effective bridge between Base (Ethereum L2) and Stac
 - [x] Alternative: Direct Circle xReserve integration (`xreserve-adapter.clar` + relayer handler)
 - [x] Documentation: Bridge to USDCx workflow (`docs/usdcx-workflow.md`)
 
+## Phase 4.5: Testnet Deployment ✅
+
+- [x] Base Sepolia: BridgeBase at `0xb879aF9CeA3193157168A10Fdfdb853bDE4f32Ef`
+- [x] Stacks Testnet: `wrapped-usdc-v4` deployed and signers initialized
+- [x] Stacks Testnet: `xreserve-adapter` deployed
+- [x] Relayer auto-reconnect for RPC filter expiration
+- [x] Frontend simplified with native wagmi wallet connection
+- [x] End-to-end testnet verification ready
+
 ## Phase 5: Decentralization
 
 - [ ] Decentralized relayer network (multiple operators)

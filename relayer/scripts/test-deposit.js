@@ -74,8 +74,8 @@ async function main() {
         process.exit(1);
     }
 
-    // Deposit amount (1 USDC)
-    const depositAmount = 1000000n; // 1 USDC (6 decimals)
+    // Deposit amount (10 USDC - minimum required)
+    const depositAmount = 10000000n; // 10 USDC (6 decimals)
     const stacksAddress = 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM'; // Testnet deployer
 
     console.log(`\n📤 Deposit Amount: ${formatUnits(depositAmount, 6)} USDC`);

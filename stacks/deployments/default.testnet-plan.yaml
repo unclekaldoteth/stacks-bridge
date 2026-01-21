@@ -11,35 +11,35 @@ plan:
         - contract-publish:
             contract-name: dex-adapter-trait
             expected-sender: ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM
-            cost: 9840
+            cost: 941773
             path: contracts/dex-adapter-trait.clar
             anchor-block-only: true
             clarity-version: 4
         - contract-publish:
             contract-name: sip-010-trait-ft-standard
             expected-sender: ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM
-            cost: 10130
+            cost: 573011
             path: contracts/sip-010-trait-ft-standard.clar
             anchor-block-only: true
             clarity-version: 4
         - contract-publish:
             contract-name: velar-adapter
             expected-sender: ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM
-            cost: 78750
+            cost: 576425
             path: contracts/velar-adapter.clar
             anchor-block-only: true
             clarity-version: 4
         - contract-publish:
             contract-name: wrapped-usdc
             expected-sender: ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM
-            cost: 169250
+            cost: 580874
             path: contracts/wrapped-usdc.clar
             anchor-block-only: true
             clarity-version: 4
         - contract-publish:
             contract-name: wrapped-usdc-v2
             expected-sender: ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM
-            cost: 169280
+            cost: 580874
             path: contracts/wrapped-usdc-v2.clar
             anchor-block-only: true
             clarity-version: 4

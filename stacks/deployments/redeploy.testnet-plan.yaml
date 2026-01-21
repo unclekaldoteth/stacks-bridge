@@ -1,0 +1,17 @@
+---
+id: 0
+name: Testnet deployment - wrapped-usdc-v5
+network: testnet
+stacks-node: "https://api.testnet.hiro.so"
+bitcoin-node: "http://blockstack:blockstacksystem@bitcoind.testnet.stacks.co:18332"
+plan:
+  batches:
+    - id: 0
+      transactions:
+        - contract-publish:
+            contract-name: wrapped-usdc-v5
+            expected-sender: ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM
+            cost: 5000000
+            path: contracts/wrapped-usdc-v5.clar
+            anchor-block-only: true
+            clarity-version: 4

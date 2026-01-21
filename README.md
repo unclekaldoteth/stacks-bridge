@@ -36,7 +36,8 @@ Use **Base L2** as the source chain instead of Ethereum L1. Base offers:
 | Config Management | Completed | Mainnet/testnet auto-detection |
 | Rate Limiting Fix | Completed | Stacks-block-time implementation |
 | USDCx DEX Integration | Completed | Velar adapter + xReserve alternative |
-| **Testnet Deployment** | **Completed** | Base Sepolia + Stacks Testnet live |
+| Testnet Deployment | Completed | Base Sepolia + Stacks Testnet live |
+| **E2E Test Verified** | **Completed** | Full deposit → mint flow tested |
 | Production Launch | Ready | Pending mainnet pool creation |
 
 See [ROADMAP.md](./ROADMAP.md) for full details.
@@ -47,7 +48,7 @@ See [ROADMAP.md](./ROADMAP.md) for full details.
 |---------|----------|--------|
 | Base Sepolia | BridgeBase | `0xb879aF9CeA3193157168A10Fdfdb853bDE4f32Ef` |
 | Base Sepolia | USDC (Circle) | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` |
-| Stacks Testnet | wrapped-usdc-v4 | `ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc-v4` |
+| Stacks Testnet | **wrapped-usdc-v5** | `ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc-v5` |
 | Stacks Testnet | xreserve-adapter | `ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.xreserve-adapter` |
 | Stacks Testnet | velar-adapter | `ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.velar-adapter` |
 
@@ -55,9 +56,15 @@ See [ROADMAP.md](./ROADMAP.md) for full details.
 
 ### Latest Improvements (January 2026)
 
-**Testnet Deployment Complete**
+**End-to-End Testnet Verification Complete**
+- Full deposit → queue-mint → execute-mint flow tested and working!
+- Base Sepolia: 10 USDC deposited and locked
+- Stacks Testnet: 10 xUSDC minted successfully on `wrapped-usdc-v5`
+- Fixed signer initialization address derivation bug
+
+**Testnet Deployment**
 - Base Sepolia: Bridge deployed at `0xb879aF9CeA3193157168A10Fdfdb853bDE4f32Ef`
-- Stacks Testnet: `wrapped-usdc-v4` and `xreserve-adapter` deployed and initialized
+- Stacks Testnet: `wrapped-usdc-v5` deployed and initialized
 - Relayer configured for testnet with auto-reconnect for RPC filter expiration
 - Frontend running with wagmi v2 wallet connection
 

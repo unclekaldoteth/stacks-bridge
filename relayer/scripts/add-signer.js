@@ -1,6 +1,6 @@
 /**
- * Initialize signers for wrapped-usdc-v4 contract
- * Run: node scripts/initialize-signers-v4.js
+ * Add signer to wrapped-usdc-v4 contract
+ * Run: node scripts/add-signer.js
  */
 
 import "dotenv/config";
@@ -32,44 +32,6 @@ network.apiUrl = STACKS_API_URL;
 const CONTRACT_ADDRESS = process.env.STACKS_CONTRACT_ADDRESS;
 const CONTRACT_NAME = process.env.STACKS_CONTRACT_NAME || "wrapped-usdc-v4";
 
-function withTrailingSlash(url) {
-    return url.endsWith("/") ? url : `${url}/`;
-}
-
-async function fetchOrThrow(url, label) {
-    const response = await fetch(url);
-    if (!response.ok) {
-        const body = await response.text().catch(() => "");
-        const detail = body ? `\n   Response: ${body}` : "";
-        throw new Error(`${label} request failed (${response.status} ${response.statusText}).${detail}`);
-    }
-    return response;
-}
-
-async function assertContractExists() {
-    const coreUrl = withTrailingSlash(STACKS_CORE_API_URL);
-    const contractUrl = `${coreUrl}v2/contracts/source/${CONTRACT_ADDRESS}/${CONTRACT_NAME}`;
-
-    try {
-        await fetchOrThrow(`${coreUrl}v2/info`, "Stacks core");
-    } catch (error) {
-        console.error("❌ Unable to reach Stacks core node.");
-        console.error(`   URL: ${STACKS_CORE_API_URL}`);
-        console.error(`   Error: ${error.message}`);
-        process.exit(1);
-    }
-
-    try {
-        await fetchOrThrow(contractUrl, "Contract lookup");
-    } catch (error) {
-        console.error("❌ Contract not found or not yet deployed.");
-        console.error(`   Contract: ${CONTRACT_ADDRESS}.${CONTRACT_NAME}`);
-        console.error(`   Error: ${error.message}`);
-        console.error(`   Check with: curl ${contractUrl}`);
-        process.exit(1);
-    }
-}
-
 async function main() {
     if (!CONTRACT_ADDRESS) {
         console.error("❌ STACKS_CONTRACT_ADDRESS not set in .env");
@@ -92,11 +54,10 @@ async function main() {
         });
         const account = wallet.accounts[0];
         privateKey = account.stxPrivateKey;
-        // Use getAddressFromPrivateKey to get the actual TX sender address
-        signerAddress = getAddressFromPrivateKey(
-            privateKey,
-            IS_MAINNET ? TransactionVersion.Mainnet : TransactionVersion.Testnet
-        );
+        signerAddress = getStxAddress({
+            account,
+            transactionVersion: IS_MAINNET ? TransactionVersion.Mainnet : TransactionVersion.Testnet,
+        });
     } else {
         privateKey = key;
         signerAddress = getAddressFromPrivateKey(
@@ -105,26 +66,23 @@ async function main() {
         );
     }
 
+    // The address we need to add as signer - this is the contract owner who can queue mints
+    const CONTRACT_OWNER = CONTRACT_ADDRESS;
+
     console.log("═".repeat(60));
-    console.log(`🔐 Initializing Signers for ${CONTRACT_NAME}`);
+    console.log(`🔐 Adding Signer to ${CONTRACT_NAME}`);
     console.log("═".repeat(60));
     console.log(`   Network: ${NETWORK}`);
-    console.log(`   API: ${STACKS_API_URL}`);
-    console.log(`   Core: ${STACKS_CORE_API_URL}`);
     console.log(`   Contract: ${CONTRACT_ADDRESS}.${CONTRACT_NAME}`);
-    console.log(`   Signer: ${signerAddress}`);
-    console.log("   Using same address for all 3 signers (testing)");
-
-    await assertContractExists();
+    console.log(`   Caller: ${signerAddress}`);
+    console.log(`   Adding Signer: ${CONTRACT_OWNER}`);
 
     const txOptions = {
         contractAddress: CONTRACT_ADDRESS,
         contractName: CONTRACT_NAME,
-        functionName: "initialize-signers",
+        functionName: "add-signer",
         functionArgs: [
-            principalCV(signerAddress),
-            principalCV(signerAddress),
-            principalCV(signerAddress),
+            principalCV(CONTRACT_OWNER),
         ],
         senderKey: privateKey,
         network,
@@ -133,7 +91,7 @@ async function main() {
         fee: 20000n,
     };
 
-    console.log("\n🔄 Broadcasting initialize-signers...");
+    console.log("\n🔄 Broadcasting add-signer...");
 
     const transaction = await makeContractCall(txOptions);
     const response = await broadcastTransaction(transaction, network);
@@ -149,7 +107,7 @@ async function main() {
         process.exit(1);
     }
 
-    console.log("\n✅ Signers initialization broadcast!");
+    console.log("\n✅ Signer added!");
     console.log(`   TX ID: ${response.txid}`);
 }
 

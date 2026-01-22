@@ -46,7 +46,7 @@ See [ROADMAP.md](./ROADMAP.md) for full details.
 
 | Network | Contract | Address |
 |---------|----------|--------|
-| Base Sepolia | BridgeBase | `0xb879aF9CeA3193157168A10Fdfdb853bDE4f32Ef` |
+| Base Sepolia | **BridgeBase (v2)** | `0xFCDF3e427e4a4CF3E573762693B9a1bBb35C504B` |
 | Base Sepolia | USDC (Circle) | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` |
 | Stacks Testnet | **wrapped-usdc-v5** | `ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc-v5` |
 | Stacks Testnet | xreserve-adapter | `ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.xreserve-adapter` |

@@ -26,7 +26,8 @@ contract BridgeBase is Ownable, ReentrancyGuard, Pausable {
     IERC20 public immutable usdc;
     
     // Multi-sig configuration
-    uint256 public constant REQUIRED_SIGNATURES = 2;
+    // TESTNET: Set to 1 for testing. CHANGE TO 2 FOR PRODUCTION!
+    uint256 public constant REQUIRED_SIGNATURES = 1;
     uint256 public constant MAX_SIGNERS = 3;
     address[] public signers;
     mapping(address => bool) public isSigner;
@@ -136,7 +137,7 @@ contract BridgeBase is Ownable, ReentrancyGuard, Pausable {
         address[] memory _initialSigners
     ) Ownable(msg.sender) {
         require(_usdc != address(0), "Invalid USDC address");
-        require(_initialSigners.length >= REQUIRED_SIGNATURES, "Need at least 2 signers");
+        require(_initialSigners.length >= REQUIRED_SIGNATURES, "Need at least 1 signer");
         require(_initialSigners.length <= MAX_SIGNERS, "Too many signers");
         
         usdc = IERC20(_usdc);

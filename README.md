@@ -63,7 +63,7 @@ See [ROADMAP.md](./ROADMAP.md) for full details.
 - Fixed signer initialization address derivation bug
 
 **Testnet Deployment**
-- Base Sepolia: Bridge deployed at `0xb879aF9CeA3193157168A10Fdfdb853bDE4f32Ef`
+- Base Sepolia: Bridge deployed at `0xFCDF3e427e4a4CF3E573762693B9a1bBb35C504B`
 - Stacks Testnet: `wrapped-usdc-v5` deployed and initialized
 - Relayer configured for testnet with auto-reconnect for RPC filter expiration
 - Frontend running with wagmi v2 wallet connection
@@ -130,6 +130,8 @@ cd stacks-bridge
 ```bash
 cd stacks
 clarinet check          # Verify contracts compile
+npm install             # Install test dependencies
+npm test                # Run Vitest tests (22 tests)
 clarinet devnet start   # Start local devnet
 ```
 
@@ -169,12 +171,14 @@ Tip: from the repo root, `npm run dev` delegates to `frontend` after installing 
 
 ```
 stacks/contracts/
-├── wrapped-usdc-v4.clar          # Latest xUSDC token (Clarity 4)
+├── wrapped-usdc-v5.clar          # Current xUSDC token (Clarity 4) - Testnet
+├── wrapped-usdc-v4.clar          # xUSDC token (Clarity 4)
 ├── wrapped-usdc-v3.clar          # xUSDC token (SIP-010)
 ├── wrapped-usdc-v2.clar          # Legacy version
 ├── wrapped-usdc.clar             # Original version
 ├── dex-adapter-trait.clar        # DEX integration interface
-├── velar-adapter.clar            # Velar DEX adapter (stub)
+├── velar-adapter.clar            # Velar DEX adapter
+├── xreserve-adapter.clar         # Circle xReserve adapter
 └── sip-010-trait-ft-standard.clar
 
 evm/contracts/
@@ -194,8 +198,8 @@ evm/contracts/
 
 | Network | Contract | Address |
 |---------|----------|---------|
-| Base Sepolia | BridgeBase (v2) | `0x439ccD45925F5aC9A77bD68B91c130852925bc2D` |
-| Stacks Testnet | wrapped-usdc-v3 | `ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc-v3` |
+| Base Sepolia | BridgeBase (v2) | `0xFCDF3e427e4a4CF3E573762693B9a1bBb35C504B` |
+| Stacks Testnet | wrapped-usdc-v5 | `ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc-v5` |
 
 ### Official USDCx (Mainnet Reference)
 
@@ -256,7 +260,7 @@ We need community help! This project is open source and welcomes contributions.
 # Base (EVM)
 BASE_RPC_URL=https://sepolia.base.org
 SIGNER_PRIVATE_KEY=your_evm_private_key
-BRIDGE_BASE_ADDRESS=0x439ccD45925F5aC9A77bD68B91c130852925bc2D
+BRIDGE_BASE_ADDRESS=0xFCDF3e427e4a4CF3E573762693B9a1bBb35C504B
 
 # Stacks
 STACKS_API_URL=https://api.testnet.hiro.so
@@ -264,7 +268,7 @@ STACKS_API_URL=https://api.testnet.hiro.so
 STACKS_CORE_API_URL=https://stacks-node-api.testnet.stacks.co
 STACKS_PRIVATE_KEY=your_stacks_mnemonic_or_key
 STACKS_CONTRACT_ADDRESS=ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM
-STACKS_CONTRACT_NAME=wrapped-usdc-v3
+STACKS_CONTRACT_NAME=wrapped-usdc-v5
 ```
 
 ### Frontend (.env.local)

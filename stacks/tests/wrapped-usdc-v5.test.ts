@@ -1,13 +1,13 @@
-import { describe, expect, it, beforeEach } from "vitest";
+import { describe, expect, it } from "vitest";
 import { Cl } from "@stacks/transactions";
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
 const wallet1 = accounts.get("wallet_1")!;
 const wallet2 = accounts.get("wallet_2")!;
-const relayer = accounts.get("wallet_3")!;
+const relayer = accounts.get("relayer")!;
 
-const CONTRACT = "wrapped-usdc-v4";
+const CONTRACT = "wrapped-usdc-v5";
 
 const ERR = {
     NOT_AUTHORIZED: 401,

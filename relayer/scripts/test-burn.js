@@ -13,7 +13,10 @@ import {
     broadcastTransaction,
     getAddressFromPrivateKey,
     makeContractCall,
+    standardPrincipalCV,
     uintCV,
+    cvToJSON,
+    deserializeCV,
     stringAsciiCV,
 } from "@stacks/transactions";
 import { StacksTestnet } from "@stacks/network";
@@ -31,11 +34,28 @@ const CONTRACT_NAME = process.env.STACKS_CONTRACT_NAME || "wrapped-usdc-v5";
 const BASE_RECIPIENT = process.env.SIGNER_1_ADDRESS || "0x776beEaDe7115Bd870C1344Fec02eF31758C319E";
 
 async function main() {
-    const burnAmount = process.argv[2] || "5000000"; // Default: 5 xUSDC (half of balance)
+    const burnAmountInput = process.argv[2] || "5000000"; // Default: 5 xUSDC (half of balance)
+    let burnAmount;
+    try {
+        burnAmount = BigInt(burnAmountInput);
+    } catch (error) {
+        console.error("❌ Invalid burn amount. Use integer xUSDC units (6 decimals).");
+        process.exit(1);
+    }
 
     const key = process.env.STACKS_PRIVATE_KEY;
     if (!key) {
         console.error("❌ STACKS_PRIVATE_KEY not set");
+        process.exit(1);
+    }
+
+    if (!CONTRACT_ADDRESS) {
+        console.error("❌ STACKS_CONTRACT_ADDRESS not set");
+        process.exit(1);
+    }
+
+    if (!BASE_RECIPIENT.startsWith("0x") || BASE_RECIPIENT.length !== 42) {
+        console.error("❌ Invalid BASE_RECIPIENT (expected 42-char 0x address)");
         process.exit(1);
     }
 
@@ -56,7 +76,7 @@ async function main() {
     console.log("═".repeat(60));
     console.log(`   Contract: ${CONTRACT_ADDRESS}.${CONTRACT_NAME}`);
     console.log(`   Sender: ${senderAddress}`);
-    console.log(`   Burn Amount: ${parseInt(burnAmount) / 1e6} xUSDC`);
+    console.log(`   Burn Amount: ${Number(burnAmount) / 1e6} xUSDC`);
     console.log(`   To Base: ${BASE_RECIPIENT}`);
 
     // Check balance first
@@ -66,18 +86,43 @@ async function main() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             sender: CONTRACT_ADDRESS,
-            arguments: [`0x051a${senderAddress.slice(2)}`], // principal hex encoding
+            arguments: [cvToJSON(standardPrincipalCV(senderAddress)).hex],
         }),
     });
 
     console.log("\n📊 Checking xUSDC balance...");
+
+    if (!balanceResponse.ok) {
+        console.error(`❌ Failed to fetch balance: ${balanceResponse.status}`);
+        process.exit(1);
+    }
+
+    const balanceData = await balanceResponse.json();
+    if (!balanceData.okay || !balanceData.result) {
+        console.error("❌ Balance lookup failed");
+        console.error("   Response:", JSON.stringify(balanceData, null, 2));
+        process.exit(1);
+    }
+
+    const balanceHex = balanceData.result.startsWith("0x")
+        ? balanceData.result.slice(2)
+        : balanceData.result;
+    const balanceCv = deserializeCV(Buffer.from(balanceHex, "hex"));
+    const balanceJson = cvToJSON(balanceCv);
+    const balance = BigInt(balanceJson.value);
+
+    console.log(`   Balance: ${Number(balance) / 1e6} xUSDC`);
+    if (balance < burnAmount) {
+        console.error("❌ Insufficient xUSDC balance for burn");
+        process.exit(1);
+    }
 
     const txOptions = {
         contractAddress: CONTRACT_ADDRESS,
         contractName: CONTRACT_NAME,
         functionName: "burn",
         functionArgs: [
-            uintCV(parseInt(burnAmount)),
+            uintCV(burnAmount),
             stringAsciiCV(BASE_RECIPIENT),
         ],
         senderKey: privateKey,

@@ -51,6 +51,12 @@ clarity_version = 4
 epoch = 3.3
 depends_on = ["sip-010-trait-ft-standard"]
 
+[contracts.wrapped-usdc-v5]
+path = "contracts/wrapped-usdc-v5.clar"
+clarity_version = 4
+epoch = 3.3
+depends_on = ["sip-010-trait-ft-standard"]
+
 [repl.analysis]
 passes = ["check_checker"]
 

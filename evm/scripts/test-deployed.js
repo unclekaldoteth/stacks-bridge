@@ -9,7 +9,7 @@ async function main() {
     console.log("Testing BridgeBase v2 on Base Sepolia...");
     console.log("=".repeat(60));
 
-    const BRIDGE_ADDRESS = "0x439ccD45925F5aC9A77bD68B91c130852925bc2D";
+    const BRIDGE_ADDRESS = "0xFCDF3e427e4a4CF3E573762693B9a1bBb35C504B";
     const USDC_ADDRESS = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
 
     const [signer] = await hre.ethers.getSigners();

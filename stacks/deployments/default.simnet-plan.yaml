@@ -75,6 +75,11 @@ plan:
             path: contracts/wrapped-usdc-v4.clar
             clarity-version: 4
         - emulated-contract-publish:
+            contract-name: wrapped-usdc-v5
+            emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            path: contracts/wrapped-usdc-v5.clar
+            clarity-version: 4
+        - emulated-contract-publish:
             contract-name: xreserve-adapter
             emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
             path: contracts/xreserve-adapter.clar

@@ -5,6 +5,7 @@ export default defineConfig({
   test: {
     environment: "clarinet",
     pool: "forks",
+    setupFiles: ["./node_modules/@hirosystems/clarinet-sdk/vitest-helpers/src/vitest.setup.ts"],
     poolOptions: {
       forks: {
         singleFork: true,

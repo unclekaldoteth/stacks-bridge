@@ -11,7 +11,7 @@ import { baseSepolia } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
 
 const BASE_RPC = process.env.BASE_RPC_URL || "https://base-sepolia.g.alchemy.com/v2/poHXZbv0T2Q6sgplkdhqf";
-const BRIDGE_ADDRESS = process.env.BRIDGE_BASE_ADDRESS || "0xb879aF9CeA3193157168A10Fdfdb853bDE4f32Ef";
+const BRIDGE_ADDRESS = process.env.BRIDGE_BASE_ADDRESS || "0xFCDF3e427e4a4CF3E573762693B9a1bBb35C504B";
 
 // Bridge ABI
 const BRIDGE_ABI = [

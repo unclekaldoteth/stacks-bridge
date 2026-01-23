@@ -90,7 +90,7 @@ For Base Sepolia + Stacks Testnet:
 ```bash
 # .env (testnet)
 BASE_RPC_URL=https://base-sepolia.g.alchemy.com/v2/<your-key>
-BRIDGE_BASE_ADDRESS=0xb879aF9CeA3193157168A10Fdfdb853bDE4f32Ef
+BRIDGE_BASE_ADDRESS=0xFCDF3e427e4a4CF3E573762693B9a1bBb35C504B
 
 STACKS_API_URL=https://api.testnet.hiro.so
 STACKS_CORE_API_URL=https://api.testnet.hiro.so

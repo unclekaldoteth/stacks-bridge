@@ -7,7 +7,7 @@
     "0x8914208F448069C1b354482084371aC63F7256f3",
     "0x37EC4fd04E0454456F270423f430532Db58dafC1"
   ],
-  "requiredSignatures": 2,
+  "requiredSignatures": 1,
   "rateLimits": {
     "maxPerTx": "10000 USDC",
     "hourlyLimit": "50000 USDC",

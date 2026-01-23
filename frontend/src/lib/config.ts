@@ -6,11 +6,11 @@ export const config = {
     // Contract addresses (deployed)
     contracts: {
         base: {
-            bridge: '0x439ccD45925F5aC9A77bD68B91c130852925bc2D',
+            bridge: '0xFCDF3e427e4a4CF3E573762693B9a1bBb35C504B',
             usdc: '0x036CbD53842c5426634e7929541eC2318f3dCF7e', // Base Sepolia USDC
         },
         stacks: {
-            wrappedUsdc: 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc-v3',
+            wrappedUsdc: 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc-v5',
             // Official Circle USDCx (mainnet only)
             // This is the official contract deployed by Circle via xReserve
             usdcx: 'SP120SBRBQJ00MCWS7TM5R8WJNTTKD5K0HFRC2CNE.usdcx',

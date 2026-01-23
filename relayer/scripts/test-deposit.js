@@ -13,7 +13,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Config
-const BRIDGE_ADDRESS = process.env.BRIDGE_BASE_ADDRESS || '0xb879aF9CeA3193157168A10Fdfdb853bDE4f32Ef';
+const BRIDGE_ADDRESS = process.env.BRIDGE_BASE_ADDRESS || '0xFCDF3e427e4a4CF3E573762693B9a1bBb35C504B';
 const USDC_ADDRESS = '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
 const RPC_URL = process.env.BASE_RPC_URL || 'https://base-sepolia.g.alchemy.com/v2/poHXZbv0T2Q6sgplkdhqf';
 

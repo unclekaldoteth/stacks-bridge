@@ -18,10 +18,13 @@ Use **Base L2** as the source chain instead of Ethereum L1. Base offers:
 
 ```
 ┌─────────────┐                    ┌─────────────┐
-│    Base     │  ──── Bridge ────> │   Stacks    │
-│  (ETH L2)   │                    │  (BTC L2)   │
+│    Base     │  ◄── Bidirectional ──►  │   Stacks    │
+│  (ETH L2)   │       Bridge       │  (BTC L2)   │
 └─────────────┘                    └─────────────┘
      USDC            Relayer            xUSDC
+
+  Deposit: Lock USDC on Base → Mint xUSDC on Stacks
+  Withdraw: Burn xUSDC on Stacks → Release USDC on Base
 ```
 
 ## Project Status

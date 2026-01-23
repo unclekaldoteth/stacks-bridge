@@ -140,7 +140,7 @@ cd stacks
 clarinet devnet start --manifest-path Clarinet.toml --deployment-plan-path deployments/default.devnet-plan.yaml --use-on-disk-deployment-plan
 ```
 
-Then deploy `wrapped-usdc-v4` using your Clarinet workflow (Clarinet.toml already includes the contract).
+Then deploy `wrapped-usdc-v5` using your Clarinet workflow (Clarinet.toml already includes the contract).
 Point `STACKS_API_URL` to the devnet API port and use the devnet account keys in `relayer/.env`.
 Also set `STACKS_CORE_API_URL` to the devnet node port (default `http://localhost:20443`).
 

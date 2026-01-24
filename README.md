@@ -16,15 +16,16 @@ Use **Base L2** as the source chain instead of Ethereum L1. Base offers:
 - Fast finality (~2 seconds)
 - Strong security inherited from Ethereum
 
-```
-┌─────────────┐                    ┌─────────────┐
-│    Base     │  ◄── Bidirectional ──►  │   Stacks    │
-│  (ETH L2)   │       Bridge       │  (BTC L2)   │
-└─────────────┘                    └─────────────┘
-     USDC            Relayer            xUSDC
 
-  Deposit: Lock USDC on Base → Mint xUSDC on Stacks
-  Withdraw: Burn xUSDC on Stacks → Release USDC on Base
+```
++---------------+                      +---------------+
+|     Base      | <-- Bidirectional -> |    Stacks     |
+|   (ETH L2)    |        Bridge        |   (BTC L2)    |
++---------------+                      +---------------+
+      USDC             Relayer               xUSDC
+
+  Deposit:  Lock USDC on Base  ->  Mint xUSDC on Stacks
+  Withdraw: Burn xUSDC on Stacks  ->  Release USDC on Base
 ```
 
 ## Project Status

@@ -23,7 +23,7 @@ This guide explains how to convert bridged xUSDC tokens to native USDCx (Circle'
 | Token | Contract | Network |
 |-------|----------|---------|
 | USDCx (Circle) | `SP120SBRBQJ00MCWS7TM5R8WJNTTKD5K0HFRC2CNE.usdcx` | Mainnet |
-| xUSDC (Bridge) | Your deployed `wrapped-usdc-v4` contract | Mainnet/Testnet |
+| xUSDC (Bridge) | Your deployed `wrapped-usdc-v5` contract | Mainnet/Testnet |
 | Velar Router | `SP1Y5YSTAHZ88XYK1VPDH24GY0HPX5J4JECTMY4A1.univ2-router` | Mainnet |
 
 ---
@@ -39,13 +39,13 @@ This guide explains how to convert bridged xUSDC tokens to native USDCx (Circle'
 
 2. **Configure Adapter**
    ```clarity
-   ;; Set Velar adapter in wrapped-usdc-v4
-   (contract-call? .wrapped-usdc-v4 set-dex-adapter .velar-adapter)
-   (contract-call? .wrapped-usdc-v4 set-auto-swap-enabled true)
+   ;; Set Velar adapter in wrapped-usdc-v5
+   (contract-call? .wrapped-usdc-v5 set-dex-adapter .velar-adapter)
+   (contract-call? .wrapped-usdc-v5 set-auto-swap-enabled true)
    
    ;; Configure pool in velar-adapter
    (contract-call? .velar-adapter configure-pool 
-     .wrapped-usdc-v4  ;; xUSDC contract
+     .wrapped-usdc-v5  ;; xUSDC contract
      'SP120SBRBQJ00MCWS7TM5R8WJNTTKD5K0HFRC2CNE.usdcx  ;; USDCx
      u1)  ;; Pool ID from Velar
    ```
@@ -76,11 +76,11 @@ Default: 0.5% (50 basis points)
 
 1. **Configure xReserve Adapter**
    ```clarity
-   (contract-call? .wrapped-usdc-v4 set-xreserve-adapter .xreserve-adapter)
-   (contract-call? .wrapped-usdc-v4 set-xreserve-enabled true)
+   (contract-call? .wrapped-usdc-v5 set-xreserve-adapter .xreserve-adapter)
+   (contract-call? .wrapped-usdc-v5 set-xreserve-enabled true)
    
    (contract-call? .xreserve-adapter configure-tokens
-     .wrapped-usdc-v4  ;; xUSDC
+     .wrapped-usdc-v5  ;; xUSDC
      'SP120SBRBQJ00MCWS7TM5R8WJNTTKD5K0HFRC2CNE.usdcx)  ;; USDCx
    ```
 
@@ -163,7 +163,7 @@ Bitflow uses Curve-style stable swap = better capital efficiency.
 
 ## Contract Reference
 
-### wrapped-usdc-v4 Functions
+### wrapped-usdc-v5 Functions
 
 ```clarity
 ;; Admin Setup

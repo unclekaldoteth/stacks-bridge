@@ -121,4 +121,23 @@ See [docs/usdcx-workflow.md](../docs/usdcx-workflow.md) for full USDCx integrati
 ```bash
 npm start      # Run relayer
 npm run dev    # Run with auto-reload
+npm run webhook # Start webhook server for Chainhook events
 ```
+
+## Helper Scripts
+
+The `relayer/scripts/` directory contains utility scripts:
+
+| Script | Description |
+|--------|-------------|
+| `initialize-signers-v4.js` | Initialize signers on `wrapped-usdc-v5` contract |
+| `approve-execute-mint.js` | Approve and execute a pending mint by ID |
+| `execute-only.js` | Execute a mint after approvals are complete |
+| `check-mint.js` | Check status of a pending mint |
+| `simulate-burn-webhook.js` | Simulate a burn event for testing |
+| `test-deposit.js` | Test deposit flow to Stacks |
+| `test-burn.js` | Test burn flow from Stacks |
+| `execute-release.js` | Execute a release on Base |
+
+See [docs/developer-guides.md](../docs/developer-guides.md) for runbook workflows.
+

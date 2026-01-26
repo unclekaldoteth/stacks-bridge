@@ -79,7 +79,7 @@ SIGNER_PRIVATE_KEY=<hardhat account #1 private key>
 STACKS_API_URL=https://api.testnet.hiro.so
 STACKS_CORE_API_URL=https://stacks-node-api.testnet.stacks.co
 STACKS_CONTRACT_ADDRESS=<stacks principal>
-STACKS_CONTRACT_NAME=wrapped-usdc-v4
+STACKS_CONTRACT_NAME=wrapped-usdc-v5
 STACKS_PRIVATE_KEY=<mnemonic or hex key>
 ```
 
@@ -177,9 +177,9 @@ EVM:
 
 Stacks:
 
-- [ ] Deploy `wrapped-usdc-v4` via Clarinet or your Stacks workflow.
+- [ ] Deploy `wrapped-usdc-v5` via Clarinet or your Stacks workflow.
 - [ ] Run `node relayer/scripts/initialize-signers-v4.js` with owner key.
-- [ ] Set `STACKS_CONTRACT_ADDRESS` and `STACKS_CONTRACT_NAME=wrapped-usdc-v4` in relayer.
+- [ ] Set `STACKS_CONTRACT_ADDRESS` and `STACKS_CONTRACT_NAME=wrapped-usdc-v5` in relayer.
 
 Relayer:
 
@@ -196,7 +196,7 @@ Frontend:
 
 Contracts:
 
-- [ ] Set `REQUIRED-SIGNATURES` to `u2` in `wrapped-usdc-v4.clar` and redeploy.
+- [ ] Set `REQUIRED-SIGNATURES` to `u2` in `wrapped-usdc-v5.clar` and redeploy.
 - [ ] Update `STACKS_CONTRACT_ADDRESS`, `STACKS_CONTRACT_NAME`, and Base bridge address everywhere.
 - [ ] Configure USDCx contract + DEX adapter only after audited integrations.
 

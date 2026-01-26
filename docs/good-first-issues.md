@@ -100,17 +100,17 @@ Title: Tests: add burn invalid base-address test
 Labels: good first issue, testing
 
 Context:
-wrapped-usdc-v4 has tests for zero-amount burns, but not invalid base address length.
+wrapped-usdc-v5 has tests for zero-amount burns, but not invalid base address length.
 
 Scope:
 - Add a Clarinet test that calls burn with an invalid base-address length.
 - Assert ERR-INVALID-ADDRESS.
 
 Acceptance Criteria:
-- New test added to stacks/tests/wrapped-usdc-v4.test.ts.
+- New test added to stacks/tests/wrapped-usdc-v5.test.ts.
 - Test passes and uses existing error constants.
 
 References:
-- stacks/contracts/wrapped-usdc-v4.clar
-- stacks/tests/wrapped-usdc-v4.test.ts
+- stacks/contracts/wrapped-usdc-v5.clar
+- stacks/tests/wrapped-usdc-v5.test.ts
 ```

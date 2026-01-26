@@ -61,7 +61,7 @@ SIGNER_PRIVATE_KEY=<private key for one of the local bridge signers>
 STACKS_API_URL=<your Stacks API URL>
 STACKS_CORE_API_URL=<your Stacks node (core) URL>
 STACKS_CONTRACT_ADDRESS=<Stacks contract principal>
-STACKS_CONTRACT_NAME=wrapped-usdc-v4
+STACKS_CONTRACT_NAME=wrapped-usdc-v5
 STACKS_PRIVATE_KEY=<Stacks mnemonic or private key>
 ```
 

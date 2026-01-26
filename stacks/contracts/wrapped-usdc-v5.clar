@@ -1,4 +1,4 @@
-;; wrapped-usdc-v4.clar
+;; wrapped-usdc-v5.clar
 ;; SIP-010 compliant wrapped USDC with Multi-Sig, Rate Limiting, and Timelock
 ;; 
 ;; CLARITY 4 FEATURES USED:

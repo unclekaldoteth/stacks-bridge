@@ -75,9 +75,9 @@ Common error cases:
 - `ExceedsMaxPerTx`, `ExceedsHourlyLimit`, `ExceedsDailyLimit`
 - `InsufficientContractBalance`, `TimelockNotExpired`, `InsufficientApprovals`
 
-### Stacks - `wrapped-usdc-v4`
+### Stacks - `wrapped-usdc-v5`
 
-Location: `stacks/contracts/wrapped-usdc-v4.clar`
+Location: `stacks/contracts/wrapped-usdc-v5.clar`
 
 Multi-sig minting:
 
@@ -117,7 +117,7 @@ Read-only:
 
 Notes:
 
-- `REQUIRED-SIGNATURES` is `u1` for testnet; change to `u2` for production.
+- `REQUIRED-SIGNATURES` is `u1` for testnet in `wrapped-usdc-v5`; change to `u2` for production.
 - Timelocks and rate limits use `stacks-block-time`.
 
 Printed event payloads:
@@ -285,7 +285,7 @@ SIGNER_PRIVATE_KEY=0x...
 STACKS_API_URL=https://api.testnet.hiro.so
 STACKS_CORE_API_URL=https://stacks-node-api.testnet.stacks.co
 STACKS_CONTRACT_ADDRESS=ST...
-STACKS_CONTRACT_NAME=wrapped-usdc-v4
+STACKS_CONTRACT_NAME=wrapped-usdc-v5
 STACKS_PRIVATE_KEY=...
 ```
 

@@ -50,7 +50,7 @@ Build a decentralized, cost-effective bridge between Base (Ethereum L2) and Stac
 
 ## Phase 4.5: Testnet Deployment ✅
 
-- [x] Base Sepolia: BridgeBase at `0xb879aF9CeA3193157168A10Fdfdb853bDE4f32Ef`
+- [x] Base Sepolia: BridgeBase at `0xFCDF3e427e4a4CF3E573762693B9a1bBb35C504B`
 - [x] Stacks Testnet: `wrapped-usdc-v5` deployed and signers initialized
 - [x] Stacks Testnet: `xreserve-adapter` deployed
 - [x] Relayer auto-reconnect for RPC filter expiration

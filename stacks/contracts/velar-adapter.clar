@@ -19,6 +19,47 @@
 (define-constant ERR-NOT-CONFIGURED (err u504))
 (define-constant ERR-INVALID-TOKEN (err u505))
 
+(define-event swap-executed
+  (swapper principal)
+  (router principal)
+  (pool-id uint)
+  (token-in principal)
+  (token-out principal)
+  (amount-in uint)
+  (amount-out uint)
+  (min-amount-out uint)
+  (slippage-tolerance uint)
+  (timestamp uint)
+)
+
+(define-event router-configured
+  (admin principal)
+  (old-router principal)
+  (new-router principal)
+  (timestamp uint)
+)
+
+(define-event pool-configured
+  (admin principal)
+  (xusdc-token principal)
+  (usdcx-token principal)
+  (pool-id uint)
+  (timestamp uint)
+)
+
+(define-event slippage-updated
+  (admin principal)
+  (old-tolerance uint)
+  (new-tolerance uint)
+  (timestamp uint)
+)
+
+(define-event pause-toggled
+  (admin principal)
+  (paused bool)
+  (timestamp uint)
+)
+
 ;; Velar Mainnet Router Contract
 ;; SP1Y5YSTAHZ88XYK1VPDH24GY0HPX5J4JECTMY4A1.univ2-router
 (define-constant VELAR-MAINNET-ROUTER 'SP1Y5YSTAHZ88XYK1VPDH24GY0HPX5J4JECTMY4A1)
@@ -65,6 +106,7 @@
     (var-set router-contract router)
     (var-set router-configured true)
     (print {event: "router-configured", router: router})
+     (emit-event (router-configured tx-sender old-router router block-height))
     (ok true)))
 
 ;; Configure pool pair tokens
@@ -84,6 +126,7 @@
       usdcx-token: usdcx-token,
       pool-id: velar-pool-id
     })
+     (emit-event (pool-configured tx-sender xusdc-token usdcx-token velar-pool-id block-height))
     (ok true)))
 
 ;; Update slippage tolerance (in basis points)
@@ -92,7 +135,8 @@
     (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
     (asserts! (<= tolerance u1000) ERR-INVALID-TOKEN) ;; Max 10% slippage
     (var-set slippage-tolerance tolerance)
-    (print {event: "slippage-updated", tolerance: tolerance})
+    (print {event: "slippage-updated", tolerance: tolerance}
+    (emit-event (slippage-updated tx-sender old-tolerance tolerance block-height))
     (ok true)))
 
 ;; Pause/unpause adapter
@@ -100,7 +144,8 @@
   (begin
     (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
     (var-set paused is-paused)
-    (print {event: "pause-toggled", paused: is-paused})
+    
+    (emit-event (pause-toggled tx-sender is-paused block-height))
     (ok true)))
 
 ;; ============================================
@@ -161,6 +206,20 @@
       token-out: token-out,
       sender: tx-sender
     })
+
+       ;; EMIT PROPER EVENT HERE
+    (emit-event (swap-executed
+      tx-sender
+      (var-get router-contract)
+      (var-get pool-id)
+      token-in
+      token-out
+      amount-in
+      expected-out
+      min-amount-out
+      (var-get slippage-tolerance)
+      block-height
+    ))
     
     ;; Return expected output (actual integration returns real amount from router)
     (ok expected-out)))

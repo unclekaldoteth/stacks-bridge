@@ -5,4 +5,4 @@ deployment_fee_rate = 10
 [accounts.deployer]
 # Your Stacks testnet mnemonic (24 words)
 # Get testnet STX from: https://explorer.hiro.so/sandbox/faucet?chain=testnet
-mnemonic = "bring punch coach tunnel bridge about kick student uphold market arctic eyebrow nothing eternal genuine equal month reduce curtain flock gorilla pluck body noise"
+mnemonic = "<YOUR_24_WORD_MNEMONIC_HERE>"

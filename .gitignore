@@ -42,6 +42,7 @@ coverage/
 # Stacks/Clarinet
 .cache/
 costs-reports.json
+stacks/settings/Testnet.toml
 
 # Misc
 *.tsbuildinfo

@@ -132,7 +132,7 @@ See [ROADMAP.md](./ROADMAP.md) for full details.
 ### Prerequisites
 
 - Node.js 18+
-- [Clarinet](https://github.com/hirosystems/clarinet) 3.11+
+- [Clarinet](https://github.com/hirosystems/clarinet) 3.11+ (contracts use **Clarity 4**, Epoch 3.3)
 - [WalletConnect Project ID](https://cloud.walletconnect.com/) (free)
 - Stacks wallet (Leather or Xverse)
 - MetaMask (for Base)

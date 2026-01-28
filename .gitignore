@@ -43,6 +43,7 @@ coverage/
 .cache/
 costs-reports.json
 stacks/settings/Testnet.toml
+stacks/settings/Mainnet.toml
 
 # Misc
 *.tsbuildinfo

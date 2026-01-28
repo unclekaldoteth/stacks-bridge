@@ -19,6 +19,18 @@ Quick resume checklist:
 4) Start the webhook server and post a burn event with a valid `BASE_ADDRESS`.
 5) Run `npm run approve:latest` to approve and execute the queued release.
 
+## Testnet Verified Results ✅
+
+Both deposit and withdraw flows have been verified on testnet:
+
+| Flow | Chain | Transaction |
+|------|-------|-------------|
+| Deposit (Lock) | Base Sepolia | [10 USDC locked](https://sepolia.basescan.org) |
+| Mint | Stacks Testnet | 10 xUSDC minted on `wrapped-usdc-v5` |
+| Burn | Stacks Testnet | [`e19bb46b...`](https://explorer.hiro.so/txid/0xe19bb46b2a34dc87508e6049e43dba46a2907bdf5420f7e39e1b6015cce4117d?chain=testnet) |
+| Queue Release | Base Sepolia | [`0xdbbfc3ce...`](https://sepolia.basescan.org/tx/0xdbbfc3cedb51b3ae0c9e381e9ee4242bd8e49e912a7c524882f20d691b544025) |
+| Execute Release | Base Sepolia | [`0x40320215...`](https://sepolia.basescan.org/tx/0x403202153897b662442c98728f8632b51dccb12233d0e63f63f4ff3a02c66384) |
+
 ## Prereqs
 
 - Node.js 18+

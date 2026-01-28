@@ -1,6 +1,7 @@
 'use client';
 
 import { BridgeForm } from '@/components/BridgeForm';
+import { TransactionHistory } from '@/components/TransactionHistory';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 
 function ConnectButton() {
@@ -76,6 +77,9 @@ export default function Home() {
           <div className="bg-gray-900/80 backdrop-blur-xl border border-gray-800 rounded-2xl p-6 shadow-2xl">
             <BridgeForm />
           </div>
+
+          {/* Transaction History */}
+          <TransactionHistory />
         </div>
 
         {/* Stats */}

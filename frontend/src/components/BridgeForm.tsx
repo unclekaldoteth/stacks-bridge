@@ -23,7 +23,16 @@ export function BridgeForm() {
     const fallbackConnector = connectors.find((connector) => connector.id !== 'base-account');
 
     // Stacks wallet
-    const { address: stacksAddress, isConnected: stacksConnected, connect: connectStacks, disconnect: disconnectStacks } = useStacksWallet();
+    const {
+        address: stacksAddress,
+        isConnected: stacksConnected,
+        connect: connectStacks,
+        disconnect: disconnectStacks,
+        isBurning,
+        burnResult,
+        burnTokens,
+        clearBurnResult,
+    } = useStacksWallet();
 
     // Contract interactions
     const { writeContract: approve, data: approveHash } = useWriteContract();
@@ -70,8 +79,8 @@ export function BridgeForm() {
                 <button
                     onClick={() => setDirection('deposit')}
                     className={`flex-1 py-3 rounded-lg font-semibold transition-all ${direction === 'deposit'
-                            ? 'bg-blue-600 text-white'
-                            : 'text-gray-400 hover:text-white'
+                        ? 'bg-blue-600 text-white'
+                        : 'text-gray-400 hover:text-white'
                         }`}
                 >
                     Deposit
@@ -79,8 +88,8 @@ export function BridgeForm() {
                 <button
                     onClick={() => setDirection('withdraw')}
                     className={`flex-1 py-3 rounded-lg font-semibold transition-all ${direction === 'withdraw'
-                            ? 'bg-purple-600 text-white'
-                            : 'text-gray-400 hover:text-white'
+                        ? 'bg-purple-600 text-white'
+                        : 'text-gray-400 hover:text-white'
                         }`}
                 >
                     Withdraw
@@ -164,7 +173,7 @@ export function BridgeForm() {
 
             {/* Fee Estimator */}
             <div className="mt-4">
-                <FeeEstimator amount={Number(amount) || 0} />
+                <FeeEstimator />
             </div>
 
             {/* Wallet Connection */}
@@ -255,12 +264,62 @@ export function BridgeForm() {
                                         Disconnect
                                     </button>
                                 </div>
-                                <button
-                                    disabled={!amount || !destinationAddress}
-                                    className="w-full py-4 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all"
-                                >
-                                    {!amount ? 'Enter Amount' : !destinationAddress ? 'Enter Destination' : 'Burn & Withdraw'}
-                                </button>
+
+                                {!burnResult && (
+                                    <button
+                                        onClick={() => burnTokens(amount, destinationAddress)}
+                                        disabled={!amount || !destinationAddress || isBurning}
+                                        className="w-full py-4 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all"
+                                    >
+                                        {isBurning
+                                            ? 'Confirm in Wallet...'
+                                            : !amount
+                                                ? 'Enter Amount'
+                                                : !destinationAddress
+                                                    ? 'Enter Base Address'
+                                                    : 'Burn & Withdraw'}
+                                    </button>
+                                )}
+
+                                {isBurning && (
+                                    <div className="w-full py-4 bg-orange-600/20 text-orange-400 font-bold rounded-xl text-center">
+                                        ⏳ Waiting for wallet confirmation...
+                                    </div>
+                                )}
+
+                                {burnResult?.status === 'pending' && (
+                                    <div className="w-full p-4 bg-green-600/20 text-green-400 rounded-xl text-center">
+                                        <p className="font-bold">✅ Burn transaction submitted!</p>
+                                        <a
+                                            href={`https://explorer.hiro.so/txid/${burnResult.txId}?chain=testnet`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-sm underline hover:text-green-300"
+                                        >
+                                            View on Explorer →
+                                        </a>
+                                        <p className="text-sm mt-2 text-gray-400">USDC will be released to {destinationAddress.slice(0, 6)}...{destinationAddress.slice(-4)} after confirmation.</p>
+                                        <button
+                                            onClick={clearBurnResult}
+                                            className="mt-3 text-sm text-gray-400 hover:text-white"
+                                        >
+                                            Start New Withdrawal
+                                        </button>
+                                    </div>
+                                )}
+
+                                {burnResult?.status === 'error' && (
+                                    <div className="w-full p-4 bg-red-600/20 text-red-400 rounded-xl text-center">
+                                        <p className="font-bold">❌ Burn failed</p>
+                                        <p className="text-sm">{burnResult.message || 'Please try again'}</p>
+                                        <button
+                                            onClick={clearBurnResult}
+                                            className="mt-2 text-sm underline hover:text-red-300"
+                                        >
+                                            Try Again
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </>

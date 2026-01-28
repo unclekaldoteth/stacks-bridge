@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { formatUnits } from 'viem';
 import { useGasPrice } from 'wagmi';
 import { config } from '@/lib/config';
@@ -18,12 +18,11 @@ const ETH_PRICE_USD = 2400;
 const STX_PRICE_USD = 0.80;
 const L1_BRIDGE_FEE_USD = 4.80; // Current ETH L1 → Stacks fee
 
-export function FeeEstimator({ amount }: { amount: number }) {
+export function FeeEstimator() {
     const { data: gasPrice } = useGasPrice();
-    const [estimate, setEstimate] = useState<FeeEstimate | null>(null);
 
-    useEffect(() => {
-        if (!gasPrice) return;
+    const estimate = useMemo<FeeEstimate | null>(() => {
+        if (!gasPrice) return null;
 
         // Base L2 fee calculation
         const baseGasUsed = config.gasEstimates.baseLock;
@@ -42,13 +41,13 @@ export function FeeEstimator({ amount }: { amount: number }) {
         const savingsUsd = L1_BRIDGE_FEE_USD - totalFeeUsd;
         const savingsPercent = Math.round((savingsUsd / L1_BRIDGE_FEE_USD) * 100);
 
-        setEstimate({
+        return {
             baseFee: baseFeeUsd.toFixed(4),
             stacksFee: stacksFeeUsd.toFixed(4),
             totalFee: totalFeeUsd.toFixed(2),
             savingsVsL1: savingsUsd.toFixed(2),
             savingsPercent: Math.max(0, savingsPercent),
-        });
+        };
     }, [gasPrice]);
 
     if (!estimate) {

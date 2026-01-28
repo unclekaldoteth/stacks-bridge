@@ -55,7 +55,12 @@ Build a decentralized, cost-effective bridge between Base (Ethereum L2) and Stac
 - [x] Stacks Testnet: `xreserve-adapter` deployed
 - [x] Relayer auto-reconnect for RPC filter expiration
 - [x] Frontend simplified with native wagmi wallet connection
-- [x] **E2E Verification Complete**: Full deposit → queue-mint → execute-mint flow tested!
+- [x] **Deposit E2E Verified**: Base → Stacks mint flow tested
+- [x] **Withdraw E2E Verified**: Stacks → Base release flow tested
+  - Burn TX: [`e19bb46b...`](https://explorer.hiro.so/txid/0xe19bb46b2a34dc87508e6049e43dba46a2907bdf5420f7e39e1b6015cce4117d?chain=testnet)
+  - Execute Release TX: [`0x40320215...`](https://sepolia.basescan.org/tx/0x403202153897b662442c98728f8632b51dccb12233d0e63f63f4ff3a02c66384)
+- [x] **Transaction History UI**: Component fetching from Blockscout API
+- [x] **Functional Withdraw Button**: `burnTokens()` via `openContractCall`
 
 ## Phase 5: Decentralization
 

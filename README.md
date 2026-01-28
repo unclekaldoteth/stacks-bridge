@@ -41,7 +41,9 @@ Use **Base L2** as the source chain instead of Ethereum L1. Base offers:
 | Rate Limiting Fix | Completed | Stacks-block-time implementation |
 | USDCx DEX Integration | Completed | Velar adapter + xReserve alternative |
 | Testnet Deployment | Completed | Base Sepolia + Stacks Testnet live |
-| **E2E Test Verified** | **Completed** | Full deposit → mint flow tested |
+| **Deposit E2E Test** | **Verified** | Base → Stacks mint flow tested |
+| **Withdraw E2E Test** | **Verified** | Stacks → Base release flow tested |
+| **Frontend Withdraw UI** | **Completed** | Functional burn & withdraw button |
 | Production Launch | Ready | Pending mainnet pool creation |
 
 See [ROADMAP.md](./ROADMAP.md) for full details.
@@ -59,6 +61,19 @@ See [ROADMAP.md](./ROADMAP.md) for full details.
 ## Recent Updates
 
 ### Latest Improvements (January 2026)
+
+**✅ Withdraw E2E Flow Verified**
+- Full withdraw flow tested on testnet: burn xUSDC → queue release → execute release
+- Transaction Evidence:
+  - Burn TX (Stacks): [`e19bb46b...`](https://explorer.hiro.so/txid/0xe19bb46b2a34dc87508e6049e43dba46a2907bdf5420f7e39e1b6015cce4117d?chain=testnet)
+  - Queue Release TX (Base): [`0xdbbfc3ce...`](https://sepolia.basescan.org/tx/0xdbbfc3cedb51b3ae0c9e381e9ee4242bd8e49e912a7c524882f20d691b544025)
+  - Execute Release TX (Base): [`0x40320215...`](https://sepolia.basescan.org/tx/0x403202153897b662442c98728f8632b51dccb12233d0e63f63f4ff3a02c66384)
+
+**✅ New Frontend Features**
+- **Transaction History UI**: Displays bridge transactions fetched from Blockscout API
+- **Functional Withdraw Button**: "Burn & Withdraw" button now calls Stacks contract via `openContractCall`
+- Input validation with user-friendly error messages
+- Explorer links for all transaction types
 
 **End-to-End Testnet Verification Complete**
 - Full deposit → queue-mint → execute-mint flow tested and working!

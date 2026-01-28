@@ -1,6 +1,7 @@
 'use client';
 
 import { BridgeForm } from '@/components/BridgeForm';
+import { BridgeStats } from '@/components/BridgeStats';
 import { TransactionHistory } from '@/components/TransactionHistory';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 
@@ -74,6 +75,9 @@ export default function Home() {
 
         {/* Bridge Card */}
         <div className="max-w-md mx-auto">
+          {/* Analytics Dashboard */}
+          <BridgeStats />
+
           <div className="bg-gray-900/80 backdrop-blur-xl border border-gray-800 rounded-2xl p-6 shadow-2xl">
             <BridgeForm />
           </div>

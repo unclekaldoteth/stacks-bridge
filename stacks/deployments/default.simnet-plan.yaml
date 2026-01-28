@@ -45,6 +45,11 @@ plan:
             path: contracts/dex-adapter-trait.clar
             clarity-version: 4
         - emulated-contract-publish:
+            contract-name: alex-adapter
+            emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            path: contracts/alex-adapter.clar
+            clarity-version: 4
+        - emulated-contract-publish:
             contract-name: sip-010-trait-ft-standard
             emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
             path: contracts/sip-010-trait-ft-standard.clar

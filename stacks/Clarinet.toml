@@ -27,6 +27,12 @@ clarity_version = 4
 epoch = 3.3
 depends_on = ["dex-adapter-trait"]
 
+[contracts.alex-adapter]
+path = "contracts/alex-adapter.clar"
+clarity_version = 4
+epoch = 3.3
+depends_on = ["dex-adapter-trait"]
+
 [contracts.wrapped-usdc]
 path = "contracts/wrapped-usdc.clar"
 clarity_version = 4

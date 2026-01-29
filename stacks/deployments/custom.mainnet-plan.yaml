@@ -1,6 +1,6 @@
 ---
 id: 0
-name: Mainnet deployment - Bridge v5
+name: Mainnet deployment - Minimal Low Cost
 network: mainnet
 stacks-node: "https://api.hiro.so"
 bitcoin-node: "http://blockstack:blockstacksystem@bitcoin.blockstack.com:8332"
@@ -11,14 +11,14 @@ plan:
         - contract-publish:
             contract-name: sip-010-trait-ft-standard
             expected-sender: SP1MTYHV6K2FNH3QNF4P5QXS9VJ3XZ0GBB5T1SJPK
-            cost: 22433475
+            cost: 50000
             path: contracts/sip-010-trait-ft-standard.clar
             anchor-block-only: true
             clarity-version: 4
         - contract-publish:
             contract-name: wrapped-usdc-v5
             expected-sender: SP1MTYHV6K2FNH3QNF4P5QXS9VJ3XZ0GBB5T1SJPK
-            cost: 14061104
+            cost: 50000
             path: contracts/wrapped-usdc-v5.clar
             anchor-block-only: true
             clarity-version: 4

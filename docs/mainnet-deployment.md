@@ -152,14 +152,15 @@ SIGNER_INDEX=3 node src/index.js
 
 ---
 
-## Contract Addresses (Fill After Deployment)
+## Contract Addresses (Deployed)
 
 | Chain | Contract | Address |
 |-------|----------|---------|
-| Base Mainnet | BridgeBase | `0x...` |
+| Base Mainnet | BridgeBase | `0x0EdF28403D027Be0917625C751c78236407dD4E0` |
 | Base Mainnet | USDC | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` |
-| Stacks Mainnet | wrapped-usdc | `SP...xxx.wrapped-usdc` |
-| Stacks Mainnet | USDCx (Circle) | `SP120SBRBQJ00MCWS7TM5R8WJNTTKD5K0HFRC2CNE.usdc` |
+| Stacks Mainnet | wrapped-usdc-v5 | `SP1MTYHV6K2FNH3QNF4P5QXS9VJ3XZ0GBB5T1SJPK.wrapped-usdc-v5` |
+| Stacks Mainnet | sip-010-trait | `SP1MTYHV6K2FNH3QNF4P5QXS9VJ3XZ0GBB5T1SJPK.sip-010-trait-ft-standard` |
+| Stacks Mainnet | USDCx (Circle) | `SP120SBRBQJ00MCWS7TM5R8WJNTTKD5K0HFRC2CNE.usdcx` |
 
 ---
 

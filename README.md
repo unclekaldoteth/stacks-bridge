@@ -32,48 +32,60 @@ Use **Base L2** as the source chain instead of Ethereum L1. Base offers:
 
 | Phase | Status | Description |
 |-------|--------|------------|
-| Core Infrastructure | Completed | Smart contracts, relayer, frontend |
-| Security Hardening | Completed | Multi-sig, timelocks, rate limiting |
-| Clarity 4 Upgrade | Completed | Latest Stacks features |
-| USDCx Contract Config | Completed | Official Circle USDCx address configured |
-| Deployment Scripts | Completed | Network-specific USDC validation |
-| Config Management | Completed | Mainnet/testnet auto-detection |
-| Rate Limiting Fix | Completed | Stacks-block-time implementation |
-| USDCx DEX Integration | Completed | Velar adapter + xReserve alternative |
-| Testnet Deployment | Completed | Base Sepolia + Stacks Testnet live |
-| **Deposit E2E Test** | **Verified** | Base → Stacks mint flow tested |
-| **Withdraw E2E Test** | **Verified** | Stacks → Base release flow tested |
-| **Frontend Withdraw UI** | **Completed** | Functional burn & withdraw button |
-| Production Launch | Ready | Pending mainnet pool creation |
+| Core Infrastructure | ✅ Completed | Smart contracts, relayer, frontend |
+| Security Hardening | ✅ Completed | Multi-sig, timelocks, rate limiting |
+| Clarity 4 Upgrade | ✅ Completed | Latest Stacks features |
+| USDCx DEX Integration | ✅ Completed | Velar + Alex + xReserve adapters |
+| Testnet Deployment | ✅ Completed | Base Sepolia + Stacks Testnet live |
+| E2E Testing | ✅ Verified | Deposit + Withdraw flows tested |
+| **Mainnet Launch** | **✅ LIVE** | **Base + Stacks Mainnet deployed** |
 
 See [ROADMAP.md](./ROADMAP.md) for full details.
+
+## 🚀 Mainnet Deployment (January 2026)
+
+| Network | Contract | Address | Verified |
+|---------|----------|---------|----------|
+| Base Mainnet | **BridgeBase** | [`0x0EdF28403D027Be0917625C751c78236407dD4E0`](https://basescan.org/address/0x0EdF28403D027Be0917625C751c78236407dD4E0#code) | ✅ |
+| Base Mainnet | USDC (Circle) | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` | - |
+| Stacks Mainnet | **wrapped-usdc-v5** | [`SP1MTYHV6K2FNH3QNF4P5QXS9VJ3XZ0GBB5T1SJPK.wrapped-usdc-v5`](https://explorer.hiro.so/txid/0x44c62212aa019260add71e59bea6bc0de16298efa19d730ff4d1c9645e785d0f?chain=mainnet) | ✅ |
+
+### Security Features
+- **Multi-Sig:** 2-of-3 required for all releases/mints
+- **Rate Limits:** 10K USDC/tx, 50K/hour, 200K/day
+- **Timelock:** 10min for medium, 1hr for large transactions
 
 ## Testnet Deployment
 
 | Network | Contract | Address |
 |---------|----------|--------|
-| Base Sepolia | **BridgeBase (v2)** | `0xFCDF3e427e4a4CF3E573762693B9a1bBb35C504B` |
+| Base Sepolia | BridgeBase | `0xFCDF3e427e4a4CF3E573762693B9a1bBb35C504B` |
 | Base Sepolia | USDC (Circle) | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` |
-| Stacks Testnet | **wrapped-usdc-v5** | `ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc-v5` |
-| Stacks Testnet | xreserve-adapter | `ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.xreserve-adapter` |
-| Stacks Testnet | velar-adapter | `ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.velar-adapter` |
+| Stacks Testnet | wrapped-usdc-v5 | `ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc-v5` |
 
 ## Recent Updates
 
-### Latest Improvements (January 2026)
+### 🎉 Mainnet Launch (January 30, 2026)
 
-**✅ Withdraw E2E Flow Verified**
-- Full withdraw flow tested on testnet: burn xUSDC → queue release → execute release
-- Transaction Evidence:
-  - Burn TX (Stacks): [`e19bb46b...`](https://explorer.hiro.so/txid/0xe19bb46b2a34dc87508e6049e43dba46a2907bdf5420f7e39e1b6015cce4117d?chain=testnet)
-  - Queue Release TX (Base): [`0xdbbfc3ce...`](https://sepolia.basescan.org/tx/0xdbbfc3cedb51b3ae0c9e381e9ee4242bd8e49e912a7c524882f20d691b544025)
-  - Execute Release TX (Base): [`0x40320215...`](https://sepolia.basescan.org/tx/0x403202153897b662442c98728f8632b51dccb12233d0e63f63f4ff3a02c66384)
+**✅ Base Mainnet Deployed**
+- Contract: [`0x0EdF28403D027Be0917625C751c78236407dD4E0`](https://basescan.org/address/0x0EdF28403D027Be0917625C751c78236407dD4E0#code)
+- 2-of-3 multi-sig security
+- Verified on BaseScan
 
-**✅ New Frontend Features**
-- **Transaction History UI**: Displays bridge transactions fetched from Blockscout API
-- **Functional Withdraw Button**: "Burn & Withdraw" button now calls Stacks contract via `openContractCall`
-- Input validation with user-friendly error messages
-- Explorer links for all transaction types
+**✅ Stacks Mainnet Deployed**
+- Contract: [`SP1MTYHV6K2FNH3QNF4P5QXS9VJ3XZ0GBB5T1SJPK.wrapped-usdc-v5`](https://explorer.hiro.so/txid/0x44c62212aa019260add71e59bea6bc0de16298efa19d730ff4d1c9645e785d0f?chain=mainnet)
+- Signers Initialized: [TX 0x82f87b95...](https://explorer.hiro.so/txid/0x82f87b9599b7d04515af772c41b8d0b064e0156474f8257c1e8887960df0d7d3)
+- Block Height: 6202949
+
+### Previous Improvements (January 2026)
+
+**✅ E2E Testing Verified**
+- Full deposit/withdraw flows tested on testnet
+- Transaction Evidence: [See testnet transactions](./docs/mainnet-deployment.md)
+
+**✅ Frontend Features**
+- Transaction History UI with Blockscout API
+- Functional Withdraw Button via `openContractCall`
 
 **End-to-End Testnet Verification Complete**
 - Full deposit → queue-mint → execute-mint flow tested and working!

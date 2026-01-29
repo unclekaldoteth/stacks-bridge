@@ -1,8 +1,26 @@
-# Mainnet Deployment Checklist
+# Mainnet Deployment ✅ COMPLETE
+
+> **Status:** Deployed January 30, 2026
 
 This guide covers deploying the Base ↔ Stacks bridge to mainnet.
 
 ---
+
+## ✅ Deployment Evidence
+
+### Base Mainnet
+- **Contract:** [`0x0EdF28403D027Be0917625C751c78236407dD4E0`](https://basescan.org/address/0x0EdF28403D027Be0917625C751c78236407dD4E0#code)
+- **USDC:** `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`
+- **Verified:** ✅ BaseScan
+
+### Stacks Mainnet
+- **Contract:** [`SP1MTYHV6K2FNH3QNF4P5QXS9VJ3XZ0GBB5T1SJPK.wrapped-usdc-v5`](https://explorer.hiro.so/txid/0x44c62212aa019260add71e59bea6bc0de16298efa19d730ff4d1c9645e785d0f?chain=mainnet)
+- **Deploy TX:** `0x44c62212aa019260add71e59bea6bc0de16298efa19d730ff4d1c9645e785d0f`
+- **Block Height:** 6202949
+- **Signers TX:** [`0x82f87b9599b7d04515af772c41b8d0b064e0156474f8257c1e8887960df0d7d3`](https://explorer.hiro.so/txid/0x82f87b9599b7d04515af772c41b8d0b064e0156474f8257c1e8887960df0d7d3)
+
+---
+
 
 ## Pre-Deployment Requirements
 

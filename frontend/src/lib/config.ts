@@ -1,4 +1,6 @@
 // Bridge Configuration
+const isMainnet = process.env.NEXT_PUBLIC_NETWORK === 'mainnet';
+
 export const config = {
     // Network mode (can be 'testnet' or 'mainnet')
     network: (process.env.NEXT_PUBLIC_NETWORK || 'testnet') as 'testnet' | 'mainnet',
@@ -6,13 +8,18 @@ export const config = {
     // Contract addresses (deployed)
     contracts: {
         base: {
-            bridge: '0xFCDF3e427e4a4CF3E573762693B9a1bBb35C504B',
-            usdc: '0x036CbD53842c5426634e7929541eC2318f3dCF7e', // Base Sepolia USDC
+            bridge: isMainnet
+                ? '0x0EdF28403D027Be0917625C751c78236407dD4E0'  // Mainnet
+                : '0xFCDF3e427e4a4CF3E573762693B9a1bBb35C504B', // Testnet
+            usdc: isMainnet
+                ? '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'  // Base Mainnet USDC
+                : '0x036CbD53842c5426634e7929541eC2318f3dCF7e', // Base Sepolia USDC
         },
         stacks: {
-            wrappedUsdc: 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc-v5',
-            // Official Circle USDCx (mainnet only)
-            // This is the official contract deployed by Circle via xReserve
+            wrappedUsdc: isMainnet
+                ? 'SP1MTYHV6K2FNH3QNF4P5QXS9VJ3XZ0GBB5T1SJPK.wrapped-usdc-v5' // Mainnet (pending)
+                : 'ST1ZGGS886YCZHMFXJR1EK61ZP34FNWNSX28M1PMM.wrapped-usdc-v5', // Testnet
+            // Official Circle USDCx
             usdcx: 'SP120SBRBQJ00MCWS7TM5R8WJNTTKD5K0HFRC2CNE.usdcx',
         },
     },
@@ -20,15 +27,15 @@ export const config = {
     // Chain configuration
     chains: {
         base: {
-            id: 84532,
-            name: 'Base Sepolia',
-            rpcUrl: 'https://sepolia.base.org',
-            explorer: 'https://sepolia.basescan.org',
+            id: isMainnet ? 8453 : 84532,
+            name: isMainnet ? 'Base' : 'Base Sepolia',
+            rpcUrl: isMainnet ? 'https://mainnet.base.org' : 'https://sepolia.base.org',
+            explorer: isMainnet ? 'https://basescan.org' : 'https://sepolia.basescan.org',
         },
         stacks: {
-            network: 'testnet',
-            apiUrl: 'https://api.testnet.hiro.so',
-            explorer: 'https://explorer.hiro.so/?chain=testnet',
+            network: isMainnet ? 'mainnet' : 'testnet',
+            apiUrl: isMainnet ? 'https://api.hiro.so' : 'https://api.testnet.hiro.so',
+            explorer: isMainnet ? 'https://explorer.hiro.so' : 'https://explorer.hiro.so/?chain=testnet',
         },
     },
 

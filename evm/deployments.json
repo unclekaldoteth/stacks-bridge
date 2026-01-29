@@ -1,13 +1,13 @@
 {
-  "network": "baseSepolia",
-  "bridgeAddress": "0xFCDF3e427e4a4CF3E573762693B9a1bBb35C504B",
-  "usdcAddress": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+  "network": "baseMainnet",
+  "bridgeAddress": "0x0EdF28403D027Be0917625C751c78236407dD4E0",
+  "usdcAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
   "signers": [
-    "0x776beEaDe7115Bd870C1344Fec02eF31758C319E",
-    "0x8914208F448069C1b354482084371aC63F7256f3",
-    "0x37EC4fd04E0454456F270423f430532Db58dafC1"
+    "0x7FD8AbD1DF790b6eEF82bAFCaF5E0e3901fDCdbb",
+    "0xF3cA7eFdb2b5EaB09BE527Ccbd3bd66F5404Efb3",
+    "0xb3b0d81D26E67be1299b8A2D9A2b9193c3c44dC3"
   ],
-  "requiredSignatures": 1,
+  "requiredSignatures": 2,
   "rateLimits": {
     "maxPerTx": "10000 USDC",
     "hourlyLimit": "50000 USDC",
@@ -18,6 +18,6 @@
     "medium": "10 minutes",
     "large": "1 hour"
   },
-  "deployedAt": "2026-01-21T14:10:01.140Z",
-  "deployer": "0x776beEaDe7115Bd870C1344Fec02eF31758C319E"
+  "deployedAt": "2026-01-29T19:59:05.428Z",
+  "deployer": "0x56348299d7c5D483d3677EF853Eb8755D9fC14a6"
 }

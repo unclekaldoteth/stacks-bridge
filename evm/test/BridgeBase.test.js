@@ -266,12 +266,12 @@ describe("BridgeBase", function () {
         });
 
         it("removeSigner - keeps minimum signers", async function () {
-            // Remove signers until we hit the minimum
+            // With REQUIRED_SIGNATURES=2, we need at least 2 signers
+            // Remove one signer (3 -> 2)
             await bridge.connect(owner).removeSigner(signer1.address);
-            await bridge.connect(owner).removeSigner(signer2.address);
 
-            // Removing the last signer should fail (need at least REQUIRED_SIGNATURES)
-            await expect(bridge.connect(owner).removeSigner(signer3.address))
+            // Removing another signer should fail (need at least 2 for REQUIRED_SIGNATURES=2)
+            await expect(bridge.connect(owner).removeSigner(signer2.address))
                 .to.be.revertedWithCustomError(bridge, "NotEnoughSigners");
         });
 

@@ -26,8 +26,8 @@ contract BridgeBase is Ownable, ReentrancyGuard, Pausable {
     IERC20 public immutable usdc;
     
     // Multi-sig configuration
-    // TESTNET: Set to 1 for testing. CHANGE TO 2 FOR PRODUCTION!
-    uint256 public constant REQUIRED_SIGNATURES = 1;
+    // MAINNET: Requires 2-of-3 signatures for releases
+    uint256 public constant REQUIRED_SIGNATURES = 2;
     uint256 public constant MAX_SIGNERS = 3;
     address[] public signers;
     mapping(address => bool) public isSigner;
@@ -277,7 +277,7 @@ contract BridgeBase is Ownable, ReentrancyGuard, Pausable {
         if (hasApproved[releaseId][msg.sender]) revert AlreadyApproved();
         
         hasApproved[releaseId][msg.sender] = true;
-        release.approvalCount++;
+        release.approvalCount = _countApprovals(releaseId);
         
         emit ReleaseApproved(releaseId, msg.sender, release.approvalCount);
     }
@@ -297,7 +297,8 @@ contract BridgeBase is Ownable, ReentrancyGuard, Pausable {
         if (release.executed) revert ReleaseAlreadyExecuted();
         if (release.cancelled) revert ReleaseCancelledError();
         if (block.timestamp < release.executeAfter) revert TimelockNotExpired();
-        if (release.approvalCount < REQUIRED_SIGNATURES) revert InsufficientApprovals();
+        uint256 approvalCount = _countApprovals(releaseId);
+        if (approvalCount < REQUIRED_SIGNATURES) revert InsufficientApprovals();
         
         // Check balance again at execution time
         if (usdc.balanceOf(address(this)) < release.amount) {
@@ -422,7 +423,7 @@ contract BridgeBase is Ownable, ReentrancyGuard, Pausable {
         bool cancelled
     ) {
         PendingRelease storage r = pendingReleases[releaseId];
-        return (r.receiver, r.amount, r.executeAfter, r.approvalCount, r.executed, r.cancelled);
+        return (r.receiver, r.amount, r.executeAfter, _countApprovals(releaseId), r.executed, r.cancelled);
     }
     
     function getRemainingLimits() external view returns (
@@ -462,5 +463,15 @@ contract BridgeBase is Ownable, ReentrancyGuard, Pausable {
             currentDailyVolume = 0;
             lastDayReset = block.timestamp;
         }
+    }
+
+    function _countApprovals(uint256 releaseId) internal view returns (uint256) {
+        uint256 count = 0;
+        for (uint256 i = 0; i < signers.length; i++) {
+            if (hasApproved[releaseId][signers[i]]) {
+                count++;
+            }
+        }
+        return count;
     }
 }

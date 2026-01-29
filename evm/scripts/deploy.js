@@ -1,7 +1,8 @@
 const hre = require("hardhat");
 
 async function main() {
-    console.log("Deploying BridgeBase (Multi-Sig) to Base Sepolia...");
+    const networkName = hre.network.name;
+    console.log(`Deploying BridgeBase (Multi-Sig) to ${networkName}...`);
     console.log("=".repeat(60));
 
     // Configuration

@@ -1,6 +1,11 @@
 # Contributing to Stacks Bridge Base
 
-Thank you for your interest in contributing to the Base <> Stacks USDC Bridge! This project aims to provide cheaper bridging for users by leveraging Base L2 instead of Ethereum L1.
+Thank you for your interest in contributing to the Base ↔ Stacks USDC Bridge! 
+
+> **🚀 Status:** Mainnet LIVE (January 30, 2026)  
+> **Contracts:** [Base](https://basescan.org/address/0x0EdF28403D027Be0917625C751c78236407dD4E0) | [Stacks](https://explorer.hiro.so/txid/0x44c62212aa019260add71e59bea6bc0de16298efa19d730ff4d1c9645e785d0f?chain=mainnet)
+
+This project provides cheaper bridging for users by leveraging Base L2 instead of Ethereum L1.
 
 ## How to Contribute
 
@@ -88,21 +93,28 @@ npm start
 
 ## Areas for Contribution
 
+### Completed ✅
+
+- [x] Unit tests for Clarity contracts (28 tests passing)
+- [x] Transaction History UI component
+- [x] USDCx integration via DEX swap (Velar + Alex adapters)
+- [x] API documentation
+- [x] Mainnet deployment
+
 ### Good First Issues
 
-See `docs/good-first-issues.md` for ready-to-file templates.
-
-- [ ] Add unit tests for Clarity contracts
-- [ ] Improve error handling in relayer
-- [ ] Add transaction history UI component
-- [ ] Document API endpoints
+- [ ] Improve error messages in relayer logs
+- [ ] Add loading states to frontend components
+- [ ] Write integration tests for relayer
+- [ ] Add user guides and tutorials
 
 ### Larger Projects
 
-- [ ] USDCx integration via DEX swap
+- [ ] Security audit preparation
 - [ ] Multi-chain support (Arbitrum, Optimism)
 - [ ] Decentralized relayer network
-- [ ] Security audit preparation
+- [ ] DEX liquidity pool creation (xUSDC/USDCx)
+- [ ] Analytics dashboard improvements
 
 ## Getting Help
 

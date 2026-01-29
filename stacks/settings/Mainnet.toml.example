@@ -1,0 +1,9 @@
+[network]
+name = "mainnet"
+deployment_fee_rate = 10
+
+[accounts.deployer]
+# Your Stacks MAINNET mnemonic (24 words)
+# ⚠️ NEVER COMMIT THIS FILE - it's in .gitignore
+# Fund this wallet with STX for deployment fees (~10 STX recommended)
+mnemonic = "<YOUR_24_WORD_MAINNET_MNEMONIC_HERE>"

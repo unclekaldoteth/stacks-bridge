@@ -24,6 +24,13 @@ module.exports = {
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       gasPrice: "auto"
     },
+    // Base Mainnet (Production)
+    baseMainnet: {
+      url: process.env.BASE_MAINNET_RPC || "https://mainnet.base.org",
+      chainId: 8453,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      gasPrice: "auto"
+    },
     // Optional: Base Flashblocks for faster confirmations
     baseSepoliaFlashblocks: {
       url: "https://sepolia-preconf.base.org",
@@ -33,7 +40,8 @@ module.exports = {
   },
   etherscan: {
     apiKey: {
-      baseSepolia: process.env.BASESCAN_API_KEY || ""
+      baseSepolia: process.env.BASESCAN_API_KEY || "",
+      baseMainnet: process.env.BASESCAN_API_KEY || ""
     },
     customChains: [
       {
@@ -42,6 +50,14 @@ module.exports = {
         urls: {
           apiURL: "https://api-sepolia.basescan.org/api",
           browserURL: "https://sepolia.basescan.org"
+        }
+      },
+      {
+        network: "baseMainnet",
+        chainId: 8453,
+        urls: {
+          apiURL: "https://api.basescan.org/api",
+          browserURL: "https://basescan.org"
         }
       }
     ]

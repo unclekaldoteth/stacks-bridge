@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider, type State } from 'wagmi';
 import { createAppKit } from '@reown/appkit/react';
@@ -32,27 +33,44 @@ const isMainnet = process.env.NEXT_PUBLIC_NETWORK === 'mainnet';
 const chain = isMainnet ? base : baseSepolia;
 const onchainKitRpcUrl = isMainnet ? onchainKitMainnetRpcUrl : onchainKitTestnetRpcUrl;
 
-// Create Reown AppKit modal (guard against duplicate init in dev/fast refresh)
-const appKitGlobal = globalThis as typeof globalThis & { __appKitInitialized?: boolean };
-if (projectId && typeof window !== 'undefined' && !appKitGlobal.__appKitInitialized) {
-    createAppKit({
-        adapters: [wagmiAdapter],
-        networks,
-        projectId,
-        metadata,
-        features: {
-            analytics: true,
-        },
-    });
-    appKitGlobal.__appKitInitialized = true;
-}
-
 interface ProvidersProps {
     children: React.ReactNode;
     initialState?: State;
 }
 
+// Track AppKit initialization globally to prevent duplicates
+const appKitInitialized = { current: false };
+
 export function Providers({ children, initialState }: ProvidersProps) {
+    const [isReady, setIsReady] = useState(false);
+
+    useEffect(() => {
+        // Initialize AppKit on client-side only
+        if (!appKitInitialized.current && projectId) {
+            try {
+                createAppKit({
+                    adapters: [wagmiAdapter],
+                    networks,
+                    projectId,
+                    metadata,
+                    features: {
+                        analytics: true,
+                    },
+                });
+                appKitInitialized.current = true;
+                console.log('✅ AppKit initialized with projectId:', projectId.slice(0, 8) + '...');
+            } catch (error) {
+                console.error('❌ Failed to initialize AppKit:', error);
+            }
+        }
+        setIsReady(true);
+    }, []);
+
+    // Show nothing until client-side initialization is complete
+    if (!isReady) {
+        return null;
+    }
+
     return (
         <WagmiProvider config={wagmiAdapter.wagmiConfig} initialState={initialState}>
             <QueryClientProvider client={queryClient}>
@@ -70,3 +88,4 @@ export function Providers({ children, initialState }: ProvidersProps) {
         </WagmiProvider>
     );
 }
+

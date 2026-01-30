@@ -79,9 +79,9 @@ export function FeeEstimator() {
                     💰 Fee Breakdown
                 </h3>
                 <div className="flex gap-1 flex-wrap justify-end">
-                    {ethSource === 'basescan' && (
+                    {ethSource === 'coingecko' && (
                         <span className="text-[10px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded">
-                            Basescan
+                            CoinGecko
                         </span>
                     )}
                     {stxSource === 'coinbase' && (

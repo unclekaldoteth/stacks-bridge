@@ -2,14 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-// Coinbase API endpoint for STX price
+// API endpoints (all free, no API key required)
+const COINGECKO_ETH_URL = 'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd';
 const COINBASE_STX_URL = 'https://api.coinbase.com/v2/prices/STX-USD/spot';
 
-// Etherscan/Basescan API v2 (optional API key to reduce rate limits)
+// Etherscan Gas Oracle API v2 (optional API key to reduce rate limits)
 const ETHERSCAN_API_KEY = process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY || '';
-
-// Base chainid = 8453, Ethereum chainid = 1
-const BASESCAN_ETH_PRICE_URL = `https://api.etherscan.io/v2/api?chainid=8453&module=stats&action=ethprice${ETHERSCAN_API_KEY ? `&apikey=${ETHERSCAN_API_KEY}` : ''}`;
 const ETHERSCAN_GAS_URL = `https://api.etherscan.io/v2/api?chainid=1&module=gastracker&action=gasoracle${ETHERSCAN_API_KEY ? `&apikey=${ETHERSCAN_API_KEY}` : ''}`;
 
 // Fallback prices if APIs fail
@@ -30,48 +28,43 @@ interface PriceData {
     stxUsd: number;
     l1GasGwei: number;
     l1BridgeFeeUsd: number;
-    ethSource: 'basescan' | 'fallback';
+    ethSource: 'coingecko' | 'fallback';
     stxSource: 'coinbase' | 'fallback';
     l1GasSource: 'etherscan' | 'fallback';
     lastUpdated: Date;
 }
 
 // Module-level caches
-let ethPriceCache: { price: number; timestamp: number; source: 'basescan' } | null = null;
+let ethPriceCache: { price: number; timestamp: number; source: 'coingecko' } | null = null;
 let stxPriceCache: { price: number; timestamp: number; source: 'coinbase' } | null = null;
 let l1GasCache: { gasGwei: number; timestamp: number; source: 'etherscan' } | null = null;
 
-async function fetchEthPrice(): Promise<{ price: number; source: 'basescan' | 'fallback' }> {
+async function fetchEthPrice(): Promise<{ price: number; source: 'coingecko' | 'fallback' }> {
     if (ethPriceCache && Date.now() - ethPriceCache.timestamp < ETH_CACHE_MS) {
         return { price: ethPriceCache.price, source: ethPriceCache.source };
     }
 
     try {
-        const response = await fetch(BASESCAN_ETH_PRICE_URL);
+        const response = await fetch(COINGECKO_ETH_URL);
         if (!response.ok) {
-            console.warn('Basescan API response not ok:', response.status);
-            throw new Error(`Basescan API error: ${response.status}`);
+            console.warn('CoinGecko API response not ok:', response.status);
+            throw new Error(`CoinGecko API error: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log('Basescan ETH price data:', data);
+        console.log('CoinGecko ETH price data:', data);
 
-        // Check for API error response
-        if (data.status !== '1' || data.message !== 'OK') {
-            throw new Error(`Basescan API error: ${data.message || 'Unknown error'}`);
-        }
-
-        // ethusd is the USD price
-        const price = parseFloat(data.result?.ethusd);
+        // CoinGecko returns { ethereum: { usd: price } }
+        const price = data?.ethereum?.usd;
 
         if (Number.isFinite(price) && price > 0) {
-            ethPriceCache = { price, timestamp: Date.now(), source: 'basescan' };
+            ethPriceCache = { price, timestamp: Date.now(), source: 'coingecko' };
             console.log('✅ ETH price updated:', price.toFixed(2), 'USD');
-            return { price, source: 'basescan' };
+            return { price, source: 'coingecko' };
         }
-        throw new Error('Invalid ETH price data: ' + JSON.stringify(data.result));
+        throw new Error('Invalid ETH price data: ' + JSON.stringify(data));
     } catch (error) {
-        console.warn('Failed to fetch ETH price from Basescan:', error);
+        console.warn('Failed to fetch ETH price from CoinGecko:', error);
         return { price: ethPriceCache?.price ?? FALLBACK_ETH_USD, source: 'fallback' };
     }
 }
@@ -136,14 +129,14 @@ async function fetchL1GasPrice(): Promise<{ gasGwei: number; source: 'etherscan'
 
 export function usePrices(): PriceData {
     const [ethUsd, setEthUsd] = useState<number>(FALLBACK_ETH_USD);
-    const [ethSource, setEthSource] = useState<'basescan' | 'fallback'>('fallback');
+    const [ethSource, setEthSource] = useState<'coingecko' | 'fallback'>('fallback');
     const [stxPrice, setStxPrice] = useState<number>(FALLBACK_STX_USD);
     const [stxSource, setStxSource] = useState<'coinbase' | 'fallback'>('fallback');
     const [l1GasGwei, setL1GasGwei] = useState<number>(FALLBACK_L1_GAS_GWEI);
     const [l1GasSource, setL1GasSource] = useState<'etherscan' | 'fallback'>('fallback');
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
-    // Fetch ETH price from Basescan
+    // Fetch ETH price from CoinGecko
     const fetchEth = useCallback(async () => {
         const result = await fetchEthPrice();
         setEthUsd(result.price);

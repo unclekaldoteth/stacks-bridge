@@ -15,6 +15,7 @@ interface FeeEstimate {
     l1FeeNum: number;      // For calculations
     savingsVsL1: string;   // USD
     savingsPercent: number; // %
+    isCheaper: boolean;
 }
 
 export function FeeEstimator() {
@@ -40,8 +41,9 @@ export function FeeEstimator() {
         // Savings vs real-time L1 fee
         const savingsUsd = l1BridgeFeeUsd - totalFeeUsd;
         const savingsPercent = l1BridgeFeeUsd > 0
-            ? Math.round((savingsUsd / l1BridgeFeeUsd) * 100)
+            ? Math.round((Math.abs(savingsUsd) / l1BridgeFeeUsd) * 100)
             : 0;
+        const isCheaper = savingsUsd >= 0;
 
         return {
             baseFee: baseFeeUsd.toFixed(4),
@@ -50,8 +52,9 @@ export function FeeEstimator() {
             totalFeeNum: totalFeeUsd,
             l1Fee: l1BridgeFeeUsd.toFixed(2),
             l1FeeNum: l1BridgeFeeUsd,
-            savingsVsL1: savingsUsd.toFixed(2),
+            savingsVsL1: Math.abs(savingsUsd).toFixed(2),
             savingsPercent: Math.max(0, savingsPercent),
+            isCheaper,
         };
     }, [gasPrice, ethUsd, stxUsd, l1BridgeFeeUsd]);
 
@@ -136,9 +139,11 @@ export function FeeEstimator() {
             </div>
 
             {/* Savings highlight */}
-            <div className="mt-4 bg-green-500/20 rounded-lg p-3 text-center">
-                <p className="text-lg font-bold text-green-400">
-                    🎉 Save ${estimate.savingsVsL1} ({estimate.savingsPercent}% cheaper!)
+            <div className={`mt-4 rounded-lg p-3 text-center ${estimate.isCheaper ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+                <p className={`text-lg font-bold ${estimate.isCheaper ? 'text-green-400' : 'text-red-400'}`}>
+                    {estimate.isCheaper
+                        ? `🎉 Save $${estimate.savingsVsL1} (${estimate.savingsPercent}% cheaper!)`
+                        : `⚠️ Costs $${estimate.savingsVsL1} more (${estimate.savingsPercent}% higher)`}
                 </p>
                 {l1GasSource === 'fallback' && (
                     <p className="text-xs text-gray-400 mt-1">L1 fee based on ~30 Gwei estimate</p>
@@ -147,4 +152,3 @@ export function FeeEstimator() {
         </div>
     );
 }
-

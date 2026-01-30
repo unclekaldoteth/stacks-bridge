@@ -35,8 +35,9 @@ const CHAINLINK_ABI = [
 // Coinbase API endpoint for STX price
 const COINBASE_STX_URL = 'https://api.coinbase.com/v2/prices/STX-USD/spot';
 
-// Etherscan Gas Oracle API (free, no key required for basic usage)
-const ETHERSCAN_GAS_URL = 'https://api.etherscan.io/api?module=gastracker&action=gasoracle';
+// Etherscan Gas Oracle API (optional API key to reduce rate limits)
+const ETHERSCAN_API_KEY = process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY || '';
+const ETHERSCAN_GAS_URL = `https://api.etherscan.io/api?module=gastracker&action=gasoracle${ETHERSCAN_API_KEY ? `&apikey=${ETHERSCAN_API_KEY}` : ''}`;
 
 // Fallback prices if APIs fail
 const FALLBACK_ETH_USD = 2400;
@@ -62,12 +63,12 @@ interface PriceData {
 }
 
 // Module-level caches
-let stxPriceCache: { price: number; timestamp: number } | null = null;
-let l1GasCache: { gasGwei: number; timestamp: number } | null = null;
+let stxPriceCache: { price: number; timestamp: number; source: 'coinbase' } | null = null;
+let l1GasCache: { gasGwei: number; timestamp: number; source: 'etherscan' } | null = null;
 
-async function fetchStxPrice(): Promise<number> {
+async function fetchStxPrice(): Promise<{ price: number; source: 'coinbase' | 'fallback' }> {
     if (stxPriceCache && Date.now() - stxPriceCache.timestamp < STX_CACHE_MS) {
-        return stxPriceCache.price;
+        return { price: stxPriceCache.price, source: stxPriceCache.source };
     }
 
     try {
@@ -78,19 +79,19 @@ async function fetchStxPrice(): Promise<number> {
         const price = parseFloat(data.data?.amount);
 
         if (Number.isFinite(price) && price > 0) {
-            stxPriceCache = { price, timestamp: Date.now() };
-            return price;
+            stxPriceCache = { price, timestamp: Date.now(), source: 'coinbase' };
+            return { price, source: 'coinbase' };
         }
         throw new Error('Invalid price data');
     } catch (error) {
         console.warn('Failed to fetch STX price from Coinbase:', error);
-        return stxPriceCache?.price ?? FALLBACK_STX_USD;
+        return { price: stxPriceCache?.price ?? FALLBACK_STX_USD, source: 'fallback' };
     }
 }
 
-async function fetchL1GasPrice(): Promise<number> {
+async function fetchL1GasPrice(): Promise<{ gasGwei: number; source: 'etherscan' | 'fallback' }> {
     if (l1GasCache && Date.now() - l1GasCache.timestamp < L1_GAS_CACHE_MS) {
-        return l1GasCache.gasGwei;
+        return { gasGwei: l1GasCache.gasGwei, source: l1GasCache.source };
     }
 
     try {
@@ -102,13 +103,13 @@ async function fetchL1GasPrice(): Promise<number> {
         const gasGwei = parseFloat(data.result?.ProposeGasPrice);
 
         if (Number.isFinite(gasGwei) && gasGwei > 0) {
-            l1GasCache = { gasGwei, timestamp: Date.now() };
-            return gasGwei;
+            l1GasCache = { gasGwei, timestamp: Date.now(), source: 'etherscan' };
+            return { gasGwei, source: 'etherscan' };
         }
         throw new Error('Invalid gas data');
     } catch (error) {
         console.warn('Failed to fetch L1 gas from Etherscan:', error);
-        return l1GasCache?.gasGwei ?? FALLBACK_L1_GAS_GWEI;
+        return { gasGwei: l1GasCache?.gasGwei ?? FALLBACK_L1_GAS_GWEI, source: 'fallback' };
     }
 }
 
@@ -150,17 +151,18 @@ export function usePrices(): PriceData {
 
     // Fetch STX price from Coinbase
     const fetchStx = useCallback(async () => {
-        const price = await fetchStxPrice();
-        setStxPrice(price);
-        setStxSource(stxPriceCache ? 'coinbase' : 'fallback');
+        const result = await fetchStxPrice();
+        setStxPrice(result.price);
+        setStxSource(result.source);
         setLastUpdated(new Date());
     }, []);
 
     // Fetch L1 gas price from Etherscan
     const fetchL1Gas = useCallback(async () => {
-        const gasGwei = await fetchL1GasPrice();
-        setL1GasGwei(gasGwei);
-        setL1GasSource(l1GasCache ? 'etherscan' : 'fallback');
+        const result = await fetchL1GasPrice();
+        setL1GasGwei(result.gasGwei);
+        setL1GasSource(result.source);
+        setLastUpdated(new Date());
     }, []);
 
     useEffect(() => {
@@ -192,4 +194,3 @@ export function usePrices(): PriceData {
         lastUpdated,
     };
 }
-

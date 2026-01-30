@@ -142,6 +142,8 @@ export function BridgeForm() {
     const isDeposit = direction === 'deposit';
     const currentBalance = isDeposit ? evmBalance : stacksBalance;
     const isInsufficientBalance = mounted && parsedAmount > currentBalance;
+    const minAmount = isDeposit ? parseUnits('10', 6) : parseUnits('1', 6);
+    const isBelowMin = mounted && parsedAmount > 0n && parsedAmount < minAmount;
 
     // Auto-fill destination if wallets connected
     useEffect(() => {
@@ -223,6 +225,15 @@ export function BridgeForm() {
             );
         }
 
+        // Check minimum amount
+        if (isBelowMin) {
+            return (
+                <button disabled className="w-full py-4 rounded-xl font-bold text-lg bg-[#222] text-yellow-500 border border-yellow-500/20 cursor-not-allowed transition-colors">
+                    Minimum Amount: ${formatUnits(minAmount, 6)}
+                </button>
+            );
+        }
+
         // 2. Check Destination Wallet Connection (Optional but recommended)
         /* 
            We don't block on destination connection because users might bridge to another address,
@@ -284,7 +295,7 @@ export function BridgeForm() {
                             placeholder="0"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
-                            className={`bg-transparent text-4xl w-full font-medium placeholder-gray-600 outline-none transition-colors ${isInsufficientBalance ? 'text-red-500' : 'text-white'
+                            className={`bg-transparent text-4xl w-full font-medium placeholder-gray-600 outline-none transition-colors ${isInsufficientBalance ? 'text-red-500' : (isBelowMin ? 'text-yellow-500' : 'text-white')
                                 }`}
                         />
                     </div>
@@ -301,6 +312,11 @@ export function BridgeForm() {
                             {isInsufficientBalance && (
                                 <span className="text-xs bg-red-500/10 text-red-500 px-2 py-0.5 rounded-full font-bold">
                                     Insufficient
+                                </span>
+                            )}
+                            {isBelowMin && (
+                                <span className="text-xs bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded-full font-bold">
+                                    Min: ${formatUnits(minAmount, 6)}
                                 </span>
                             )}
                         </div>

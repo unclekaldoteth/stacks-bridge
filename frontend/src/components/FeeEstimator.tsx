@@ -20,7 +20,17 @@ interface FeeEstimate {
 
 export function FeeEstimator() {
     const { data: gasPrice } = useGasPrice();
-    const { ethUsd, stxUsd, l1GasGwei, l1BridgeFeeUsd, ethSource, stxSource, l1GasSource } = usePrices();
+    const {
+        ethUsd,
+        stxUsd,
+        l1GasGwei,
+        l1BridgeFeeUsd,
+        stacksFeeUsd,
+        ethSource,
+        stxSource,
+        l1GasSource,
+        stacksFeeSource
+    } = usePrices();
 
     const estimate = useMemo<FeeEstimate | null>(() => {
         if (!gasPrice) return null;
@@ -31,12 +41,11 @@ export function FeeEstimator() {
         const baseFeeEth = Number(formatUnits(baseFeesWei, 18));
         const baseFeeUsd = baseFeeEth * ethUsd;
 
-        // Stacks fee (real-time STX price)
-        const stacksFeeStx = Number(config.gasEstimates.stacksMint) / 1_000_000;
-        const stacksFeeUsd = stacksFeeStx * stxUsd;
+        // Stacks fee from Hiro API (real-time)
+        const stacksFeeUsdValue = stacksFeeUsd;
 
         // Total
-        const totalFeeUsd = baseFeeUsd + stacksFeeUsd;
+        const totalFeeUsd = baseFeeUsd + stacksFeeUsdValue;
 
         // Savings vs real-time L1 fee
         const savingsUsd = l1BridgeFeeUsd - totalFeeUsd;
@@ -47,7 +56,7 @@ export function FeeEstimator() {
 
         return {
             baseFee: baseFeeUsd.toFixed(4),
-            stacksFee: stacksFeeUsd.toFixed(4),
+            stacksFee: stacksFeeUsdValue.toFixed(4),
             totalFee: totalFeeUsd.toFixed(2),
             totalFeeNum: totalFeeUsd,
             l1Fee: l1BridgeFeeUsd.toFixed(2),
@@ -56,7 +65,8 @@ export function FeeEstimator() {
             savingsPercent: Math.max(0, savingsPercent),
             isCheaper,
         };
-    }, [gasPrice, ethUsd, stxUsd, l1BridgeFeeUsd]);
+    }, [gasPrice, ethUsd, stacksFeeUsd, l1BridgeFeeUsd]);
+
 
     if (!estimate) {
         return (
@@ -87,6 +97,11 @@ export function FeeEstimator() {
                     {stxSource === 'coinbase' && (
                         <span className="text-[10px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded">
                             Coinbase
+                        </span>
+                    )}
+                    {stacksFeeSource === 'hiro' && (
+                        <span className="text-[10px] bg-orange-500/20 text-orange-400 px-1.5 py-0.5 rounded">
+                            Hiro
                         </span>
                     )}
                     {l1GasSource === 'etherscan' && (

@@ -38,7 +38,20 @@ interface ProvidersProps {
     initialState?: State;
 }
 
-const appKitGlobal = globalThis as typeof globalThis & { __appKitInitialized?: boolean };
+// Global AppKit state
+const appKitGlobal = globalThis as typeof globalThis & {
+    __appKitInitialized?: boolean;
+    __appKitModal?: ReturnType<typeof createAppKit>;
+};
+
+// Export function to open modal from anywhere
+export function openAppKitModal() {
+    if (appKitGlobal.__appKitModal) {
+        appKitGlobal.__appKitModal.open();
+    } else {
+        console.warn('AppKit not initialized yet');
+    }
+}
 
 export function Providers({ children, initialState }: ProvidersProps) {
     useEffect(() => {
@@ -47,7 +60,7 @@ export function Providers({ children, initialState }: ProvidersProps) {
             console.warn('⚠️ Missing NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID');
         } else if (!appKitGlobal.__appKitInitialized) {
             try {
-                createAppKit({
+                const modal = createAppKit({
                     adapters: [wagmiAdapter],
                     networks,
                     projectId,
@@ -57,6 +70,7 @@ export function Providers({ children, initialState }: ProvidersProps) {
                     },
                 });
                 appKitGlobal.__appKitInitialized = true;
+                appKitGlobal.__appKitModal = modal;
                 console.log('✅ AppKit initialized with projectId:', projectId.slice(0, 8) + '...');
             } catch (error) {
                 console.error('❌ Failed to initialize AppKit:', error);

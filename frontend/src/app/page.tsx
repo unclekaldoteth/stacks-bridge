@@ -3,36 +3,11 @@
 import { BridgeForm } from '@/components/BridgeForm';
 import { BridgeStats } from '@/components/BridgeStats';
 import { TransactionHistory } from '@/components/TransactionHistory';
+import { ConnectButton } from '@/components/ConnectButton';
 import { config } from '@/lib/config';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
 
 const isMainnet = config.network === 'mainnet';
 
-function ConnectButton() {
-  const { address, isConnected } = useAccount();
-  const { connect, connectors } = useConnect();
-  const { disconnect } = useDisconnect();
-
-  if (isConnected && address) {
-    return (
-      <button
-        onClick={() => disconnect()}
-        className="text-[#888] hover:text-white px-4 py-2 font-medium text-sm transition-colors"
-      >
-        {address.slice(0, 6)}...{address.slice(-4)}
-      </button>
-    );
-  }
-
-  return (
-    <button
-      onClick={() => connect({ connector: connectors[0] })}
-      className="bg-white text-black px-4 py-2 rounded-full text-sm font-bold hover:bg-gray-200 transition-colors"
-    >
-      Connect Wallet
-    </button>
-  );
-}
 
 export default function Home() {
   return (

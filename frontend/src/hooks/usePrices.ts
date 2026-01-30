@@ -1,43 +1,15 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useReadContract, useBlockNumber } from 'wagmi';
-import { base } from 'wagmi/chains';
-import { formatUnits } from 'viem';
-
-// Chainlink ETH/USD Price Feed on Base Mainnet
-const CHAINLINK_ETH_USD_BASE = '0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70';
-
-// Chainlink Aggregator V3 ABI (minimal)
-const CHAINLINK_ABI = [
-    {
-        type: 'function',
-        name: 'latestRoundData',
-        inputs: [],
-        outputs: [
-            { name: 'roundId', type: 'uint80' },
-            { name: 'answer', type: 'int256' },
-            { name: 'startedAt', type: 'uint256' },
-            { name: 'updatedAt', type: 'uint256' },
-            { name: 'answeredInRound', type: 'uint80' },
-        ],
-        stateMutability: 'view',
-    },
-    {
-        type: 'function',
-        name: 'decimals',
-        inputs: [],
-        outputs: [{ name: '', type: 'uint8' }],
-        stateMutability: 'view',
-    },
-] as const;
 
 // Coinbase API endpoint for STX price
 const COINBASE_STX_URL = 'https://api.coinbase.com/v2/prices/STX-USD/spot';
 
-// Etherscan Gas Oracle API v2 (optional API key to reduce rate limits)
+// Etherscan/Basescan API v2 (optional API key to reduce rate limits)
 const ETHERSCAN_API_KEY = process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY || '';
-// v2 API with chainid=1 for Ethereum mainnet
+
+// Base chainid = 8453, Ethereum chainid = 1
+const BASESCAN_ETH_PRICE_URL = `https://api.etherscan.io/v2/api?chainid=8453&module=stats&action=ethprice${ETHERSCAN_API_KEY ? `&apikey=${ETHERSCAN_API_KEY}` : ''}`;
 const ETHERSCAN_GAS_URL = `https://api.etherscan.io/v2/api?chainid=1&module=gastracker&action=gasoracle${ETHERSCAN_API_KEY ? `&apikey=${ETHERSCAN_API_KEY}` : ''}`;
 
 // Fallback prices if APIs fail
@@ -46,6 +18,7 @@ const FALLBACK_STX_USD = 0.80;
 const FALLBACK_L1_GAS_GWEI = 1; // Current low-gas environment (~0.5-2 Gwei typical)
 
 // Cache duration
+const ETH_CACHE_MS = 60 * 1000; // 1 minute
 const STX_CACHE_MS = 5 * 60 * 1000; // 5 minutes
 const L1_GAS_CACHE_MS = 60 * 1000; // 1 minute
 
@@ -57,15 +30,51 @@ interface PriceData {
     stxUsd: number;
     l1GasGwei: number;
     l1BridgeFeeUsd: number;
-    ethSource: 'chainlink' | 'fallback';
+    ethSource: 'basescan' | 'fallback';
     stxSource: 'coinbase' | 'fallback';
     l1GasSource: 'etherscan' | 'fallback';
     lastUpdated: Date;
 }
 
 // Module-level caches
+let ethPriceCache: { price: number; timestamp: number; source: 'basescan' } | null = null;
 let stxPriceCache: { price: number; timestamp: number; source: 'coinbase' } | null = null;
 let l1GasCache: { gasGwei: number; timestamp: number; source: 'etherscan' } | null = null;
+
+async function fetchEthPrice(): Promise<{ price: number; source: 'basescan' | 'fallback' }> {
+    if (ethPriceCache && Date.now() - ethPriceCache.timestamp < ETH_CACHE_MS) {
+        return { price: ethPriceCache.price, source: ethPriceCache.source };
+    }
+
+    try {
+        const response = await fetch(BASESCAN_ETH_PRICE_URL);
+        if (!response.ok) {
+            console.warn('Basescan API response not ok:', response.status);
+            throw new Error(`Basescan API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Basescan ETH price data:', data);
+
+        // Check for API error response
+        if (data.status !== '1' || data.message !== 'OK') {
+            throw new Error(`Basescan API error: ${data.message || 'Unknown error'}`);
+        }
+
+        // ethusd is the USD price
+        const price = parseFloat(data.result?.ethusd);
+
+        if (Number.isFinite(price) && price > 0) {
+            ethPriceCache = { price, timestamp: Date.now(), source: 'basescan' };
+            console.log('✅ ETH price updated:', price.toFixed(2), 'USD');
+            return { price, source: 'basescan' };
+        }
+        throw new Error('Invalid ETH price data: ' + JSON.stringify(data.result));
+    } catch (error) {
+        console.warn('Failed to fetch ETH price from Basescan:', error);
+        return { price: ethPriceCache?.price ?? FALLBACK_ETH_USD, source: 'fallback' };
+    }
+}
 
 async function fetchStxPrice(): Promise<{ price: number; source: 'coinbase' | 'fallback' }> {
     if (stxPriceCache && Date.now() - stxPriceCache.timestamp < STX_CACHE_MS) {
@@ -126,40 +135,21 @@ async function fetchL1GasPrice(): Promise<{ gasGwei: number; source: 'etherscan'
 }
 
 export function usePrices(): PriceData {
-    const isMainnet = process.env.NEXT_PUBLIC_NETWORK === 'mainnet';
+    const [ethUsd, setEthUsd] = useState<number>(FALLBACK_ETH_USD);
+    const [ethSource, setEthSource] = useState<'basescan' | 'fallback'>('fallback');
     const [stxPrice, setStxPrice] = useState<number>(FALLBACK_STX_USD);
     const [stxSource, setStxSource] = useState<'coinbase' | 'fallback'>('fallback');
     const [l1GasGwei, setL1GasGwei] = useState<number>(FALLBACK_L1_GAS_GWEI);
     const [l1GasSource, setL1GasSource] = useState<'etherscan' | 'fallback'>('fallback');
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
-    // Chainlink ETH/USD on Base
-    const { data: ethPriceData, refetch: refetchEth } = useReadContract({
-        address: CHAINLINK_ETH_USD_BASE,
-        abi: CHAINLINK_ABI,
-        functionName: 'latestRoundData',
-        chainId: isMainnet ? base.id : undefined,
-        query: { enabled: isMainnet },
-    });
-
-    const { data: blockNumber } = useBlockNumber({
-        chainId: isMainnet ? base.id : undefined,
-        watch: isMainnet,
-        query: { enabled: isMainnet },
-    });
-
-    useEffect(() => {
-        if (!isMainnet || blockNumber === undefined) return;
-        refetchEth();
-    }, [blockNumber, isMainnet, refetchEth]);
-
-    // Calculate ETH price from Chainlink (8 decimals)
-    const ethAnswer = ethPriceData?.[1];
-    const ethUsd = isMainnet && typeof ethAnswer === 'bigint' && ethAnswer > 0n
-        ? Number(formatUnits(ethAnswer, 8))
-        : FALLBACK_ETH_USD;
-    const ethSource: 'chainlink' | 'fallback' =
-        isMainnet && typeof ethAnswer === 'bigint' && ethAnswer > 0n ? 'chainlink' : 'fallback';
+    // Fetch ETH price from Basescan
+    const fetchEth = useCallback(async () => {
+        const result = await fetchEthPrice();
+        setEthUsd(result.price);
+        setEthSource(result.source);
+        setLastUpdated(new Date());
+    }, []);
 
     // Fetch STX price from Coinbase
     const fetchStx = useCallback(async () => {
@@ -178,18 +168,21 @@ export function usePrices(): PriceData {
     }, []);
 
     useEffect(() => {
+        fetchEth();
         fetchStx();
         fetchL1Gas();
 
         // Refresh prices periodically
+        const ethInterval = setInterval(fetchEth, ETH_CACHE_MS);
         const stxInterval = setInterval(fetchStx, STX_CACHE_MS);
         const l1GasInterval = setInterval(fetchL1Gas, L1_GAS_CACHE_MS);
 
         return () => {
+            clearInterval(ethInterval);
             clearInterval(stxInterval);
             clearInterval(l1GasInterval);
         };
-    }, [fetchStx, fetchL1Gas]);
+    }, [fetchEth, fetchStx, fetchL1Gas]);
 
     // Calculate L1 bridge fee in USD
     // L1 fee = gas_used * gas_price_gwei * 1e-9 * eth_price_usd

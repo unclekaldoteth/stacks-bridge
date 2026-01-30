@@ -98,12 +98,27 @@ Helper scripts under `relayer/scripts` also read `NETWORK`, `STACKS_API_URL`, `S
 Set environment variables in `frontend/.env.local`:
 
 ```env
-NEXT_PUBLIC_NETWORK=testnet
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=...
-NEXT_PUBLIC_BASE_RPC_URL=https://sepolia.base.org
+# Required
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_id
+NEXT_PUBLIC_NETWORK=mainnet  # or testnet
+
+# Optional - RPC URLs (auto-selected based on network)
+NEXT_PUBLIC_BASE_RPC_URL=https://mainnet.base.org
+NEXT_PUBLIC_BASE_MAINNET_RPC_URL=https://mainnet.base.org
+NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL=https://sepolia.base.org
+
+# Optional - OnchainKit
+NEXT_PUBLIC_ONCHAINKIT_API_KEY=your_api_key
+NEXT_PUBLIC_ONCHAINKIT_RPC_URL=https://mainnet.base.org
 ```
 
+Key frontend features:
+- **Real-time pricing**: `usePrices` hook fetches ETH/USD from Chainlink and STX/USD from Coinbase
+- **SSR-safe wallet**: `ConnectButton` uses `useSyncExternalStore` for hydration
+- **Network-aware**: Components auto-switch Blockscout API based on `NEXT_PUBLIC_NETWORK`
+
 Update addresses in `frontend/src/lib/config.ts` when deploying to new networks.
+
 
 ## Runbook
 

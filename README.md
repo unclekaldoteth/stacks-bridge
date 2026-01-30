@@ -77,33 +77,38 @@ See [ROADMAP.md](./ROADMAP.md) for full details.
 - Signers Initialized: [TX 0x82f87b95...](https://explorer.hiro.so/txid/0x82f87b9599b7d04515af772c41b8d0b064e0156474f8257c1e8887960df0d7d3)
 - Block Height: 6202949
 
-### Previous Improvements (January 2026)
+### 🆕 Frontend Improvements (January 2026)
+
+**✅ Real-Time Price Feeds**
+- ETH/USD: Chainlink price feed on Base mainnet (updates every block)
+- STX/USD: Coinbase API with 5-minute cache
+- Dynamic fee breakdown with live gas prices
+
+**✅ SSR-Safe Wallet Connection**
+- Reusable `ConnectButton` component with proper hydration handling
+- `useSyncExternalStore` for React 18 compatibility
+- Lazy AppKit initialization via `openAppKitModal()` function
+
+**✅ Network-Aware Components**
+- `BridgeStats`: Auto-switches Blockscout API (mainnet/testnet)
+- `TransactionHistory`: Dynamic API based on `NEXT_PUBLIC_NETWORK`
+- `FeeEstimator`: Live price badges showing data sources
+
+### Previous Improvements
 
 **✅ E2E Testing Verified**
 - Full deposit/withdraw flows tested on testnet
 - Transaction Evidence: [See testnet transactions](./docs/mainnet-deployment.md)
 
-**✅ Frontend Features**
-- Transaction History UI with Blockscout API
-- Functional Withdraw Button via `openContractCall`
-
 **End-to-End Testnet Verification Complete**
 - Full deposit → queue-mint → execute-mint flow tested and working!
 - Base Sepolia: 10 USDC deposited and locked
 - Stacks Testnet: 10 xUSDC minted successfully on `wrapped-usdc-v5`
-- Fixed signer initialization address derivation bug
-
-**Testnet Deployment**
-- Base Sepolia: Bridge deployed at `0xFCDF3e427e4a4CF3E573762693B9a1bBb35C504B`
-- Stacks Testnet: `wrapped-usdc-v5` deployed and initialized
-- Relayer configured for testnet with auto-reconnect for RPC filter expiration
-- Frontend running with wagmi v2 wallet connection
 
 **Phase 4: USDCx Integration Complete**
 - Velar DEX adapter (`velar-adapter.clar`) with mainnet router integration
 - Circle xReserve alternative (`xreserve-adapter.clar`) for 1:1 attestation swaps
 - Dual execution paths: `execute-mint-and-swap` (DEX) or `execute-mint-via-xreserve`
-- Relayer xReserve handler for attestation processing
 - Full documentation: [docs/usdcx-workflow.md](./docs/usdcx-workflow.md)
 
 **OnchainKit and Base Account Integration**
@@ -111,33 +116,8 @@ See [ROADMAP.md](./ROADMAP.md) for full details.
 - Pinned viem to 2.17.3 for wagmi v2 compatibility
 - Added Turbopack config and root `package.json` scripts for frontend workflows
 
-**Stacks Devnet and Core API Updates**
-- Added `STACKS_CORE_API_URL` support for separate Stacks core node endpoints
-- Added `relayer/scripts/initialize-signers-v4.js` for devnet signer initialization
-- Updated devnet Stacks API port to `3999` and documented devnet setup in `docs/local-e2e.md`
-
-**Deployment Script Enhancements**
-- Added network-specific USDC address validation in `evm/scripts/deploy.js`
-- Prevents deployment with missing USDC addresses on non-Base Sepolia networks
-- Improved error handling for multi-network deployments
-
-**Configuration Management**
-- Implemented mainnet/testnet auto-detection in `relayer/src/config.js`
-- Automatic RPC URL and API URL selection based on network mode
-- Reduced configuration errors and improved developer experience
-
-**Rate Limiting Fix**
-- Fixed rate limiting implementation in all Clarity contracts
-- Now uses `stacks-block-time` for accurate hourly/daily window resets
-- Ensures proper enforcement of 50K hourly and 200K daily caps
-
-**Local E2E Test Harness (In Progress)**
-- Added local deployment helpers and a webhook burn simulator
-- Added EVM unit tests with a MockUSDC
-- Added Clarinet test scaffolding for Stacks contracts
-- Documented the local flow in `docs/local-e2e.md`
-
 ---
+
 
 ## Quick Start
 

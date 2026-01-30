@@ -96,6 +96,24 @@ Build a decentralized, cost-effective bridge between Base (Ethereum L2) and Stac
 - [x] Timelock for large transactions
 - [x] Relayer configured and running
 
+## Phase 7.5: Frontend Enhancements ✅ (January 2026)
+
+### Real-Time Price Feeds
+- [x] ETH/USD from Chainlink on Base mainnet (updates every block)
+- [x] STX/USD from Coinbase API (5-minute cache)
+- [x] `usePrices` hook with fallback values
+
+### SSR-Safe Wallet Connection
+- [x] `ConnectButton` component with hydration handling
+- [x] `useSyncExternalStore` for React 18 compatibility
+- [x] Lazy AppKit initialization via `openAppKitModal()`
+- [x] `projectId` validation with user-friendly error state
+
+### Network-Aware Components
+- [x] `BridgeStats`: Dynamic Blockscout API (mainnet/testnet)
+- [x] `TransactionHistory`: Auto-switches based on `NEXT_PUBLIC_NETWORK`
+- [x] `FeeEstimator`: Live price badges showing data sources
+
 ---
 
 ## Phase 8: Future Improvements

@@ -10,15 +10,18 @@ import { config, USDC_ABI, BRIDGE_ABI } from '@/lib/config';
 type Direction = 'deposit' | 'withdraw';
 
 const BASE_ICON = (
-    <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xs">
-        B
-    </div>
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="16" fill="#0052FF" />
+        <rect x="8" y="14" width="16" height="4" rx="2" fill="white" />
+    </svg>
 );
 
 const STACKS_ICON = (
-    <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-xs">
-        Stx
-    </div>
+    <svg width="32" height="32" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="80" cy="80" r="80" fill="#5546FF" />
+        <path d="M112.5,122L95.3,95H120V84.8H39v10.2h24.7L46.5,122h12.8l20.2-31.7L99.7,122H112.5z M120,74.9V64.7H95.8
+	l17-26.7H99.9L79.5,70.2L59.1,38H46.2l17,26.7H39V75L120,74.9L120,74.9z" fill="white" />
+    </svg>
 );
 
 export function BridgeForm() {

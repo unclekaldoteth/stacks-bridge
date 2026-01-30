@@ -10,14 +10,16 @@ interface FeeEstimate {
     baseFee: string;       // USD
     stacksFee: string;     // USD
     totalFee: string;      // USD
+    totalFeeNum: number;   // For calculations
     l1Fee: string;         // USD (real-time L1 comparison)
+    l1FeeNum: number;      // For calculations
     savingsVsL1: string;   // USD
     savingsPercent: number; // %
 }
 
 export function FeeEstimator() {
     const { data: gasPrice } = useGasPrice();
-    const { ethUsd, stxUsd, l1BridgeFeeUsd, ethSource, stxSource, l1GasSource } = usePrices();
+    const { ethUsd, stxUsd, l1GasGwei, l1BridgeFeeUsd, ethSource, stxSource, l1GasSource } = usePrices();
 
     const estimate = useMemo<FeeEstimate | null>(() => {
         if (!gasPrice) return null;
@@ -45,7 +47,9 @@ export function FeeEstimator() {
             baseFee: baseFeeUsd.toFixed(4),
             stacksFee: stacksFeeUsd.toFixed(4),
             totalFee: totalFeeUsd.toFixed(2),
+            totalFeeNum: totalFeeUsd,
             l1Fee: l1BridgeFeeUsd.toFixed(2),
+            l1FeeNum: l1BridgeFeeUsd,
             savingsVsL1: savingsUsd.toFixed(2),
             savingsPercent: Math.max(0, savingsPercent),
         };
@@ -60,13 +64,18 @@ export function FeeEstimator() {
         );
     }
 
+    // Calculate bar widths for visual comparison
+    const maxFee = Math.max(estimate.l1FeeNum, estimate.totalFeeNum, 0.01);
+    const l2BarWidth = Math.round((estimate.totalFeeNum / maxFee) * 100);
+    const l1BarWidth = Math.round((estimate.l1FeeNum / maxFee) * 100);
+
     return (
         <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 border border-green-500/30 rounded-xl p-4">
             <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-semibold text-green-400">
                     💰 Fee Breakdown
                 </h3>
-                <div className="flex gap-1">
+                <div className="flex gap-1 flex-wrap justify-end">
                     {ethSource === 'chainlink' && (
                         <span className="text-[10px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded">
                             Chainlink
@@ -79,7 +88,7 @@ export function FeeEstimator() {
                     )}
                     {l1GasSource === 'etherscan' && (
                         <span className="text-[10px] bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded">
-                            Etherscan
+                            L1: {l1GasGwei.toFixed(0)} Gwei
                         </span>
                     )}
                 </div>
@@ -102,18 +111,40 @@ export function FeeEstimator() {
                 </div>
             </div>
 
-            {/* Savings highlight - now with real-time L1 fee */}
+            {/* Visual comparison bars */}
+            <div className="mt-4 space-y-2">
+                <div className="flex items-center gap-2 text-xs">
+                    <span className="w-16 text-gray-400">Base L2</span>
+                    <div className="flex-1 bg-gray-700/50 rounded-full h-3 overflow-hidden">
+                        <div
+                            className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full transition-all duration-500"
+                            style={{ width: `${l2BarWidth}%` }}
+                        />
+                    </div>
+                    <span className="w-16 text-right text-green-400 font-medium">${estimate.totalFee}</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                    <span className="w-16 text-gray-400">ETH L1</span>
+                    <div className="flex-1 bg-gray-700/50 rounded-full h-3 overflow-hidden">
+                        <div
+                            className="h-full bg-gradient-to-r from-red-500 to-orange-400 rounded-full transition-all duration-500"
+                            style={{ width: `${l1BarWidth}%` }}
+                        />
+                    </div>
+                    <span className="w-16 text-right text-red-400 font-medium">${estimate.l1Fee}</span>
+                </div>
+            </div>
+
+            {/* Savings highlight */}
             <div className="mt-4 bg-green-500/20 rounded-lg p-3 text-center">
-                <p className="text-xs text-green-300">
-                    vs ETH L1 Route (~${estimate.l1Fee})
-                    {l1GasSource === 'fallback' && (
-                        <span className="text-gray-400 ml-1">(approx)</span>
-                    )}
-                </p>
                 <p className="text-lg font-bold text-green-400">
-                    Save ${estimate.savingsVsL1} ({estimate.savingsPercent}% cheaper!)
+                    🎉 Save ${estimate.savingsVsL1} ({estimate.savingsPercent}% cheaper!)
                 </p>
+                {l1GasSource === 'fallback' && (
+                    <p className="text-xs text-gray-400 mt-1">L1 fee based on ~30 Gwei estimate</p>
+                )}
             </div>
         </div>
     );
 }
+

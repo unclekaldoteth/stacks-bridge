@@ -32,8 +32,9 @@ const isMainnet = process.env.NEXT_PUBLIC_NETWORK === 'mainnet';
 const chain = isMainnet ? base : baseSepolia;
 const onchainKitRpcUrl = isMainnet ? onchainKitMainnetRpcUrl : onchainKitTestnetRpcUrl;
 
-// Create Reown AppKit modal
-if (projectId) {
+// Create Reown AppKit modal (guard against duplicate init in dev/fast refresh)
+const appKitGlobal = globalThis as typeof globalThis & { __appKitInitialized?: boolean };
+if (projectId && typeof window !== 'undefined' && !appKitGlobal.__appKitInitialized) {
     createAppKit({
         adapters: [wagmiAdapter],
         networks,
@@ -43,6 +44,7 @@ if (projectId) {
             analytics: true,
         },
     });
+    appKitGlobal.__appKitInitialized = true;
 }
 
 interface ProvidersProps {

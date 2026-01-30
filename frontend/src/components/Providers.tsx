@@ -44,10 +44,39 @@ const appKitGlobal = globalThis as typeof globalThis & {
     __appKitModal?: ReturnType<typeof createAppKit>;
 };
 
+function initAppKit(): ReturnType<typeof createAppKit> | null {
+    if (typeof window === 'undefined') {
+        return null;
+    }
+
+    if (!projectId) {
+        console.warn('⚠️ Missing NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID');
+        return null;
+    }
+
+    if (!appKitGlobal.__appKitInitialized) {
+        const modal = createAppKit({
+            adapters: [wagmiAdapter],
+            networks,
+            projectId,
+            metadata,
+            features: {
+                analytics: true,
+            },
+        });
+        appKitGlobal.__appKitInitialized = true;
+        appKitGlobal.__appKitModal = modal;
+        console.log('✅ AppKit initialized with projectId:', projectId.slice(0, 8) + '...');
+    }
+
+    return appKitGlobal.__appKitModal ?? null;
+}
+
 // Export function to open modal from anywhere
 export function openAppKitModal() {
-    if (appKitGlobal.__appKitModal) {
-        appKitGlobal.__appKitModal.open();
+    const modal = appKitGlobal.__appKitModal ?? initAppKit();
+    if (modal) {
+        modal.open();
     } else {
         console.warn('AppKit not initialized yet');
     }
@@ -56,25 +85,10 @@ export function openAppKitModal() {
 export function Providers({ children, initialState }: ProvidersProps) {
     useEffect(() => {
         // Initialize AppKit on client-side only
-        if (!projectId) {
-            console.warn('⚠️ Missing NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID');
-        } else if (!appKitGlobal.__appKitInitialized) {
-            try {
-                const modal = createAppKit({
-                    adapters: [wagmiAdapter],
-                    networks,
-                    projectId,
-                    metadata,
-                    features: {
-                        analytics: true,
-                    },
-                });
-                appKitGlobal.__appKitInitialized = true;
-                appKitGlobal.__appKitModal = modal;
-                console.log('✅ AppKit initialized with projectId:', projectId.slice(0, 8) + '...');
-            } catch (error) {
-                console.error('❌ Failed to initialize AppKit:', error);
-            }
+        try {
+            initAppKit();
+        } catch (error) {
+            console.error('❌ Failed to initialize AppKit:', error);
         }
     }, []);
 

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useSyncExternalStore } from 'react';
 import { useAccount, useDisconnect } from 'wagmi';
 import { openAppKitModal } from './Providers';
+import { projectId } from '@/lib/wagmi';
 
 interface ConnectButtonProps {
     className?: string;
@@ -18,14 +19,14 @@ export function ConnectButton({
 }: ConnectButtonProps) {
     const { address, isConnected } = useAccount();
     const { disconnect } = useDisconnect();
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+    const isHydrated = useSyncExternalStore(
+        () => () => undefined,
+        () => true,
+        () => false
+    );
 
     // Show loading state during SSR/hydration
-    if (!mounted) {
+    if (!isHydrated) {
         return (
             <button className={`${className} opacity-50`} disabled>
                 Connect Wallet
@@ -37,6 +38,14 @@ export function ConnectButton({
         return (
             <button onClick={() => disconnect()} className={connectedClassName}>
                 {address.slice(0, 6)}...{address.slice(-4)}
+            </button>
+        );
+    }
+
+    if (!projectId) {
+        return (
+            <button className={`${className} opacity-50`} disabled>
+                WalletConnect not configured
             </button>
         );
     }

@@ -9,35 +9,52 @@ const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '';
 
 // Determine which chain to use based on environment
 const isMainnet = process.env.NEXT_PUBLIC_NETWORK === 'mainnet';
+const chains = isMainnet ? [base] : [baseSepolia];
 
 // WalletConnect metadata for better UX
+const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (typeof window !== 'undefined' ? window.location.origin : 'https://bridge.example.com');
+
 const metadata = {
     name: 'Base⇄Stacks Bridge',
     description: 'Bridge USDC between Base and Stacks',
-    url: typeof window !== 'undefined' ? window.location.origin : 'https://bridge.example.com',
+    url: appUrl,
     icons: ['https://base.org/icons/favicons/favicon-32x32.png'],
 };
 
 // RPC URLs
-const mainnetRpc = process.env.NEXT_PUBLIC_BASE_RPC_URL || 'https://mainnet.base.org';
-const testnetRpc = process.env.NEXT_PUBLIC_BASE_RPC_URL || 'https://sepolia.base.org';
+const mainnetRpc =
+    process.env.NEXT_PUBLIC_BASE_MAINNET_RPC_URL ||
+    process.env.NEXT_PUBLIC_BASE_RPC_URL ||
+    'https://mainnet.base.org';
+const testnetRpc =
+    process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL ||
+    process.env.NEXT_PUBLIC_BASE_RPC_URL ||
+    'https://sepolia.base.org';
+
+const connectors = [
+    injected(),
+    ...(projectId
+        ? [
+            walletConnect({
+                projectId,
+                metadata,
+                showQrModal: true,
+            }),
+        ]
+        : []),
+    coinbaseWallet({
+        appName: metadata.name,
+    }),
+];
+
+const transports = isMainnet
+    ? { [base.id]: http(mainnetRpc) }
+    : { [baseSepolia.id]: http(testnetRpc) };
 
 export const wagmiConfig = createConfig({
-    chains: isMainnet ? [base] : [baseSepolia],
-    connectors: [
-        injected(),
-        walletConnect({
-            projectId,
-            metadata,
-            showQrModal: true,
-        }),
-        coinbaseWallet({
-            appName: metadata.name,
-        }),
-    ],
-    transports: {
-        [base.id]: http(mainnetRpc),
-        [baseSepolia.id]: http(testnetRpc),
-    },
+    chains,
+    connectors,
+    transports,
 });
-

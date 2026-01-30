@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAccount, useConnect, useDisconnect, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
+import { useAccount, useConnect, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
 import { parseUnits, formatUnits } from 'viem';
 import { useStacksWallet } from '@/hooks/useStacksWallet';
 import { FeeEstimator } from './FeeEstimator';
@@ -39,7 +39,6 @@ export function BridgeForm() {
     // EVM wallet (Base)
     const { address: evmAddress, isConnected: evmConnected } = useAccount();
     const { connect: connectEvm, connectors } = useConnect();
-    const { disconnect: disconnectEvm } = useDisconnect();
     const baseAccountConnector = connectors.find((connector) => connector.id === 'base-account');
     const fallbackConnector = connectors.find((connector) => connector.id !== 'base-account');
 
@@ -48,11 +47,9 @@ export function BridgeForm() {
         address: stacksAddress,
         isConnected: stacksConnected,
         connect: connectStacks,
-        disconnect: disconnectStacks,
         isBurning,
         burnResult,
         burnTokens,
-        clearBurnResult,
     } = useStacksWallet();
 
     // Contract interactions
@@ -111,9 +108,7 @@ export function BridgeForm() {
                         // Actually cvToValue simplifies it.
                         // Let's debug/assume standard response.
                         const val = cvToValue(resultCV);
-                        // if val is object with value property (ResponseOk)
-                        // @ts-ignore - cvToValue typing can be tricky
-                        const balance = val?.value !== undefined ? BigInt(val.value) : (typeof val === 'bigint' ? val : 0n);
+                        const balance = toBigInt(val);
                         setStacksBalance(balance);
                     }
                 }
@@ -179,12 +174,6 @@ export function BridgeForm() {
             functionName: 'lock',
             args: [parsedAmount, destinationAddress],
         });
-    };
-
-    // Set max amount handler
-    const handleSetMax = () => {
-        const bal = formatUnits(currentBalance, 6);
-        setAmount(bal);
     };
 
     const fromNetwork = isDeposit ? 'Base' : 'Stacks';
@@ -424,4 +413,20 @@ function StatusButton({ text, loading }: { text: string; loading?: boolean }) {
             {text}
         </button>
     );
+}
+
+function toBigInt(value: unknown): bigint {
+    if (typeof value === 'bigint') return value;
+    if (typeof value === 'number' && Number.isFinite(value)) return BigInt(Math.trunc(value));
+    if (typeof value === 'string') {
+        try {
+            return BigInt(value);
+        } catch {
+            return 0n;
+        }
+    }
+    if (value && typeof value === 'object' && 'value' in value) {
+        return toBigInt((value as { value: unknown }).value);
+    }
+    return 0n;
 }

@@ -91,7 +91,7 @@ export function FeeEstimator() {
                     )}
                     {l1GasSource === 'etherscan' && (
                         <span className="text-[10px] bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded">
-                            L1: {l1GasGwei.toFixed(0)} Gwei
+                            L1: {l1GasGwei < 1 ? l1GasGwei.toFixed(2) : l1GasGwei.toFixed(0)} Gwei
                         </span>
                     )}
                 </div>

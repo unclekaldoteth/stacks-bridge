@@ -35,14 +35,15 @@ const CHAINLINK_ABI = [
 // Coinbase API endpoint for STX price
 const COINBASE_STX_URL = 'https://api.coinbase.com/v2/prices/STX-USD/spot';
 
-// Etherscan Gas Oracle API (optional API key to reduce rate limits)
+// Etherscan Gas Oracle API v2 (optional API key to reduce rate limits)
 const ETHERSCAN_API_KEY = process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY || '';
-const ETHERSCAN_GAS_URL = `https://api.etherscan.io/api?module=gastracker&action=gasoracle${ETHERSCAN_API_KEY ? `&apikey=${ETHERSCAN_API_KEY}` : ''}`;
+// v2 API with chainid=1 for Ethereum mainnet
+const ETHERSCAN_GAS_URL = `https://api.etherscan.io/v2/api?chainid=1&module=gastracker&action=gasoracle${ETHERSCAN_API_KEY ? `&apikey=${ETHERSCAN_API_KEY}` : ''}`;
 
 // Fallback prices if APIs fail
 const FALLBACK_ETH_USD = 2400;
 const FALLBACK_STX_USD = 0.80;
-const FALLBACK_L1_GAS_GWEI = 30; // Typical L1 gas price
+const FALLBACK_L1_GAS_GWEI = 1; // Current low-gas environment (~0.5-2 Gwei typical)
 
 // Cache duration
 const STX_CACHE_MS = 5 * 60 * 1000; // 5 minutes
@@ -96,17 +97,28 @@ async function fetchL1GasPrice(): Promise<{ gasGwei: number; source: 'etherscan'
 
     try {
         const response = await fetch(ETHERSCAN_GAS_URL);
-        if (!response.ok) throw new Error('Etherscan API error');
+        if (!response.ok) {
+            console.warn('Etherscan API response not ok:', response.status);
+            throw new Error(`Etherscan API error: ${response.status}`);
+        }
 
         const data = await response.json();
-        // Use ProposeGasPrice (standard speed)
+        console.log('Etherscan gas data:', data);
+
+        // Check for API error response
+        if (data.status !== '1' || data.message !== 'OK') {
+            throw new Error(`Etherscan API error: ${data.message || 'Unknown error'}`);
+        }
+
+        // Use ProposeGasPrice (standard speed) - can be decimal like "0.496840168"
         const gasGwei = parseFloat(data.result?.ProposeGasPrice);
 
         if (Number.isFinite(gasGwei) && gasGwei > 0) {
             l1GasCache = { gasGwei, timestamp: Date.now(), source: 'etherscan' };
+            console.log('✅ L1 gas updated:', gasGwei.toFixed(2), 'Gwei');
             return { gasGwei, source: 'etherscan' };
         }
-        throw new Error('Invalid gas data');
+        throw new Error('Invalid gas data: ' + JSON.stringify(data.result));
     } catch (error) {
         console.warn('Failed to fetch L1 gas from Etherscan:', error);
         return { gasGwei: l1GasCache?.gasGwei ?? FALLBACK_L1_GAS_GWEI, source: 'fallback' };

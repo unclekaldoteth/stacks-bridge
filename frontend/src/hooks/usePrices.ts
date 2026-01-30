@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useReadContract } from 'wagmi';
+import { useReadContract, useBlockNumber } from 'wagmi';
 import { base } from 'wagmi/chains';
 import { formatUnits } from 'viem';
 
@@ -78,23 +78,38 @@ async function fetchStxPrice(): Promise<number> {
 }
 
 export function usePrices(): PriceData {
+    const isMainnet = process.env.NEXT_PUBLIC_NETWORK === 'mainnet';
     const [stxPrice, setStxPrice] = useState<number>(FALLBACK_STX_USD);
     const [stxSource, setStxSource] = useState<'coinbase' | 'fallback'>('fallback');
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
     // Chainlink ETH/USD on Base
-    const { data: ethPriceData } = useReadContract({
+    const { data: ethPriceData, refetch: refetchEth } = useReadContract({
         address: CHAINLINK_ETH_USD_BASE,
         abi: CHAINLINK_ABI,
         functionName: 'latestRoundData',
-        chainId: base.id,
+        chainId: isMainnet ? base.id : undefined,
+        query: { enabled: isMainnet },
     });
 
+    const { data: blockNumber } = useBlockNumber({
+        chainId: isMainnet ? base.id : undefined,
+        watch: isMainnet,
+        query: { enabled: isMainnet },
+    });
+
+    useEffect(() => {
+        if (!isMainnet || blockNumber === undefined) return;
+        refetchEth();
+    }, [blockNumber, isMainnet, refetchEth]);
+
     // Calculate ETH price from Chainlink (8 decimals)
-    const ethUsd = ethPriceData
-        ? Number(formatUnits(BigInt(ethPriceData[1]), 8))
+    const ethAnswer = ethPriceData?.[1];
+    const ethUsd = isMainnet && typeof ethAnswer === 'bigint' && ethAnswer > 0n
+        ? Number(formatUnits(ethAnswer, 8))
         : FALLBACK_ETH_USD;
-    const ethSource: 'chainlink' | 'fallback' = ethPriceData ? 'chainlink' : 'fallback';
+    const ethSource: 'chainlink' | 'fallback' =
+        isMainnet && typeof ethAnswer === 'bigint' && ethAnswer > 0n ? 'chainlink' : 'fallback';
 
     // Fetch STX price from Coinbase
     const fetchStx = useCallback(async () => {

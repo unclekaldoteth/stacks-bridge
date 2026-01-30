@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAccount, useConnect, useDisconnect, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useAccount, useConnect, useDisconnect, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
 import { parseUnits, formatUnits } from 'viem';
 import { useStacksWallet } from '@/hooks/useStacksWallet';
 import { FeeEstimator } from './FeeEstimator';
@@ -27,6 +27,7 @@ export function BridgeForm() {
     const [destinationAddress, setDestinationAddress] = useState('');
     const [step, setStep] = useState<'input' | 'approve' | 'bridge' | 'pending' | 'success'>('input');
     const [mounted, setMounted] = useState(false);
+    const [stacksBalance, setStacksBalance] = useState<bigint>(0n);
 
     useEffect(() => {
         setMounted(true);
@@ -55,10 +56,89 @@ export function BridgeForm() {
     const { writeContract: approve, data: approveHash } = useWriteContract();
     const { writeContract: lock, data: lockHash } = useWriteContract();
 
+    // Fetch EVM USDC Balance
+    const { data: evmBalanceData } = useReadContract({
+        address: config.contracts.base.usdc as `0x${string}`,
+        abi: USDC_ABI,
+        functionName: 'balanceOf',
+        args: evmAddress ? [evmAddress] : undefined,
+        query: { enabled: !!evmAddress && mounted }
+    });
+    const evmBalance = evmBalanceData ? BigInt(evmBalanceData.toString()) : 0n;
+
+    // Fetch Stacks xUSDC Balance
+    useEffect(() => {
+        const fetchStacksBalance = async () => {
+            if (!stacksAddress) return;
+            try {
+                // Use a direct fetch to the Stacks API for balance to avoid importing heavy libraries here if possible,
+                // or dynamic import like in WalletContext. For consistency/ease, we can use the API directly or libraries.
+                // Using Stacks API allows us to be lightweight.
+                // SIP-010 get-balance: (get-balance owner)
+
+                const [contractAddress, contractName] = config.contracts.stacks.wrappedUsdc.split('.');
+                const url = `${config.chains.stacks.apiUrl}/v2/contracts/call-read/${contractAddress}/${contractName}/get-balance`;
+
+                const { standardPrincipalCV } = await import('@stacks/transactions');
+                const { cvToHex } = await import('@stacks/transactions');
+
+                const args = [cvToHex(standardPrincipalCV(stacksAddress))];
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sender: stacksAddress,
+                        arguments: args,
+                    }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.okay && data.result) {
+                        // Result is a hex CV. We need to parse it. 
+                        // It returns (ok u123) usually for SIP-010, which is a response CV containing a uint.
+                        // Or just u123.
+                        // Let's use libraries to parse response if possible, or simple regex for uint if needed.
+                        // Better to use library to be safe.
+                        const { hexToCV, cvToValue } = await import('@stacks/transactions');
+                        const resultCV = hexToCV(data.result);
+                        // SIP-010 get-balance returns (response uint uint)
+                        // cvToValue on (ok u123) returns { type: 'ok', value: 123n } (or similar depends on version)
+                        // Actually cvToValue simplifies it.
+                        // Let's debug/assume standard response.
+                        const val = cvToValue(resultCV);
+                        // if val is object with value property (ResponseOk)
+                        // @ts-ignore - cvToValue typing can be tricky
+                        const balance = val?.value !== undefined ? BigInt(val.value) : (typeof val === 'bigint' ? val : 0n);
+                        setStacksBalance(balance);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch Stacks balance", err);
+            }
+        };
+
+        if (stacksConnected && stacksAddress) {
+            fetchStacksBalance();
+            // Poll every 10s
+            const interval = setInterval(fetchStacksBalance, 10000);
+            return () => clearInterval(interval);
+        } else {
+            setStacksBalance(0n);
+        }
+    }, [stacksConnected, stacksAddress]);
+
+
     const { isLoading: isApproving, isSuccess: approveSuccess } = useWaitForTransactionReceipt({ hash: approveHash });
     const { isLoading: isLocking, isSuccess: lockSuccess } = useWaitForTransactionReceipt({ hash: lockHash });
 
     const parsedAmount = amount ? parseUnits(amount, 6) : 0n;
+
+    // Derived state
+    const isDeposit = direction === 'deposit';
+    const currentBalance = isDeposit ? evmBalance : stacksBalance;
+    const isInsufficientBalance = mounted && parsedAmount > currentBalance;
 
     // Auto-fill destination if wallets connected
     useEffect(() => {
@@ -96,7 +176,12 @@ export function BridgeForm() {
         });
     };
 
-    const isDeposit = direction === 'deposit';
+    // Set max amount handler
+    const handleSetMax = () => {
+        const bal = formatUnits(currentBalance, 6);
+        setAmount(bal);
+    };
+
     const fromNetwork = isDeposit ? 'Base' : 'Stacks';
     const toNetwork = isDeposit ? 'Stacks' : 'Base';
     const fromIcon = isDeposit ? BASE_ICON : STACKS_ICON;
@@ -122,6 +207,15 @@ export function BridgeForm() {
                     className="w-full py-4 rounded-xl font-bold text-lg bg-[#375BD2] hover:bg-[#2F4CB3] text-white transition-colors shadow-lg shadow-blue-900/20"
                 >
                     Connect {fromNetwork} Wallet
+                </button>
+            );
+        }
+
+        // Check insufficient balance
+        if (isInsufficientBalance) {
+            return (
+                <button disabled className="w-full py-4 rounded-xl font-bold text-lg bg-[#222] text-red-500 border border-red-500/20 cursor-not-allowed transition-colors">
+                    Insufficient Balance
                 </button>
             );
         }
@@ -187,12 +281,34 @@ export function BridgeForm() {
                             placeholder="0"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
-                            className="bg-transparent text-4xl w-full font-medium text-white placeholder-gray-600 outline-none"
+                            className={`bg-transparent text-4xl w-full font-medium placeholder-gray-600 outline-none transition-colors ${isInsufficientBalance ? 'text-red-500' : 'text-white'
+                                }`}
                         />
                     </div>
                     <div className="flex justify-between items-center mt-2">
-                        <span className="text-gray-500 text-sm">Balance: {mounted && (isDeposit ? (evmConnected ? '0.00 USDC' : '-') : (stacksConnected ? '0.00 xUSDC' : '-'))}</span>
-                        {mounted && isDeposit && evmConnected && <button className="text-[#375BD2] text-xs font-bold uppercase tracking-wide">Max</button>}
+                        <div className="flex items-center gap-2">
+                            <span className={`text-sm font-medium transition-colors ${isInsufficientBalance ? 'text-red-400' : 'text-gray-500'
+                                }`}>
+                                Balance: {mounted ? (
+                                    isDeposit
+                                        ? (evmConnected ? `${formatUnits(evmBalance, 6)} USDC` : '-')
+                                        : (stacksConnected ? `${formatUnits(stacksBalance, 6)} xUSDC` : '-')
+                                ) : '-'}
+                            </span>
+                            {isInsufficientBalance && (
+                                <span className="text-xs bg-red-500/10 text-red-500 px-2 py-0.5 rounded-full font-bold">
+                                    Insufficient
+                                </span>
+                            )}
+                        </div>
+                        {mounted && ((isDeposit && evmConnected) || (!isDeposit && stacksConnected)) && (
+                            <button
+                                onClick={handleSetMax}
+                                className="text-[#375BD2] text-xs font-bold uppercase tracking-wide hover:text-[#2F4CB3] transition-colors"
+                            >
+                                Max
+                            </button>
+                        )}
                     </div>
                 </div>
 

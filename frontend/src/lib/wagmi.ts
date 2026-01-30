@@ -9,7 +9,6 @@ const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '';
 
 // Determine which chain to use based on environment
 const isMainnet = process.env.NEXT_PUBLIC_NETWORK === 'mainnet';
-const chains = isMainnet ? [base] : [baseSepolia];
 
 // WalletConnect metadata for better UX
 const appUrl =
@@ -49,12 +48,11 @@ const connectors = [
     }),
 ];
 
-const transports = isMainnet
-    ? { [base.id]: http(mainnetRpc) }
-    : { [baseSepolia.id]: http(testnetRpc) };
-
 export const wagmiConfig = createConfig({
-    chains,
+    chains: isMainnet ? [base] as const : [baseSepolia] as const,
     connectors,
-    transports,
+    transports: {
+        [base.id]: http(mainnetRpc),
+        [baseSepolia.id]: http(testnetRpc),
+    },
 });

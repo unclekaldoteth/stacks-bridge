@@ -13,10 +13,13 @@ interface FeeEstimate {
     savingsPercent: number; // %
 }
 
-// ETH price assumption (in production, fetch from API)
+// Price estimates (for accurate real-time pricing, integrate a price feed API)
+// Base L2 gas: Real-time from useGasPrice() ✅
+// ETH price: Approximate (consider using Chainlink price feed for production)
+// STX price: Approximate (consider using Coinbase API for production)
 const ETH_PRICE_USD = 2400;
 const STX_PRICE_USD = 0.80;
-const L1_BRIDGE_FEE_USD = 4.80; // Current ETH L1 → Stacks fee
+const L1_BRIDGE_FEE_USD = 4.80; // Reference: ETH L1 → Stacks bridge fee
 
 export function FeeEstimator() {
     const { data: gasPrice } = useGasPrice();

@@ -24,6 +24,10 @@ interface DepositEvent {
 
 const baseBridgeAddress = config.contracts.base.bridge;
 const baseExplorerUrl = config.chains.base.explorer;
+const isMainnet = process.env.NEXT_PUBLIC_NETWORK === 'mainnet';
+const blockscoutApi = isMainnet
+    ? 'https://base.blockscout.com/api/v2'
+    : 'https://base-sepolia.blockscout.com/api/v2';
 
 function formatAmount(value: string): string {
     const num = Number.parseInt(value, 10) / 1e6;
@@ -53,7 +57,7 @@ export function TransactionHistory() {
         try {
             // Fetch deposit events from Base contract
             const response = await fetch(
-                `https://base-sepolia.blockscout.com/api/v2/addresses/${baseBridgeAddress}/transactions?filter=from%7C${userAddress}`
+                `${blockscoutApi}/addresses/${baseBridgeAddress}/transactions?filter=from%7C${userAddress}`
             );
 
             if (!response.ok) {
@@ -139,8 +143,8 @@ export function TransactionHistory() {
                         <div className="flex items-center gap-3">
                             <div
                                 className={`w-8 h-8 rounded-full flex items-center justify-center ${tx.type === 'deposit'
-                                        ? 'bg-blue-600/20 text-blue-400'
-                                        : 'bg-orange-600/20 text-orange-400'
+                                    ? 'bg-blue-600/20 text-blue-400'
+                                    : 'bg-orange-600/20 text-orange-400'
                                     }`}
                             >
                                 {tx.type === 'deposit' ? '↑' : '↓'}

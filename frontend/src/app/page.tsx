@@ -4,6 +4,7 @@ import { BridgeForm } from '@/components/BridgeForm';
 import { BridgeStats } from '@/components/BridgeStats';
 import { TransactionHistory } from '@/components/TransactionHistory';
 import { ConnectButton } from '@/components/ConnectButton';
+import { FooterStats } from '@/components/FooterStats';
 import { config } from '@/lib/config';
 
 const isMainnet = config.network === 'mainnet';
@@ -50,21 +51,8 @@ export default function Home() {
           <BridgeForm />
         </div>
 
-        {/* Footer Stats / Low key info */}
-        <div className="mt-16 grid grid-cols-3 gap-12 text-center opacity-50 hover:opacity-100 transition-opacity">
-          <div>
-            <p className="text-2xl font-bold text-white">~2s</p>
-            <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold mt-1">Finality</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-white">$0.50</p>
-            <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold mt-1">Avg Fee</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-white">2/3</p>
-            <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold mt-1">Secure</p>
-          </div>
-        </div>
+        {/* Footer Stats - Dynamic */}
+        <FooterStats />
       </div>
 
       {/* Secondary Content - History & Deep Stats (Below Fold) */}

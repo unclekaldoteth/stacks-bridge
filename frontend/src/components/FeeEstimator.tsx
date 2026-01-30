@@ -10,16 +10,14 @@ interface FeeEstimate {
     baseFee: string;       // USD
     stacksFee: string;     // USD
     totalFee: string;      // USD
+    l1Fee: string;         // USD (real-time L1 comparison)
     savingsVsL1: string;   // USD
     savingsPercent: number; // %
 }
 
-// Reference: ETH L1 → Stacks bridge fee (for comparison)
-const L1_BRIDGE_FEE_USD = 4.80;
-
 export function FeeEstimator() {
     const { data: gasPrice } = useGasPrice();
-    const { ethUsd, stxUsd, ethSource, stxSource } = usePrices();
+    const { ethUsd, stxUsd, l1BridgeFeeUsd, ethSource, stxSource, l1GasSource } = usePrices();
 
     const estimate = useMemo<FeeEstimate | null>(() => {
         if (!gasPrice) return null;
@@ -37,18 +35,21 @@ export function FeeEstimator() {
         // Total
         const totalFeeUsd = baseFeeUsd + stacksFeeUsd;
 
-        // Savings
-        const savingsUsd = L1_BRIDGE_FEE_USD - totalFeeUsd;
-        const savingsPercent = Math.round((savingsUsd / L1_BRIDGE_FEE_USD) * 100);
+        // Savings vs real-time L1 fee
+        const savingsUsd = l1BridgeFeeUsd - totalFeeUsd;
+        const savingsPercent = l1BridgeFeeUsd > 0
+            ? Math.round((savingsUsd / l1BridgeFeeUsd) * 100)
+            : 0;
 
         return {
             baseFee: baseFeeUsd.toFixed(4),
             stacksFee: stacksFeeUsd.toFixed(4),
             totalFee: totalFeeUsd.toFixed(2),
+            l1Fee: l1BridgeFeeUsd.toFixed(2),
             savingsVsL1: savingsUsd.toFixed(2),
             savingsPercent: Math.max(0, savingsPercent),
         };
-    }, [gasPrice, ethUsd, stxUsd]);
+    }, [gasPrice, ethUsd, stxUsd, l1BridgeFeeUsd]);
 
     if (!estimate) {
         return (
@@ -76,6 +77,11 @@ export function FeeEstimator() {
                             Coinbase
                         </span>
                     )}
+                    {l1GasSource === 'etherscan' && (
+                        <span className="text-[10px] bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded">
+                            Etherscan
+                        </span>
+                    )}
                 </div>
             </div>
 
@@ -96,9 +102,14 @@ export function FeeEstimator() {
                 </div>
             </div>
 
-            {/* Savings highlight */}
+            {/* Savings highlight - now with real-time L1 fee */}
             <div className="mt-4 bg-green-500/20 rounded-lg p-3 text-center">
-                <p className="text-xs text-green-300">vs ETH L1 Route (~$4.80)</p>
+                <p className="text-xs text-green-300">
+                    vs ETH L1 Route (~${estimate.l1Fee})
+                    {l1GasSource === 'fallback' && (
+                        <span className="text-gray-400 ml-1">(approx)</span>
+                    )}
+                </p>
                 <p className="text-lg font-bold text-green-400">
                     Save ${estimate.savingsVsL1} ({estimate.savingsPercent}% cheaper!)
                 </p>
@@ -106,4 +117,3 @@ export function FeeEstimator() {
         </div>
     );
 }
-

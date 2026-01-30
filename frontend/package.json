@@ -11,6 +11,8 @@
   "dependencies": {
     "@base-org/account": "^2.5.1",
     "@coinbase/onchainkit": "^0.18.0",
+    "@reown/appkit": "^1.8.17",
+    "@reown/appkit-adapter-wagmi": "^1.8.17",
     "@stacks/connect": "^8.2.4",
     "@stacks/network": "^7.3.1",
     "@stacks/transactions": "^7.3.1",

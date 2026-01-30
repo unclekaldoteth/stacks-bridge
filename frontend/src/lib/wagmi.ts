@@ -1,58 +1,35 @@
 'use client';
 
-import { createConfig, http } from 'wagmi';
-import { base, baseSepolia } from 'wagmi/chains';
-import { injected, walletConnect, coinbaseWallet } from 'wagmi/connectors';
+import { cookieStorage, createStorage } from 'wagmi';
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
+import { base, baseSepolia, type AppKitNetwork } from '@reown/appkit/networks';
 
-// WalletConnect Project ID (get from https://cloud.walletconnect.com)
-const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '';
+// WalletConnect Project ID (get from https://cloud.reown.com)
+export const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '';
 
 // Determine which chain to use based on environment
 const isMainnet = process.env.NEXT_PUBLIC_NETWORK === 'mainnet';
 
-// WalletConnect metadata for better UX
-const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    (typeof window !== 'undefined' ? window.location.origin : 'https://bridge.example.com');
-
-const metadata = {
+// App metadata for WalletConnect
+export const metadata = {
     name: 'Base⇄Stacks Bridge',
     description: 'Bridge USDC between Base and Stacks',
-    url: appUrl,
-    icons: ['https://base.org/icons/favicons/favicon-32x32.png'],
+    url: 'https://stacks-bridge.vercel.app',
+    icons: ['https://stacks-bridge.vercel.app/icon.png'],
 };
 
-// RPC URLs
-const mainnetRpc =
-    process.env.NEXT_PUBLIC_BASE_MAINNET_RPC_URL ||
-    process.env.NEXT_PUBLIC_BASE_RPC_URL ||
-    'https://mainnet.base.org';
-const testnetRpc =
-    process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL ||
-    process.env.NEXT_PUBLIC_BASE_RPC_URL ||
-    'https://sepolia.base.org';
+// Networks configuration - typed as AppKitNetwork array
+export const networks: [AppKitNetwork, ...AppKitNetwork[]] = isMainnet ? [base] : [baseSepolia];
 
-const connectors = [
-    injected(),
-    ...(projectId
-        ? [
-            walletConnect({
-                projectId,
-                metadata,
-                showQrModal: true,
-            }),
-        ]
-        : []),
-    coinbaseWallet({
-        appName: metadata.name,
+// Create Wagmi Adapter with Reown AppKit
+export const wagmiAdapter = new WagmiAdapter({
+    storage: createStorage({
+        storage: cookieStorage,
     }),
-];
-
-export const wagmiConfig = createConfig({
-    chains: isMainnet ? [base] as const : [baseSepolia] as const,
-    connectors,
-    transports: {
-        [base.id]: http(mainnetRpc),
-        [baseSepolia.id]: http(testnetRpc),
-    },
+    ssr: true,
+    projectId,
+    networks,
 });
+
+// Export wagmi config for use with WagmiProvider
+export const wagmiConfig = wagmiAdapter.wagmiConfig;

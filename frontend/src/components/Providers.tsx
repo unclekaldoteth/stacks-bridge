@@ -1,13 +1,16 @@
 'use client';
 
-import { WagmiConfig } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { wagmiConfig } from '@/lib/wagmi';
+import { WagmiProvider, type State } from 'wagmi';
+import { createAppKit } from '@reown/appkit/react';
+import { wagmiAdapter, projectId, metadata, networks } from '@/lib/wagmi';
 import { WalletProvider } from '@/context/WalletContext';
 import { OnchainKitProvider } from '@coinbase/onchainkit';
 import { base, baseSepolia } from 'wagmi/chains';
 
 const queryClient = new QueryClient();
+
+// OnchainKit configuration
 const onchainKitApiKey = process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY || undefined;
 const onchainKitMainnetRpcUrl =
     process.env.NEXT_PUBLIC_ONCHAINKIT_MAINNET_RPC_URL ||
@@ -29,9 +32,27 @@ const isMainnet = process.env.NEXT_PUBLIC_NETWORK === 'mainnet';
 const chain = isMainnet ? base : baseSepolia;
 const onchainKitRpcUrl = isMainnet ? onchainKitMainnetRpcUrl : onchainKitTestnetRpcUrl;
 
-export function Providers({ children }: { children: React.ReactNode }) {
+// Create Reown AppKit modal
+if (projectId) {
+    createAppKit({
+        adapters: [wagmiAdapter],
+        networks,
+        projectId,
+        metadata,
+        features: {
+            analytics: true,
+        },
+    });
+}
+
+interface ProvidersProps {
+    children: React.ReactNode;
+    initialState?: State;
+}
+
+export function Providers({ children, initialState }: ProvidersProps) {
     return (
-        <WagmiConfig config={wagmiConfig}>
+        <WagmiProvider config={wagmiAdapter.wagmiConfig} initialState={initialState}>
             <QueryClientProvider client={queryClient}>
                 <OnchainKitProvider
                     apiKey={onchainKitApiKey}
@@ -44,6 +65,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     </WalletProvider>
                 </OnchainKitProvider>
             </QueryClientProvider>
-        </WagmiConfig>
+        </WagmiProvider>
     );
 }

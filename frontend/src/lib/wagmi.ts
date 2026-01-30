@@ -5,7 +5,7 @@ import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 import { base, baseSepolia, type AppKitNetwork } from '@reown/appkit/networks';
 
 // WalletConnect Project ID (get from https://cloud.reown.com)
-export const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '';
+export const projectId = (process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '').trim();
 
 // Determine which chain to use based on environment
 const isMainnet = process.env.NEXT_PUBLIC_NETWORK === 'mainnet';

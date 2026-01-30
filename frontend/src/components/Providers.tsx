@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider, type State } from 'wagmi';
 import { createAppKit } from '@reown/appkit/react';
@@ -38,15 +38,14 @@ interface ProvidersProps {
     initialState?: State;
 }
 
-// Track AppKit initialization globally to prevent duplicates
-const appKitInitialized = { current: false };
+const appKitGlobal = globalThis as typeof globalThis & { __appKitInitialized?: boolean };
 
 export function Providers({ children, initialState }: ProvidersProps) {
-    const [isReady, setIsReady] = useState(false);
-
     useEffect(() => {
         // Initialize AppKit on client-side only
-        if (!appKitInitialized.current && projectId) {
+        if (!projectId) {
+            console.warn('⚠️ Missing NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID');
+        } else if (!appKitGlobal.__appKitInitialized) {
             try {
                 createAppKit({
                     adapters: [wagmiAdapter],
@@ -57,19 +56,13 @@ export function Providers({ children, initialState }: ProvidersProps) {
                         analytics: true,
                     },
                 });
-                appKitInitialized.current = true;
+                appKitGlobal.__appKitInitialized = true;
                 console.log('✅ AppKit initialized with projectId:', projectId.slice(0, 8) + '...');
             } catch (error) {
                 console.error('❌ Failed to initialize AppKit:', error);
             }
         }
-        setIsReady(true);
     }, []);
-
-    // Show nothing until client-side initialization is complete
-    if (!isReady) {
-        return null;
-    }
 
     return (
         <WagmiProvider config={wagmiAdapter.wagmiConfig} initialState={initialState}>
@@ -88,4 +81,3 @@ export function Providers({ children, initialState }: ProvidersProps) {
         </WagmiProvider>
     );
 }
-

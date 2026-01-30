@@ -305,12 +305,28 @@ export function BridgeForm() {
                             )}
                         </div>
                         {mounted && ((isDeposit && evmConnected) || (!isDeposit && stacksConnected)) && (
-                            <button
-                                onClick={handleSetMax}
-                                className="text-[#375BD2] text-xs font-bold uppercase tracking-wide hover:text-[#2F4CB3] transition-colors"
-                            >
-                                Max
-                            </button>
+                            <div className="flex items-center gap-1.5 bg-[#111] border border-[#222] rounded-lg p-1">
+                                {[25, 50, 75, 100].map((percent) => (
+                                    <button
+                                        key={percent}
+                                        onClick={() => {
+                                            if (!currentBalance) return;
+                                            const value = currentBalance * BigInt(percent) / 100n;
+                                            // Handle case where we might have decimals slightly off by flooring/rounding,
+                                            // but for USDC (6 decimals) integer math is fine.
+                                            // If 100%, use exact balance to avoid any dust.
+                                            if (percent === 100) {
+                                                setAmount(formatUnits(currentBalance, 6));
+                                            } else {
+                                                setAmount(formatUnits(value, 6));
+                                            }
+                                        }}
+                                        className="px-2 py-1 text-[10px] font-bold text-gray-500 hover:text-white hover:bg-[#222] rounded transition-all"
+                                    >
+                                        {percent === 100 ? 'MAX' : `${percent}%`}
+                                    </button>
+                                ))}
+                            </div>
                         )}
                     </div>
                 </div>

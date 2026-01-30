@@ -17,7 +17,7 @@ function ConnectButton() {
     return (
       <button
         onClick={() => disconnect()}
-        className="bg-gray-900 border border-gray-700 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors"
+        className="text-[#888] hover:text-white px-4 py-2 font-medium text-sm transition-colors"
       >
         {address.slice(0, 6)}...{address.slice(-4)}
       </button>
@@ -27,7 +27,7 @@ function ConnectButton() {
   return (
     <button
       onClick={() => connect({ connector: connectors[0] })}
-      className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors"
+      className="bg-white text-black px-4 py-2 rounded-full text-sm font-bold hover:bg-gray-200 transition-colors"
     >
       Connect Wallet
     </button>
@@ -36,113 +36,73 @@ function ConnectButton() {
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
-      {/* Header */}
-      <header className="border-b border-gray-800">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-orange-500 rounded-xl flex items-center justify-center">
-              <span className="text-xl">🌉</span>
-            </div>
-            <div>
-              <h1 className="font-bold text-lg">Base ↔ Stacks</h1>
-              <p className="text-xs text-gray-500">USDC Bridge</p>
-            </div>
+    <main className="min-h-screen bg-[#050505] text-white selection:bg-[#375BD2] selection:text-white flex flex-col">
+      {/* Minimal Header */}
+      <header className="w-full border-b border-[#222]">
+        <div className="max-w-screen-xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-[#375BD2] rounded-lg"></div>
+            <span className="font-bold text-lg tracking-tight">StacksBridge</span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-xs text-gray-500">Network</p>
-              <p className={`text-sm font-semibold ${isMainnet ? 'text-green-400' : 'text-yellow-400'}`}>
-                {isMainnet ? '🟢 Mainnet' : '🟡 Testnet'}
-              </p>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2 text-xs font-medium bg-[#111] px-3 py-1.5 rounded-full border border-[#222]">
+              <div className={`w-2 h-2 rounded-full ${isMainnet ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+              <span className="text-gray-300">{isMainnet ? 'Mainnet' : 'Testnet'}</span>
             </div>
             <ConnectButton />
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 py-12">
-        {/* Hero */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="bg-gradient-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent">
-              Bridge USDC
-            </span>
-          </h2>
-          <p className="text-gray-400 text-lg max-w-xl mx-auto">
-            Move USDC between Base (L2) and Stacks (Bitcoin L2) with{" "}
-            <span className="text-green-400 font-semibold">80% lower fees</span>{" "}
-            than ETH L1 routes.
+      {/* Main Content - Centered */}
+      <div className="flex-1 flex flex-col items-center justify-center py-12 px-4 relative z-10 w-full max-w-screen-xl mx-auto">
+
+        {/* Subtle Background Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#375BD2] opacity-[0.03] blur-[120px] rounded-full -z-10 pointer-events-none"></div>
+
+        <div className="text-center mb-10">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-3 text-white">
+            Bridge USDC
+          </h1>
+          <p className="text-gray-400 text-lg">
+            Fast, secure transfers between Base and Stacks.
           </p>
         </div>
 
-        {/* Bridge Card */}
-        <div className="max-w-md mx-auto">
-          {/* Analytics Dashboard */}
-          <BridgeStats />
-
-          <div className="bg-gray-900/80 backdrop-blur-xl border border-gray-800 rounded-2xl p-6 shadow-2xl">
-            <BridgeForm />
-          </div>
-
-          {/* Transaction History */}
-          <TransactionHistory />
+        {/* Bridge Card Area */}
+        <div className="w-full max-w-[480px]">
+          <BridgeForm />
         </div>
 
-        {/* Stats */}
-        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-          <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-green-400">~$0.50</p>
-            <p className="text-xs text-gray-500">Avg Bridge Fee</p>
+        {/* Footer Stats / Low key info */}
+        <div className="mt-16 grid grid-cols-3 gap-12 text-center opacity-50 hover:opacity-100 transition-opacity">
+          <div>
+            <p className="text-2xl font-bold text-white">~2s</p>
+            <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold mt-1">Finality</p>
           </div>
-          <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-blue-400">2s</p>
-            <p className="text-xs text-gray-500">Base Finality</p>
+          <div>
+            <p className="text-2xl font-bold text-white">$0.50</p>
+            <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold mt-1">Avg Fee</p>
           </div>
-          <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-orange-400">~15min</p>
-            <p className="text-xs text-gray-500">Total Time</p>
-          </div>
-          <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-purple-400">2/3</p>
-            <p className="text-xs text-gray-500">Multi-Sig</p>
-          </div>
-        </div>
-
-        {/* Security Info */}
-        <div className="mt-12 max-w-2xl mx-auto">
-          <div className="bg-gradient-to-r from-blue-900/20 to-orange-900/20 border border-gray-800 rounded-xl p-6">
-            <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
-              🔒 Security Features
-            </h3>
-            <div className="grid md:grid-cols-3 gap-4 text-sm">
-              <div>
-                <p className="text-gray-400">Multi-Sig</p>
-                <p className="text-white font-semibold">2-of-3 Approval</p>
-              </div>
-              <div>
-                <p className="text-gray-400">Rate Limits</p>
-                <p className="text-white font-semibold">10K/tx, 50K/hr</p>
-              </div>
-              <div>
-                <p className="text-gray-400">Timelock</p>
-                <p className="text-white font-semibold">1hr for large TXs</p>
-              </div>
-            </div>
+          <div>
+            <p className="text-2xl font-bold text-white">2/3</p>
+            <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold mt-1">Secure</p>
           </div>
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-800 mt-20">
-        <div className="max-w-6xl mx-auto px-4 py-6">
-          <p className="text-center text-gray-600 text-sm">
-            Built with 💜 for the Bitcoin & Ethereum ecosystems
-          </p>
+      {/* Secondary Content - History & Deep Stats (Below Fold) */}
+      <div className="border-t border-[#222] bg-[#0A0A0A] py-16">
+        <div className="max-w-4xl mx-auto px-6">
+          <h3 className="text-xl font-bold mb-8 text-white">Bridge Activity</h3>
+          <BridgeStats />
+          <div className="mt-12">
+            <TransactionHistory />
+          </div>
         </div>
-      </footer>
+      </div>
+
     </main>
   );
 }

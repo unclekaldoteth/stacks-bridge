@@ -118,52 +118,38 @@ export function BridgeStats() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {/* Total Volume */}
-                <div className="bg-gradient-to-br from-green-900/30 to-green-900/10 border border-green-800/30 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-green-400">
+                <div className="bg-[#111] border border-[#222] rounded-xl p-4 text-center hover:border-green-900/50 transition-colors">
+                    <p className="text-2xl font-bold text-white">
                         {loading ? '...' : formatVolume(stats.totalVolume)}
                     </p>
-                    <p className="text-xs text-gray-500">Total Volume</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mt-1">Volume</p>
                 </div>
 
                 {/* Unique Users */}
-                <div className="bg-gradient-to-br from-blue-900/30 to-blue-900/10 border border-blue-800/30 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-blue-400">
+                <div className="bg-[#111] border border-[#222] rounded-xl p-4 text-center hover:border-blue-900/50 transition-colors">
+                    <p className="text-2xl font-bold text-white">
                         {loading ? '...' : stats.uniqueUsers}
                     </p>
-                    <p className="text-xs text-gray-500">Unique Users</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mt-1">Users</p>
                 </div>
 
                 {/* Avg Time */}
-                <div className="bg-gradient-to-br from-orange-900/30 to-orange-900/10 border border-orange-800/30 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-orange-400">
+                <div className="bg-[#111] border border-[#222] rounded-xl p-4 text-center hover:border-orange-900/50 transition-colors">
+                    <p className="text-2xl font-bold text-white">
                         {stats.avgTransactionTime}
                     </p>
-                    <p className="text-xs text-gray-500">Avg Time</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mt-1">Time</p>
                 </div>
 
                 {/* Relayer Status */}
-                <div className="bg-gradient-to-br from-purple-900/30 to-purple-900/10 border border-purple-800/30 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold flex items-center justify-center gap-2">
-                        <span
-                            className={`w-2 h-2 rounded-full ${stats.relayerStatus === 'online'
-                                    ? 'bg-green-400 animate-pulse'
-                                    : stats.relayerStatus === 'offline'
-                                        ? 'bg-red-400'
-                                        : 'bg-yellow-400'
-                                }`}
-                        />
-                        <span className={
-                            stats.relayerStatus === 'online'
-                                ? 'text-green-400'
-                                : stats.relayerStatus === 'offline'
-                                    ? 'text-red-400'
-                                    : 'text-yellow-400'
-                        }>
-                            {stats.relayerStatus === 'online' ? 'Online' :
-                                stats.relayerStatus === 'offline' ? 'Offline' : 'Unknown'}
+                <div className="bg-[#111] border border-[#222] rounded-xl p-4 text-center hover:border-purple-900/50 transition-colors">
+                    <div className="flex items-center justify-center h-8 gap-2">
+                        <div className={`w-2 h-2 rounded-full ${stats.relayerStatus === 'online' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                        <span className="text-lg font-bold text-white">
+                            {stats.relayerStatus === 'online' ? 'Online' : 'Offline'}
                         </span>
-                    </p>
-                    <p className="text-xs text-gray-500">Relayer</p>
+                    </div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mt-1">Relayer</p>
                 </div>
             </div>
 

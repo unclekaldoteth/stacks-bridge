@@ -12,6 +12,10 @@ interface BridgeStats {
 }
 
 const baseBridgeAddress = config.contracts.base.bridge;
+const isMainnet = process.env.NEXT_PUBLIC_NETWORK === 'mainnet';
+const blockscoutApi = isMainnet
+    ? 'https://base.blockscout.com/api/v2'
+    : 'https://base-sepolia.blockscout.com/api/v2';
 
 export function BridgeStats() {
     const [stats, setStats] = useState<BridgeStats>({
@@ -31,7 +35,7 @@ export function BridgeStats() {
         try {
             // Fetch all transactions from bridge contract
             const response = await fetch(
-                `https://base-sepolia.blockscout.com/api/v2/addresses/${baseBridgeAddress}/transactions?limit=100`
+                `${blockscoutApi}/addresses/${baseBridgeAddress}/transactions?limit=100`
             );
 
             if (!response.ok) {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createPublicClient, createWalletClient, http, type Hash } from 'viem';
+import { createPublicClient, createWalletClient, http, type Hash, isAddress } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { base, baseSepolia } from 'viem/chains';
 
@@ -7,6 +7,7 @@ import { base, baseSepolia } from 'viem/chains';
 const WEBHOOK_AUTH_TOKEN = process.env.WEBHOOK_AUTH_TOKEN || '';
 const SIGNER_PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY || '';
 const BRIDGE_ADDRESS = process.env.BRIDGE_BASE_ADDRESS as `0x${string}` | undefined;
+const STACKS_CONTRACT_ID = process.env.STACKS_CONTRACT_ID || '';
 const IS_MAINNET = process.env.NEXT_PUBLIC_NETWORK === 'mainnet';
 
 const chain = IS_MAINNET ? base : baseSepolia;
@@ -34,9 +35,12 @@ const publicClient = createPublicClient({
     transport: http(rpcUrl),
 });
 
+let bridgeCodeCheck: Promise<boolean> | null = null;
+
 function getWalletClient() {
-    if (!SIGNER_PRIVATE_KEY) return null;
-    const account = privateKeyToAccount(SIGNER_PRIVATE_KEY as `0x${string}`);
+    const privateKey = normalizePrivateKey(SIGNER_PRIVATE_KEY);
+    if (!privateKey) return null;
+    const account = privateKeyToAccount(privateKey);
     return createWalletClient({
         account,
         chain,
@@ -95,6 +99,12 @@ async function queueRelease(receiver: string, amount: bigint): Promise<Hash | nu
         return null;
     }
 
+    const hasBridgeCode = await ensureBridgeContract();
+    if (!hasBridgeCode) {
+        console.error('Bridge contract not found on network');
+        return null;
+    }
+
     console.log(`📤 Queueing release: ${receiver} for ${Number(amount) / 1e6} USDC`);
 
     const hash = await walletClient.writeContract({
@@ -111,15 +121,22 @@ async function queueRelease(receiver: string, amount: bigint): Promise<Hash | nu
 /**
  * Process a burn transaction from Chainhook
  */
+interface TransactionEvent {
+    type: string;
+    data?: {
+        value?: ClarityValue;
+        contract_identifier?: string;
+        contract_id?: string;
+    };
+}
+
 interface Transaction {
     transaction_identifier?: { hash: string };
+    contract_call?: { contract_id?: string; contract_identifier?: string };
     metadata?: {
         kind?: { type: string };
         receipt?: {
-            events?: Array<{
-                type: string;
-                data?: { value?: ClarityValue };
-            }>;
+            events?: TransactionEvent[];
         };
     };
 }
@@ -132,6 +149,11 @@ async function processBurnTransaction(tx: Transaction): Promise<Hash | null> {
 
     for (const event of events) {
         if (event.type !== 'SmartContractEvent') continue;
+
+        const eventContractId = extractContractId(tx, event);
+        if (STACKS_CONTRACT_ID && eventContractId && eventContractId !== STACKS_CONTRACT_ID) {
+            continue;
+        }
 
         // Check if it's a burn event from our contract
         const eventData = event.data?.value;
@@ -150,8 +172,11 @@ async function processBurnTransaction(tx: Transaction): Promise<Hash | null> {
         const baseAddress = burnData['base-address'];
         const amount = burnData.amount;
 
-        if (baseAddress && amount) {
-            return await queueRelease(baseAddress, BigInt(amount));
+        const receiver = normalizeBaseAddress(baseAddress);
+        const parsedAmount = parseAmount(amount);
+
+        if (receiver && parsedAmount) {
+            return await queueRelease(receiver, parsedAmount);
         }
     }
 
@@ -172,6 +197,12 @@ interface ChainhookPayload {
  * Receives Chainhook webhook events for burn transactions
  */
 export async function POST(request: NextRequest) {
+    const configErrors = getConfigErrors();
+    if (configErrors.length > 0) {
+        console.error(`❌ Missing/invalid config: ${configErrors.join(', ')}`);
+        return NextResponse.json({ error: 'Server not configured' }, { status: 500 });
+    }
+
     // Verify authorization
     const authHeader = request.headers.get('authorization');
     if (!WEBHOOK_AUTH_TOKEN || authHeader !== `Bearer ${WEBHOOK_AUTH_TOKEN}`) {
@@ -221,10 +252,70 @@ export async function POST(request: NextRequest) {
  * Health check endpoint
  */
 export async function GET() {
+    const configErrors = getConfigErrors();
     return NextResponse.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
         network: IS_MAINNET ? 'mainnet' : 'testnet',
         bridgeAddress: BRIDGE_ADDRESS || 'not configured',
+        configStatus: configErrors.length === 0 ? 'ready' : 'missing',
+        configErrors,
     });
+}
+
+function normalizePrivateKey(value: string): `0x${string}` | null {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    const normalized = trimmed.startsWith('0x') ? trimmed : `0x${trimmed}`;
+    return /^0x[0-9a-fA-F]{64}$/.test(normalized) ? (normalized as `0x${string}`) : null;
+}
+
+function normalizeBaseAddress(value: unknown): `0x${string}` | null {
+    if (typeof value !== 'string') return null;
+    const trimmed = value.trim();
+    return isAddress(trimmed) ? (trimmed as `0x${string}`) : null;
+}
+
+function parseAmount(value: unknown): bigint | null {
+    if (value === null || value === undefined) return null;
+    try {
+        const amount = typeof value === 'bigint' ? value : BigInt(value as string | number);
+        return amount > 0n ? amount : null;
+    } catch {
+        return null;
+    }
+}
+
+function extractContractId(tx: Transaction, event: TransactionEvent): string | null {
+    const fromEvent =
+        event.data?.contract_identifier ||
+        event.data?.contract_id;
+    if (fromEvent) return fromEvent;
+    return tx.contract_call?.contract_identifier || tx.contract_call?.contract_id || null;
+}
+
+function getConfigErrors(): string[] {
+    const errors: string[] = [];
+    if (!WEBHOOK_AUTH_TOKEN) errors.push('WEBHOOK_AUTH_TOKEN');
+    if (!normalizePrivateKey(SIGNER_PRIVATE_KEY)) errors.push('SIGNER_PRIVATE_KEY');
+    if (!BRIDGE_ADDRESS || !isAddress(BRIDGE_ADDRESS)) errors.push('BRIDGE_BASE_ADDRESS');
+    return errors;
+}
+
+async function ensureBridgeContract(): Promise<boolean> {
+    if (!BRIDGE_ADDRESS || !isAddress(BRIDGE_ADDRESS)) {
+        return false;
+    }
+
+    if (!bridgeCodeCheck) {
+        bridgeCodeCheck = publicClient
+            .getBytecode({ address: BRIDGE_ADDRESS })
+            .then((code) => Boolean(code && code !== '0x'))
+            .catch((error) => {
+                console.error('Failed to verify bridge contract code:', error);
+                return false;
+            });
+    }
+
+    return bridgeCodeCheck;
 }

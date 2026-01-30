@@ -3,7 +3,10 @@
 import { BridgeForm } from '@/components/BridgeForm';
 import { BridgeStats } from '@/components/BridgeStats';
 import { TransactionHistory } from '@/components/TransactionHistory';
+import { config } from '@/lib/config';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
+
+const isMainnet = config.network === 'mainnet';
 
 function ConnectButton() {
   const { address, isConnected } = useAccount();
@@ -50,7 +53,9 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <div className="text-right">
               <p className="text-xs text-gray-500">Network</p>
-              <p className="text-sm font-semibold text-yellow-400">Testnet</p>
+              <p className={`text-sm font-semibold ${isMainnet ? 'text-green-400' : 'text-yellow-400'}`}>
+                {isMainnet ? '🟢 Mainnet' : '🟡 Testnet'}
+              </p>
             </div>
             <ConnectButton />
           </div>

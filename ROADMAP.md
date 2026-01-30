@@ -98,6 +98,18 @@ Build a decentralized, cost-effective bridge between Base (Ethereum L2) and Stac
 
 ## Phase 7.5: Frontend Enhancements ✅ (January 2026)
 
+### Real-Time L1 Gas Comparison (NEW)
+- [x] Etherscan Gas Oracle v2 API integration
+- [x] Dynamic L1 vs L2 fee comparison
+- [x] Visual comparison bars (green L2 / red L1)
+- [x] L1 gas price display in Gwei (e.g., "L1: 0.47 Gwei")
+- [x] Edge case handling when L1 is cheaper (isCheaper boolean)
+
+### Dynamic Footer Stats
+- [x] `FooterStats` component with real-time avg fee
+- [x] Live calculation from `usePrices` hook
+- [x] Shows "<$0.01" for very low fees
+
 ### Real-Time Price Feeds
 - [x] ETH/USD from Chainlink on Base mainnet (updates every block)
 - [x] STX/USD from Coinbase API (5-minute cache)

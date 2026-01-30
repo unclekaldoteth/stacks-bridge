@@ -79,6 +79,17 @@ See [ROADMAP.md](./ROADMAP.md) for full details.
 
 ### 🆕 Frontend Improvements (January 2026)
 
+**✅ Real-Time L1 Gas Comparison** (NEW)
+- L1 gas price from Etherscan Gas Oracle v2 API (1-min refresh)
+- Dynamic fee comparison: Base L2 vs ETH L1
+- Visual comparison bars (green L2 / red L1)
+- Shows actual L1 bridge cost (~$0.24 at 0.5 Gwei)
+
+**✅ Dynamic Footer Stats**
+- Real-time average fee calculation
+- Live data from `usePrices` hook
+- Shows "<$0.01" for very low fees
+
 **✅ Real-Time Price Feeds**
 - ETH/USD: Chainlink price feed on Base mainnet (updates every block)
 - STX/USD: Coinbase API with 5-minute cache

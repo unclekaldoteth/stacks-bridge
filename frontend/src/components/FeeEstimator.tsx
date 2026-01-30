@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { formatUnits } from 'viem';
 import { useGasPrice } from 'wagmi';
 import { config } from '@/lib/config';
+import { usePrices } from '@/hooks/usePrices';
 
 interface FeeEstimate {
     baseFee: string;       // USD
@@ -13,29 +14,25 @@ interface FeeEstimate {
     savingsPercent: number; // %
 }
 
-// Price estimates (for accurate real-time pricing, integrate a price feed API)
-// Base L2 gas: Real-time from useGasPrice() ✅
-// ETH price: Approximate (consider using Chainlink price feed for production)
-// STX price: Approximate (consider using Coinbase API for production)
-const ETH_PRICE_USD = 2400;
-const STX_PRICE_USD = 0.80;
-const L1_BRIDGE_FEE_USD = 4.80; // Reference: ETH L1 → Stacks bridge fee
+// Reference: ETH L1 → Stacks bridge fee (for comparison)
+const L1_BRIDGE_FEE_USD = 4.80;
 
 export function FeeEstimator() {
     const { data: gasPrice } = useGasPrice();
+    const { ethUsd, stxUsd, ethSource, stxSource } = usePrices();
 
     const estimate = useMemo<FeeEstimate | null>(() => {
         if (!gasPrice) return null;
 
-        // Base L2 fee calculation
+        // Base L2 fee calculation (real-time gas * real-time ETH price)
         const baseGasUsed = config.gasEstimates.baseLock;
         const baseFeesWei = baseGasUsed * gasPrice;
         const baseFeeEth = Number(formatUnits(baseFeesWei, 18));
-        const baseFeeUsd = baseFeeEth * ETH_PRICE_USD;
+        const baseFeeUsd = baseFeeEth * ethUsd;
 
-        // Stacks fee (approximate)
+        // Stacks fee (real-time STX price)
         const stacksFeeStx = Number(config.gasEstimates.stacksMint) / 1_000_000;
-        const stacksFeeUsd = stacksFeeStx * STX_PRICE_USD;
+        const stacksFeeUsd = stacksFeeStx * stxUsd;
 
         // Total
         const totalFeeUsd = baseFeeUsd + stacksFeeUsd;
@@ -51,7 +48,7 @@ export function FeeEstimator() {
             savingsVsL1: savingsUsd.toFixed(2),
             savingsPercent: Math.max(0, savingsPercent),
         };
-    }, [gasPrice]);
+    }, [gasPrice, ethUsd, stxUsd]);
 
     if (!estimate) {
         return (
@@ -64,9 +61,23 @@ export function FeeEstimator() {
 
     return (
         <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 border border-green-500/30 rounded-xl p-4">
-            <h3 className="text-sm font-semibold text-green-400 mb-3">
-                💰 Fee Breakdown
-            </h3>
+            <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-green-400">
+                    💰 Fee Breakdown
+                </h3>
+                <div className="flex gap-1">
+                    {ethSource === 'chainlink' && (
+                        <span className="text-[10px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded">
+                            Chainlink
+                        </span>
+                    )}
+                    {stxSource === 'coinbase' && (
+                        <span className="text-[10px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded">
+                            Coinbase
+                        </span>
+                    )}
+                </div>
+            </div>
 
             <div className="space-y-2 text-sm">
                 <div className="flex justify-between text-gray-300">
@@ -95,3 +106,4 @@ export function FeeEstimator() {
         </div>
     );
 }
+

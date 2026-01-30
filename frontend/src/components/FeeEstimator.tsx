@@ -22,14 +22,10 @@ export function FeeEstimator() {
     const { data: gasPrice } = useGasPrice();
     const {
         ethUsd,
-        stxUsd,
         l1GasGwei,
         l1BridgeFeeUsd,
         stacksFeeUsd,
-        ethSource,
-        stxSource,
         l1GasSource,
-        stacksFeeSource
     } = usePrices();
 
     const estimate = useMemo<FeeEstimate | null>(() => {
@@ -89,21 +85,9 @@ export function FeeEstimator() {
                     💰 Fee Breakdown
                 </h3>
                 <div className="flex gap-1 flex-wrap justify-end">
-                    {(ethSource === 'basescan' || ethSource === 'coingecko') && (
-                        <span className="text-[10px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded">
-                            {ethSource === 'basescan' ? 'Basescan' : 'CoinGecko'}
-                        </span>
-                    )}
-                    {stxSource === 'coinbase' && (
-                        <span className="text-[10px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded">
-                            Coinbase
-                        </span>
-                    )}
-                    {stacksFeeSource === 'hiro' && (
-                        <span className="text-[10px] bg-orange-500/20 text-orange-400 px-1.5 py-0.5 rounded">
-                            Hiro
-                        </span>
-                    )}
+                    <span className="text-[10px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded">
+                        Live
+                    </span>
                     {l1GasSource === 'etherscan' && (
                         <span className="text-[10px] bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded">
                             L1: {l1GasGwei < 1 ? l1GasGwei.toFixed(2) : l1GasGwei.toFixed(0)} Gwei

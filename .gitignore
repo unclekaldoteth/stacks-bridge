@@ -19,6 +19,10 @@ typechain-types/
 .env.test.local
 .env.production.local
 
+# Relayer state
+relayer/.relayer-state.json
+relayer/.relayer-state.json.tmp
+
 # IDE
 .idea/
 .vscode/
@@ -48,3 +52,4 @@ stacks/settings/Mainnet.toml
 # Misc
 *.tsbuildinfo
 .vercel
+chainhook-mainnet.json

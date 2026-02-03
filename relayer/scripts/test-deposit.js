@@ -15,7 +15,7 @@ dotenv.config();
 // Config
 const BRIDGE_ADDRESS = process.env.BRIDGE_BASE_ADDRESS || '0xFCDF3e427e4a4CF3E573762693B9a1bBb35C504B';
 const USDC_ADDRESS = '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
-const RPC_URL = process.env.BASE_RPC_URL || 'https://base-sepolia.g.alchemy.com/v2/poHXZbv0T2Q6sgplkdhqf';
+const RPC_URL = process.env.BASE_RPC_URL || 'https://sepolia.base.org';
 
 // ABIs
 const USDC_ABI = parseAbi([

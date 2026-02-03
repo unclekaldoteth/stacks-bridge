@@ -7,6 +7,7 @@ import 'dotenv/config';
 import express from 'express';
 import { initWalletClient, publicClient, queueRelease } from './base-listener.js';
 import { BASE_CONFIG, validateConfig } from './config.js';
+import { flushState, isBurnProcessed, markBurnProcessed } from './state.js';
 
 const app = express();
 app.use(express.json());
@@ -14,7 +15,7 @@ app.use(express.json());
 const DEFAULT_PORT = 3000;
 const PORT = Number.parseInt(process.env.WEBHOOK_PORT || `${DEFAULT_PORT}`, 10);
 const MAX_PORT_TRIES = Number.parseInt(process.env.WEBHOOK_PORT_TRIES || "5", 10);
-const WEBHOOK_AUTH_TOKEN = process.env.WEBHOOK_AUTH_TOKEN || 'bridge-secret-token';
+const WEBHOOK_AUTH_TOKEN = process.env.WEBHOOK_AUTH_TOKEN || '';
 
 // Health check
 app.get('/health', (req, res) => {
@@ -68,6 +69,7 @@ async function processBurnTransaction(tx) {
     if (tx.metadata?.kind?.type !== 'ContractCall') return;
 
     const events = tx.metadata?.receipt?.events || [];
+    const txHash = tx.transaction_identifier?.hash;
 
     for (const event of events) {
         if (event.type !== 'SmartContractEvent') continue;
@@ -86,16 +88,23 @@ async function processBurnTransaction(tx) {
         }
 
         if (burnData?.event !== 'burn') continue;
+        if (txHash && isBurnProcessed(txHash)) {
+            console.log(`   ⏭️ Already processed burn ${txHash.slice(0, 10)}...`);
+            continue;
+        }
 
         console.log('\n🔥 Burn event from Chainhook:');
         console.log(`   Sender: ${burnData.sender}`);
         console.log(`   Amount: ${Number(burnData.amount) / 1e6} USDC`);
         console.log(`   To Base: ${burnData['base-address']}`);
-        console.log(`   TX: ${tx.transaction_identifier?.hash}`);
+        console.log(`   TX: ${txHash}`);
 
         // Queue release on Base
         try {
             await queueRelease(burnData['base-address'], BigInt(burnData.amount));
+            if (txHash) {
+                markBurnProcessed(txHash, { txId: txHash });
+            }
         } catch (error) {
             console.error('❌ Failed to queue release from burn:', error.message);
             throw error;
@@ -140,6 +149,9 @@ async function main() {
 
     // Validate config
     validateConfig();
+    if (!WEBHOOK_AUTH_TOKEN) {
+        throw new Error('WEBHOOK_AUTH_TOKEN is required for the webhook server');
+    }
 
     // Initialize Base wallet for releases
     const signerAddress = initWalletClient();
@@ -186,5 +198,6 @@ function startServer(port, remainingAttempts) {
 
 main().catch((error) => {
     console.error(error);
+    flushState();
     process.exit(1);
 });

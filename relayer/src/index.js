@@ -8,6 +8,7 @@
  */
 
 import { validateConfig, SIGNER_CONFIG, POLLING } from './config.js';
+import { flushState, getStateInfo } from './state.js';
 import {
     initWalletClient,
     watchDeposits,
@@ -24,7 +25,6 @@ const pendingMints = new Map(); // depositTxHash -> mintId
 const pendingReleases = new Map(); // burnTxId -> releaseId
 
 // State
-let lastStacksBlock = 0;
 let isRunning = false;
 
 /**
@@ -90,7 +90,7 @@ async function handleBurn(burn) {
  */
 async function pollStacksBurns() {
     try {
-        lastStacksBlock = await pollBurnEvents(handleBurn, lastStacksBlock);
+        await pollBurnEvents(handleBurn);
     } catch (error) {
         console.error('Error in Stacks polling:', error.message);
     }
@@ -120,6 +120,8 @@ async function main() {
 
     console.log(`\n📊 Signer Index: ${SIGNER_CONFIG.index}`);
     console.log(`🔗 Watching for cross-chain events...\n`);
+    const stateInfo = getStateInfo();
+    console.log(`🧠 State file: ${stateInfo.path}`);
 
     isRunning = true;
 
@@ -140,6 +142,7 @@ async function main() {
         console.log(`   Deposits processed: ${pendingMints.size}`);
         console.log(`   Burns processed: ${pendingReleases.size}`);
         console.log('👋 Goodbye!');
+        flushState();
         process.exit(0);
     });
 

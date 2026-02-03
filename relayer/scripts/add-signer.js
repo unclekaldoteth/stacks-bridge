@@ -1,6 +1,6 @@
 /**
- * Add signer to wrapped-usdc-v4 contract
- * Run: node scripts/add-signer.js
+ * Add signer to wrapped-usdc-v5 contract
+ * Run: NETWORK=mainnet node scripts/add-signer.js <newSignerPrincipal>
  */
 
 import "dotenv/config";
@@ -30,11 +30,18 @@ network.coreApiUrl = STACKS_CORE_API_URL;
 network.apiUrl = STACKS_API_URL;
 
 const CONTRACT_ADDRESS = process.env.STACKS_CONTRACT_ADDRESS;
-const CONTRACT_NAME = process.env.STACKS_CONTRACT_NAME || "wrapped-usdc-v4";
+const CONTRACT_NAME = process.env.STACKS_CONTRACT_NAME || "wrapped-usdc-v5";
 
 async function main() {
     if (!CONTRACT_ADDRESS) {
         console.error("❌ STACKS_CONTRACT_ADDRESS not set in .env");
+        process.exit(1);
+    }
+
+    const newSigner = process.argv[2];
+    if (!newSigner) {
+        console.error("❌ New signer principal required.");
+        console.log("   Usage: node scripts/add-signer.js <newSignerPrincipal>");
         process.exit(1);
     }
 
@@ -66,23 +73,20 @@ async function main() {
         );
     }
 
-    // The address we need to add as signer - this is the contract owner who can queue mints
-    const CONTRACT_OWNER = CONTRACT_ADDRESS;
-
     console.log("═".repeat(60));
     console.log(`🔐 Adding Signer to ${CONTRACT_NAME}`);
     console.log("═".repeat(60));
     console.log(`   Network: ${NETWORK}`);
     console.log(`   Contract: ${CONTRACT_ADDRESS}.${CONTRACT_NAME}`);
     console.log(`   Caller: ${signerAddress}`);
-    console.log(`   Adding Signer: ${CONTRACT_OWNER}`);
+    console.log(`   Adding Signer: ${newSigner}`);
 
     const txOptions = {
         contractAddress: CONTRACT_ADDRESS,
         contractName: CONTRACT_NAME,
         functionName: "add-signer",
         functionArgs: [
-            principalCV(CONTRACT_OWNER),
+            principalCV(newSigner),
         ],
         senderKey: privateKey,
         network,

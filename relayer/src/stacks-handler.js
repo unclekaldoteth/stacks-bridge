@@ -14,15 +14,13 @@ import {
 } from '@stacks/transactions';
 import { StacksTestnet, StacksMainnet } from '@stacks/network';
 import { generateWallet } from '@stacks/wallet-sdk';
-import { STACKS_CONFIG, SIGNER_CONFIG, IS_MAINNET, POLLING } from './config.js';
+import { STACKS_CONFIG, SIGNER_CONFIG, IS_MAINNET } from './config.js';
+import { getStacksCursor, isBurnProcessed, markBurnProcessed, setStacksCursor } from './state.js';
 
 // Network setup
 const network = IS_MAINNET ? new StacksMainnet() : new StacksTestnet();
 network.coreApiUrl = STACKS_CONFIG.coreApiUrl;
 network.apiUrl = STACKS_CONFIG.apiUrl;
-
-// Track processed events
-const processedBurns = new Set();
 
 // Cache for derived private key
 let derivedPrivateKey = null;
@@ -173,47 +171,86 @@ export async function executeMint(mintId) {
  */
 export async function pollBurnEvents(onBurn, lastProcessedBlock = 0) {
     try {
-        // Fetch recent contract events from Hiro API
-        const url = `${STACKS_CONFIG.apiUrl}/extended/v1/contract/${STACKS_CONFIG.contractAddress}.${STACKS_CONFIG.contractName}/events?limit=50`;
+        const { lastEventId } = getStacksCursor();
+        const isBootstrap = !lastEventId;
+        const pageLimit = 50;
+        let offset = 0;
+        let foundCursor = false;
+        let newestEventId = null;
+        let newestBlock = null;
 
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`API error: ${response.status}`);
-        }
+        while (true) {
+            const url = `${STACKS_CONFIG.apiUrl}/extended/v1/contract/${STACKS_CONFIG.contractAddress}.${STACKS_CONFIG.contractName}/events?limit=${pageLimit}&offset=${offset}`;
 
-        const data = await response.json();
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`API error: ${response.status}`);
+            }
 
-        for (const event of data.results || []) {
-            // Skip if already processed
-            if (processedBurns.has(event.tx_id)) continue;
+            const data = await response.json();
+            const results = data.results || [];
 
-            // Check if it's a burn event
-            if (event.contract_log?.value?.repr?.includes('"burn"')) {
-                processedBurns.add(event.tx_id);
+            if (results.length === 0) break;
 
-                // Parse the burn event data
-                try {
-                    const eventData = parseBurnEvent(event);
-                    if (eventData) {
-                        console.log('\n🔥 New Burn Detected on Stacks:');
-                        console.log(`   Sender: ${eventData.sender}`);
-                        console.log(`   Amount: ${eventData.amount / 1e6} USDC`);
-                        console.log(`   To Base: ${eventData.baseAddress}`);
-                        console.log(`   TX: ${event.tx_id}`);
+            if (!newestEventId) {
+                newestEventId = getCursorEventId(results[0]);
+                newestBlock = results[0]?.block_height ?? null;
+            }
 
-                        onBurn(eventData);
+            for (const event of results) {
+                const cursorEventId = getCursorEventId(event);
+                if (cursorEventId && cursorEventId === lastEventId) {
+                    foundCursor = true;
+                    break;
+                }
+
+                if (!cursorEventId || isBurnProcessed(cursorEventId)) continue;
+
+                // Check if it's a burn event
+                if (event.contract_log?.value?.repr?.includes('"burn"')) {
+                    try {
+                        const eventData = parseBurnEvent(event);
+                        if (eventData) {
+                            console.log('\n🔥 New Burn Detected on Stacks:');
+                            console.log(`   Sender: ${eventData.sender}`);
+                            console.log(`   Amount: ${eventData.amount / 1e6} USDC`);
+                            console.log(`   To Base: ${eventData.baseAddress}`);
+                            console.log(`   TX: ${event.tx_id || event.txid}`);
+
+                            await Promise.resolve(onBurn(eventData));
+
+                            markBurnProcessed(cursorEventId, {
+                                txId: event.tx_id || event.txid,
+                                blockHeight: event.block_height,
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Failed to handle burn event:', error.message);
                     }
-                } catch (parseError) {
-                    console.error('Failed to parse burn event:', parseError.message);
                 }
             }
+
+            if (foundCursor || results.length < pageLimit || isBootstrap) break;
+            offset += pageLimit;
         }
 
-        return data.results?.[0]?.block_height || lastProcessedBlock;
+        if (newestEventId && newestEventId !== lastEventId) {
+            setStacksCursor({
+                lastEventId: newestEventId,
+                lastBlock: newestBlock ?? lastProcessedBlock,
+            });
+        }
+
+        return newestBlock || lastProcessedBlock;
     } catch (error) {
         console.error('Error polling burn events:', error.message);
         return lastProcessedBlock;
     }
+}
+
+function getCursorEventId(event) {
+    if (!event) return null;
+    return event.tx_id || event.txid || null;
 }
 
 /**

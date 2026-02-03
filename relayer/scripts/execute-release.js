@@ -10,7 +10,7 @@ import { createPublicClient, createWalletClient, http } from 'viem';
 import { baseSepolia } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
 
-const BASE_RPC = process.env.BASE_RPC_URL || "https://base-sepolia.g.alchemy.com/v2/poHXZbv0T2Q6sgplkdhqf";
+const BASE_RPC = process.env.BASE_RPC_URL || "https://sepolia.base.org";
 const BRIDGE_ADDRESS = process.env.BRIDGE_BASE_ADDRESS || "0xFCDF3e427e4a4CF3E573762693B9a1bBb35C504B";
 
 // Bridge ABI

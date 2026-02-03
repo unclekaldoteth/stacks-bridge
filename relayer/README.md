@@ -55,6 +55,21 @@ npm install
 npm start
 ```
 
+## State Persistence
+
+The relayer stores processed event IDs and a Stacks cursor on disk to avoid
+duplicate processing across restarts.
+
+Defaults:
+- State file: `relayer/.relayer-state.json`
+- Retention: 7 days
+- Max events: 10,000
+
+Environment overrides:
+- `RELAYER_STATE_PATH` (custom file path)
+- `RELAYER_STATE_RETENTION_DAYS`
+- `RELAYER_STATE_MAX_EVENTS`
+
 ## Developer Docs
 
 See `docs/developer-api.md` for contract APIs, event payloads, and relayer flow details.
@@ -140,4 +155,3 @@ The `relayer/scripts/` directory contains utility scripts:
 | `execute-release.js` | Execute a release on Base |
 
 See [docs/developer-guides.md](../docs/developer-guides.md) for runbook workflows.
-

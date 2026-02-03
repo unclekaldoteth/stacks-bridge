@@ -126,14 +126,14 @@ In terminal F (simulate a burn event):
 
 ```bash
 cd relayer
-node scripts/simulate-burn-webhook.js
+WEBHOOK_AUTH_TOKEN=<same token used by the webhook server> node scripts/simulate-burn-webhook.js
 ```
 
 The simulator needs a valid EVM receiver address. It will use `BASE_ADDRESS` if set,
 or fall back to the `fundedUser` from `evm/deployments.local.json`.
 
 ```bash
-BASE_ADDRESS=<any local hardhat account> node scripts/simulate-burn-webhook.js
+BASE_ADDRESS=<any local hardhat account> WEBHOOK_AUTH_TOKEN=<same token used by the webhook server> node scripts/simulate-burn-webhook.js
 ```
 
 This queues a release on Base using the relayer signer. To approve/execute the latest release:

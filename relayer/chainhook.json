@@ -12,8 +12,8 @@
             },
             "then_that": {
                 "http_post": {
-                    "url": "https://jace-stylistic-renate.ngrok-free.dev/chainhook/burn",
-                    "authorization_header": "Bearer bridge-secret-token"
+                    "url": "https://your-domain.example/chainhook/burn",
+                    "authorization_header": "Bearer <your_webhook_auth_token>"
                 }
             },
             "start_block": 3713445,

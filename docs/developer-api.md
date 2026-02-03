@@ -294,7 +294,7 @@ Webhook server:
 ```env
 WEBHOOK_PORT=3000
 WEBHOOK_PORT_TRIES=5
-WEBHOOK_AUTH_TOKEN=bridge-secret-token
+WEBHOOK_AUTH_TOKEN=<your_webhook_auth_token>
 ```
 
 ## Examples

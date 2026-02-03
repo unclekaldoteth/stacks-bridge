@@ -5,7 +5,8 @@
 import { createPublicClient, createWalletClient, http, keccak256, toHex } from 'viem';
 import { baseSepolia, base } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
-import { BASE_CONFIG, BRIDGE_BASE_ABI, SIGNER_CONFIG, IS_MAINNET, POLLING } from './config.js';
+import { BASE_CONFIG, BRIDGE_BASE_ABI, SIGNER_CONFIG, IS_MAINNET } from './config.js';
+import { isDepositProcessed, markDepositProcessed } from './state.js';
 
 // Create clients
 const chain = IS_MAINNET ? base : baseSepolia;
@@ -40,8 +41,8 @@ export function initWalletClient() {
     return account.address;
 }
 
-// Track processed events to avoid duplicates
-const processedDeposits = new Set();
+// Track in-flight events to avoid duplicate processing within a poll window
+const processingDeposits = new Set();
 
 /**
  * Watch for Deposit events with auto-reconnect
@@ -61,8 +62,8 @@ export function watchDeposits(onDeposit) {
                 for (const log of logs) {
                     const eventId = `${log.transactionHash}-${log.logIndex}`;
 
-                    if (processedDeposits.has(eventId)) continue;
-                    processedDeposits.add(eventId);
+                    if (isDepositProcessed(eventId) || processingDeposits.has(eventId)) continue;
+                    processingDeposits.add(eventId);
 
                     const { from, amount, stacksAddress, timestamp } = log.args;
 
@@ -72,14 +73,30 @@ export function watchDeposits(onDeposit) {
                     console.log(`   To Stacks: ${stacksAddress}`);
                     console.log(`   TX: ${log.transactionHash}`);
 
-                    onDeposit({
+                    Promise.resolve(onDeposit({
                         from,
                         amount,
                         stacksAddress,
                         timestamp,
                         txHash: log.transactionHash,
                         blockNumber: log.blockNumber,
-                    });
+                    }))
+                        .then(() => {
+                            markDepositProcessed(eventId, {
+                                txHash: log.transactionHash,
+                                blockNumber: Number(log.blockNumber || 0),
+                                logIndex: log.logIndex,
+                            });
+                        })
+                        .catch((error) => {
+                            console.error(
+                                `   ❌ Failed to handle deposit ${log.transactionHash.slice(0, 10)}...`,
+                                error.message
+                            );
+                        })
+                        .finally(() => {
+                            processingDeposits.delete(eventId);
+                        });
                 }
             },
             onError: (error) => {

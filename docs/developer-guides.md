@@ -178,7 +178,7 @@ Repeat for `SIGNER_INDEX=2` and `SIGNER_INDEX=3` in separate processes.
 - `TimelockNotExpired` / `ERR-TIMELOCK-NOT-EXPIRED`: Wait for the delay or lower the amount for quicker tests.
 - `ExceedsHourlyLimit` / `ExceedsDailyLimit`: Reduce amount or wait for the time window to reset.
 - Stacks burns not detected: Check `STACKS_API_URL`/`STACKS_CORE_API_URL`, correct contract name, and network mode (`NETWORK`).
-- Reprocessing after restart: Relayer deduping is in-memory; restarts may re-handle past events.
+- Reprocessing after restart: Relayer persists processed events to `relayer/.relayer-state.json`. Delete the file to force a full reprocess.
 
 ## Deployment Checklists
 
@@ -218,6 +218,10 @@ Contracts:
 Relayer:
 
 - [ ] Set `NETWORK=mainnet` and mainnet RPC endpoints.
+
+## Security Runbooks
+
+- `docs/signer-rotation.md` - Rotate Base and Stacks signer keys safely.
 - [ ] Run 3 relayers with independent keys and separate hosts if possible.
 - [ ] Monitor release volume against rate limits.
 

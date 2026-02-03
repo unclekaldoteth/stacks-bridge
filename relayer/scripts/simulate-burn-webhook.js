@@ -5,7 +5,10 @@ import { fileURLToPath } from "node:url";
 
 const port = process.env.WEBHOOK_PORT || "3000";
 const webhookUrl = process.env.WEBHOOK_URL || `http://localhost:${port}/chainhook/burn`;
-const token = process.env.WEBHOOK_AUTH_TOKEN || "bridge-secret-token";
+const token = process.env.WEBHOOK_AUTH_TOKEN;
+if (!token) {
+    throw new Error("WEBHOOK_AUTH_TOKEN is required to simulate a burn webhook.");
+}
 
 const amountUsdc = process.env.AMOUNT_USDC || "100";
 const amountMicro = (BigInt(amountUsdc) * 1_000_000n).toString();

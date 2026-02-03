@@ -53,6 +53,7 @@ This project provides cheaper bridging for users by leveraging Base L2 instead o
 - Hardhat
 - Stacks wallet (Leather or Xverse)
 - MetaMask (for Base)
+- pre-commit (recommended for secret scanning)
 
 ### Quick Start
 
@@ -77,6 +78,14 @@ cp .env.example .env
 # Edit .env with your configuration
 npm start
 ```
+
+### Secret Scanning (Recommended)
+
+Install the pre-commit hook to catch secrets before they land in git history:
+
+1. Install pre-commit (`pipx install pre-commit` or `brew install pre-commit`).
+2. Run `pre-commit install`.
+3. Optional: run `pre-commit run --all-files`.
 
 ## Architecture Overview
 
